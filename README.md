@@ -10,17 +10,25 @@ Es una carpeta **colaborativa** para compartir los trabajos de la materia junto 
 
 ```
 ED2/
-├── README.md          # este archivo
-├── ejercicios/        # ejercicios de la materia
+├── README.md              # este archivo
+├── ejercicios/            # ejercicios de la materia
 │   ├── ejercicio01/
 │   ├── ejercicio02/
 │   ├── ejercicio03/
 │   └── ejercicio04/
-├── TAREAS/            # tareas de la materia
-└── guias/             # guías y material teórico
+├── TAREAS/                # tareas de la materia
+└── trabajos_practicos/    # trabajos prácticos de la materia
 ```
 
 ## Estructura de archivos
+
+El repositorio está dividido en **3 apartados**:
+
+| Apartado | Carpeta | Contenido |
+|----------|---------|-----------|
+| Ejercicios | `ejercicios/` | Ejercicios de la materia |
+| Tareas | `TAREAS/` | Tareas de la materia |
+| Trabajos Prácticos | `trabajos_practicos/` | Trabajos prácticos de la materia |
 
 Cada ejercicio/tarea debe incluir:
 
