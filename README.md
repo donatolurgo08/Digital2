@@ -31,7 +31,7 @@ Cada ejercicio/tarea debe incluir:
 
 ## Convención de nombres
 
-Para evitar que los archivos se pisen entre integrantes, agregar el nombre de quien lo hizo:
+Para evitar que los archivos se pisen entre participantes, agregar el nombre de quien lo hizo:
 
 ```
 Tarea_1_Nombre.asm
