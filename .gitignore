@@ -1,6 +1,5 @@
 # PIC / MPLAB build artifacts
 *.elf
-*.hex
 *.d
 *.cmf
 *.hxl
