@@ -1,0 +1,13 @@
+# PIC / MPLAB build artifacts
+*.elf
+*.hex
+*.d
+*.cmf
+*.hxl
+*.i
+*.sdb
+*.sym
+*.o
+elf/
+hex/
+intermedios/
