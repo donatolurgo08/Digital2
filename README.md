@@ -25,10 +25,6 @@ ED2/
 │   ├── Teorico/
 │   └── Practico/
 ├── Ejercicios/              # ejercicios de la materia
-│   ├── ejercicio01/
-│   ├── ejercicio02/
-│   ├── ejercicio03/
-│   └── ejercicio04/
 ├── parciales/               # parciales
 ├── Tareas/                  # tareas de la materia
 └── Trabajos practicos/      # trabajos prácticos de la materia
