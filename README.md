@@ -6,29 +6,48 @@ Es una carpeta **colaborativa** para compartir los trabajos de la materia junto 
 
 ---
 
+## Índice
+
+- [Apuntes](./Apuntes)
+- [Diapositivas de clase](./Diapositivas%20de%20clase)
+  - [Teorico](./Diapositivas%20de%20clase/Teorico)
+  - [Practico](./Diapositivas%20de%20clase/Practico)
+- [Ejercicios](./Ejercicios)
+- [Parciales](./parciales)
+- [Tareas](./Tareas)
+- [Trabajos practicos](./Trabajos%20practicos)
+
 ## Contenido
 
 ```
 ED2/
-├── README.md              # este archivo
+├── README.md                # este archivo
+├── Apuntes/                 # apuntes y material de estudio
+├── Diapositivas de clase/   # diapositivas de clase
+│   ├── Teorico/
+│   └── Practico/
 ├── Ejercicios/              # ejercicios de la materia
 │   ├── ejercicio01/
 │   ├── ejercicio02/
 │   ├── ejercicio03/
 │   └── ejercicio04/
+├── parciales/               # parciales
 ├── Tareas/                  # tareas de la materia
 └── Trabajos practicos/      # trabajos prácticos de la materia
 ```
 
 ## Estructura de archivos
 
-El repositorio está dividido en **3 apartados**:
+El repositorio está dividido en apartados:
 
 | Apartado | Carpeta | Contenido |
 |----------|---------|-----------|
-| Ejercicios | `Ejercicios/` | Ejercicios de la materia |
-| Tareas | `Tareas/` | Tareas de la materia |
-| Trabajos Prácticos | `Trabajos practicos/` | Trabajos prácticos de la materia |
+| Apuntes | [`Apuntes/`](./Apuntes) | Apuntes y material de estudio |
+| Diapositivas de clase | [`Diapositivas de clase/`](./Diapositivas%20de%20clase) | Diapositivas teóricas y prácticas |
+| Ejercicios | [`Ejercicios/`](./Ejercicios) | Ejercicios de la materia |
+| Parciales | [`parciales/`](./parciales) | Parciales |
+| Tareas | [`Tareas/`](./Tareas) | Tareas de la materia |
+| Trabajos Prácticos | [`Trabajos practicos/`](./Trabajos%20practicos) | Trabajos prácticos de la materia |
 
 Cada ejercicio/tarea debe incluir:
 
