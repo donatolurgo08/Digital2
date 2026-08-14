@@ -10,8 +10,6 @@ Es una carpeta **colaborativa** para compartir los trabajos de la materia junto 
 
 - [Apuntes](./Apuntes)
 - [Diapositivas de clase](./Diapositivas%20de%20clase)
-  - [Teorico](./Diapositivas%20de%20clase/Teorico)
-  - [Practico](./Diapositivas%20de%20clase/Practico)
 - [Ejercicios](./Ejercicios)
 - [Parciales](./parciales)
 - [Tareas](./Tareas)
