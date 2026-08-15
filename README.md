@@ -1,4 +1,4 @@
-# Digital2
+# Electronica digital 2
 
 Repositorio (carpeta) para subir todo tipo de material útil de la materia **Electrónica Digital 2**.
 
