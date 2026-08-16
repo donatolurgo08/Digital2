@@ -4,29 +4,21 @@
 ; @author     Lurgo Donato
 ;
 ; @date       13/8/2026
+;
+; @version    1.0
+;===============================================================================
 
 ;===============================================================================
 ; DIRECTIVAS DE INCLUSION
 ;===============================================================================
-PROCESSOR 16F887
-#include <xc.inc>
+LIST P=16F887
+#include "p16f887.inc"
 
 ;===============================================================================
 ; CONFIGURACION GENERAL DEL MCU
 ;===============================================================================
-CONFIG FOSC = INTRC_NOCLKOUT
-CONFIG WDTE = OFF
-CONFIG PWRTE = ON
-CONFIG MCLRE = ON
-CONFIG CP = OFF
-CONFIG CPD = OFF
-CONFIG BOREN = ON
-CONFIG IESO = OFF
-CONFIG FCMEN = OFF
-CONFIG LVP = OFF
-
-CONFIG BOR4V = BOR40V
-CONFIG WRT = OFF
+__CONFIG _CONFIG1, _FOSC_INTRC_NOCLKOUT & _WDTE_OFF & _PWRTE_ON & _MCLRE_ON & _CP_OFF & _CPD_OFF & _BOREN_ON & _IESO_OFF & _FCMEN_OFF & _LVP_OFF
+__CONFIG _CONFIG2, _BOR4V_BOR40V & _WRT_OFF
 
 ;===============================================================================
 ; DEFINICION DE CONSTANTES
@@ -39,30 +31,25 @@ TIEMPO  EQU     200
 ;===============================================================================
 ; DEFINICION DE VARIABLES
 ;===============================================================================
-; Variable en RAM comun (0x70-0x7F), accesible sin BANKSEL
-PSECT udata_shr,class=COMMON
-
-contador:
-    DS  1
+; Variable en RAM comun (0x70-0x7F), accesible sin cambiar de banco
+contador   EQU  0x70
 
 ;===============================================================================
 ; DECLARACION DE MACROS PARA CONFIGURACION DE REGISTROS
 ;===============================================================================
 
 ;===============================================================================
-; INICIALIZACION DEL MCU (VECTOR DE RESET)
+; INICIALIZACION DEL MCU (CODIGO ABSOLUTO)
 ;===============================================================================
-PSECT resetVec,class=CODE,delta=2
+    ORG     0x00        ; Vector de Reset
+    GOTO    INICIO      ; Salto al inicio del programa principal
 
-resetVec:
-    GOTO    INICIO
+    ORG     0x05        ; Ubicacion del programa principal
 
 ;===============================================================================
 ; INICIALIZACION DE MACROS PARA CONFIGURACION DE REGISTROS
 ;===============================================================================
-PSECT code
-
-INICIO:
+INICIO
     ;-----Inicializacion de Macros-------
     ; Puerto B como salida
     BANKSEL TRISB
@@ -74,7 +61,7 @@ INICIO:
 ;===============================================================================
 ; INICIO PROGRAMA PRINCIPAL
 ;===============================================================================
-MAIN_LOOP:
+MAIN_LOOP
     ; Encender LEDs de Puerto B
     MOVLW   0xFF
     MOVWF   PORTB
@@ -103,11 +90,11 @@ MAIN_LOOP:
 ;           Cada pasada del bucle (NOP + NOP + DECFSZ + GOTO) = 5 ciclos.
 ;           Contador = 200 -> 200 * 5 = 1000 ciclos = 1 ms.
 ;*******************************************************************************
-retardo_1ms:
+retardo_1ms
     MOVLW   TIEMPO          ; contador = 200
     MOVWF   contador
 
-bucle_retardo:
+bucle_retardo
     NOP
     NOP
     DECFSZ  contador, F     ; decrementa; salta si llega a 0
@@ -116,4 +103,5 @@ bucle_retardo:
     RETURN
 
 ;===============================================================================
-    END resetVec
+    END
+;===============================================================================
