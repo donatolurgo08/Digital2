@@ -4,116 +4,121 @@
 ; @author     Lurgo Donato
 ;
 ; @date       13/8/2026
+;
+; @brief      Parpadeo de los 8 LEDs del PORTB.
+;             Enciende todos los LEDs 500 ms y los apaga 500 ms,
+;             formando un parpadeo visible (aprox. 1 Hz).
+;===============================================================================
 
 ;===============================================================================
-; DIRECTIVAS DE INCLUSION
+; CONFIGURACION DEL PIC16F887
 ;===============================================================================
+
+; CONFIG1
+CONFIG FOSC = INTRC_NOCLKOUT  ; oscilador interno 4 MHz
+CONFIG WDTE = OFF             ; sin Watchdog
+CONFIG PWRTE = ON             ; espera de arranque
+CONFIG MCLRE = ON             ; pin MCLR como reset
+CONFIG CP = OFF               ; sin proteccion de codigo
+CONFIG CPD = OFF              ; sin proteccion de datos
+CONFIG BOREN = ON             ; Brown-out detectado
+CONFIG IESO = OFF
+CONFIG FCMEN = OFF
+CONFIG LVP = OFF              ; sin programacion de bajo voltaje
+
+; CONFIG2
+CONFIG BOR4V = BOR40V
+CONFIG WRT = OFF
+
 PROCESSOR 16F887
 #include <xc.inc>
 
 ;===============================================================================
-; CONFIGURACION GENERAL DEL MCU
+; VARIABLES EN RAM
 ;===============================================================================
-CONFIG FOSC = INTRC_NOCLKOUT
-CONFIG WDTE = OFF
-CONFIG PWRTE = ON
-CONFIG MCLRE = ON
-CONFIG CP = OFF
-CONFIG CPD = OFF
-CONFIG BOREN = ON
-CONFIG IESO = OFF
-CONFIG FCMEN = OFF
-CONFIG LVP = OFF
-
-CONFIG BOR4V = BOR40V
-CONFIG WRT = OFF
-
-;===============================================================================
-; DEFINICION DE CONSTANTES
-;===============================================================================
-; Retardo: cristal 4 MHz -> instruccion = 1 us -> 1 ms = 1000 ciclos
-; Cada pasada del bucle (NOP+NOP+DECFSZ+GOTO) = 5 ciclos
-; Contador = 200 -> 200 * 5 = 1000 ciclos = 1 ms
-TIEMPO  EQU     200
-
-;===============================================================================
-; DEFINICION DE VARIABLES
-;===============================================================================
-; Variable en RAM comun (0x70-0x7F), accesible sin BANKSEL
+; Variable en memoria compartida (0x70-0x7F), accesible sin cambiar de banco
 PSECT udata_shr,class=COMMON
 
 contador:
     DS  1
 
 ;===============================================================================
-; DECLARACION DE MACROS PARA CONFIGURACION DE REGISTROS
+; VECTOR DE RESET
 ;===============================================================================
 
-;===============================================================================
-; INICIALIZACION DEL MCU (VECTOR DE RESET)
-;===============================================================================
 PSECT resetVec,class=CODE,delta=2
 
 resetVec:
-    GOTO    INICIO
+    goto    main
 
 ;===============================================================================
-; INICIALIZACION DE MACROS PARA CONFIGURACION DE REGISTROS
+; PROGRAMA PRINCIPAL
 ;===============================================================================
+
 PSECT code
 
-INICIO:
-    ;-----Inicializacion de Macros-------
-    ; Puerto B como salida
+main:
+
+    ;------------------------------------------------
+    ; Inicializacion: PORTB como salida
+    ;------------------------------------------------
     BANKSEL TRISB
-    CLRF    TRISB
+    CLRF    TRISB           ; todos los pines de PORTB como salida
 
     BANKSEL PORTB
-    CLRF    PORTB
+    CLRF    PORTB           ; apaga todos los LEDs al inicio
 
-;===============================================================================
-; INICIO PROGRAMA PRINCIPAL
-;===============================================================================
-MAIN_LOOP:
-    ; Encender LEDs de Puerto B
+    ;------------------------------------------------
+    ; Bucle principal: parpadeo de LEDs
+    ;------------------------------------------------
+loop:
     MOVLW   0xFF
-    MOVWF   PORTB
+    MOVWF   PORTB           ; enciende los 8 LEDs
 
-    ; Retardo de 1 ms
-    CALL    retardo_1ms
+    CALL    retardo_500ms   ; espera 500 ms
 
-    ; Apagar LEDs de Puerto B
-    BANKSEL PORTB
-    CLRF    PORTB
+    CLRF    PORTB           ; apaga los 8 LEDs
 
-    ; Retardo de 1 ms
-    CALL    retardo_1ms
+    CALL    retardo_500ms   ; espera 500 ms
 
-    GOTO    MAIN_LOOP
+    GOTO    loop            ; repite para siempre
 
 ;===============================================================================
-; SUBRUTINAS
+; SUBRUTINAS DE RETARDO
 ;===============================================================================
-;*******************************************************************************
-; @brief    Retardo por software de 1 ms con 1 bucle.
-;
-; @details  Cristal 4 MHz -> clock de instruccion = FOSC/4 = 1 MHz
-;           -> 1 instruccion = 1 us
-;           -> 1 ms = 1000 us = 1000 ciclos de instruccion.
-;           Cada pasada del bucle (NOP + NOP + DECFSZ + GOTO) = 5 ciclos.
-;           Contador = 200 -> 200 * 5 = 1000 ciclos = 1 ms.
-;*******************************************************************************
+
+;-------------------------------------------------------------------------------
+; Retardo de 1 ms (base, igual que en la clase practica)
+; Oscilador 4 MHz -> 1 instruccion = 1 us -> 1 ms = 1000 ciclos
+; Bucle: (NOP + NOP + DECFSZ + GOTO) = 5 ciclos -> 200 * 5 = 1000 ciclos
+;-------------------------------------------------------------------------------
 retardo_1ms:
-    MOVLW   TIEMPO          ; contador = 200
+    MOVLW   200             ; contador = 200
     MOVWF   contador
 
 bucle_retardo:
     NOP
     NOP
-    DECFSZ  contador, F     ; decrementa; salta si llega a 0
+    DECFSZ  contador, F     ; decrementa; salta cuando llega a 0
     GOTO    bucle_retardo
 
     RETURN
 
+;-------------------------------------------------------------------------------
+; Retardo de 500 ms
+; Llama 500 veces al retardo de 1 ms (500 * 1 ms = 500 ms)
+;-------------------------------------------------------------------------------
+retardo_500ms:
+    MOVLW   500             ; repetir 500 veces
+    MOVWF   contador
+
+bucle_500ms:
+    CALL    retardo_1ms     ; espera 1 ms
+    DECFSZ  contador, F     ; decrementa; sale cuando llega a 0
+    GOTO    bucle_500ms
+
+    RETURN
+
 ;===============================================================================
-    END resetVec
+
+END resetVec
