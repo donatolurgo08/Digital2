@@ -66,6 +66,44 @@ Con el LED encendido, medir con multímetro:
 Verificar también que el **periodo de intermitencia sea 2 s** (osciloscopio o
 cronómetro).
 
+## Cargar el programa con el bootloader
+
+El bootloader es un mini-programa que ya viene grabado en el PIC y permite
+cargar el firmware `.hex` por USB, sin necesidad de un grabador externo (Pickit).
+
+### Requisitos
+
+- El archivo `TPL1.hex` (compilado).
+- Cable USB (o USB-UART) que conecta la placa a la PC.
+- Software del bootloader (AN1310 Serial Bootloader, TinyBootloader o el de la placa).
+
+### Pasos
+
+1. Conectar la placa a la PC con el cable USB.
+2. Abrir el software del bootloader.
+3. Seleccionar el **puerto COM** correcto
+   (Windows: Administrador de dispositivos → Puertos COM y LPT).
+4. Poner el PIC en **modo bootloader**:
+   - Presionar **Reset** mientras el software espera, o
+   - el PIC entra solo en modo bootloader durante unos segundos tras encenderse.
+   - El software debe mostrar "Connected" / "Found PIC16F887".
+5. Abrir el archivo: botón **Open** / **Open Hex** → seleccionar `TPL1.hex`.
+6. Grabar: botón **Write** / **Write Flash** / **Program**.
+7. Ejecutar: botón **Run** / **Run application** (o reset).
+   - Si todo salió bien, el LED en RC0 parpadea (1 s on / 1 s off).
+
+### Datos típicos de comunicación
+
+- Baudrate: normalmente **9600** o **115200** (según el bootloader).
+- Pines UART del PIC (si la conexión es por cable USB-UART): **RC6/TX** y **RC7/RX**.
+
+### Advertencias
+
+- El PIC permanece en modo bootloader **solo unos segundos** tras el reset:
+  hay que hacer el **Write** dentro de esa ventana de tiempo.
+- **No** usar un grabador ICSP (Pickit) para programas comunes: puede
+  **borrar el bootloader** del PIC y dejar de poder cargar por USB.
+
 ## Compilación
 
 Desde la carpeta `TP1`:
