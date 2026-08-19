@@ -18,7 +18,7 @@ está vivo haciendo parpadear un LED sobre un pin configurado como salida digita
 
 | Archivo       | Descripción                                  |
 |---------------|----------------------------------------------|
-| `TPL1.asm`    | Código fuente en Assembly (pic-as / XC8)    |
+| `TPL1.S`      | Código fuente en Assembly (pic-as / XC8)    |
 | `TPL1.hex`    | Firmware compilado para cargar por bootloader|
 
 ## Cálculo de la resistencia limitadora (R3)
@@ -71,8 +71,5 @@ cronómetro).
 Desde la carpeta `TP1`:
 
 ```
-pic-as -mcpu=16F887 -mdfp=<DFP> -Wl,-presetVec=0h -xassembler-with-cpp -o TPL1.hex TPL1.asm
+pic-as -mcpu=16F887 -mdfp=<DFP> -Wl,-presetVec=0h -o TPL1.hex TPL1.S
 ```
-
-> Nota: la opción `-xassembler-with-cpp` es necesaria para que pic-as preprocese
-> el `#include <xc.inc>` en archivos con extensión `.asm`.
