@@ -69,33 +69,51 @@ cronómetro).
 ## Cargar el programa con el bootloader
 
 El bootloader es un mini-programa que ya viene grabado en el PIC y permite
-cargar el firmware `.hex` por USB, sin necesidad de un grabador externo (Pickit).
+cargar el firmware `.hex` sin necesidad de un grabador externo (Pickit).
 
-### Requisitos
+**Importante:** el PIC16F887 no tiene puerto USB. Para comunicar la PC con el
+PIC se necesita un **adaptador USB-UART** externo (módulo CP2102, CH340 o FTDI),
+que aparece como un puerto COM en Windows.
 
-- El archivo `TPL1.hex` (compilado).
-- Cable USB (o USB-UART) que conecta la placa a la PC.
+### Materiales
+
+- `TPL1.hex` (compilado).
+- **Adaptador USB-UART** (CP2102 / CH340 / FTDI).
+- Cable USB para conectar el adaptador a la PC.
 - Software del bootloader (AN1310 Serial Bootloader, TinyBootloader o el de la placa).
+
+### Conexión del adaptador al PIC
+
+| Adaptador USB-UART | PIC16F887 |
+|--------------------|-----------|
+| TXD                | RC7/RX    |
+| RXD                | RC6/TX    |
+| GND                | GND       |
+
+> Las líneas van **cruzadas** (TX→RX y RX→TX). Conectar también el **GND común**
+> entre adaptador y placa.
 
 ### Pasos
 
-1. Conectar la placa a la PC con el cable USB.
-2. Abrir el software del bootloader.
-3. Seleccionar el **puerto COM** correcto
-   (Windows: Administrador de dispositivos → Puertos COM y LPT).
-4. Poner el PIC en **modo bootloader**:
+1. Conectar el adaptador USB-UART a la PC con el cable USB.
+   Windows instala el driver y le asigna un **puerto COM** (ej. COM3).
+   (Administrador de dispositivos → Puertos COM y LPT).
+2. Conectar el adaptador al PIC según la tabla: TXD→RC7, RXD→RC6, GND→GND.
+3. Abrir el software del bootloader y seleccionar el **puerto COM** asignado.
+4. Configurar el **baudrate** (ver abajo).
+5. Poner el PIC en **modo bootloader**:
    - Presionar **Reset** mientras el software espera, o
    - el PIC entra solo en modo bootloader durante unos segundos tras encenderse.
    - El software debe mostrar "Connected" / "Found PIC16F887".
-5. Abrir el archivo: botón **Open** / **Open Hex** → seleccionar `TPL1.hex`.
-6. Grabar: botón **Write** / **Write Flash** / **Program**.
-7. Ejecutar: botón **Run** / **Run application** (o reset).
+6. Abrir el archivo: botón **Open** / **Open Hex** → seleccionar `TPL1.hex`.
+7. Grabar: botón **Write** / **Write Flash** / **Program**.
+8. Ejecutar: botón **Run** / **Run application** (o reset).
    - Si todo salió bien, el LED en RC0 parpadea (1 s on / 1 s off).
 
 ### Datos típicos de comunicación
 
 - Baudrate: normalmente **9600** o **115200** (según el bootloader).
-- Pines UART del PIC (si la conexión es por cable USB-UART): **RC6/TX** y **RC7/RX**.
+- Pines UART del PIC: **RC6/TX** y **RC7/RX**.
 
 ### Advertencias
 
