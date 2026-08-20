@@ -11,7 +11,7 @@ Es una carpeta **colaborativa** para compartir los trabajos de la materia junto 
 - [Apuntes](./Apuntes)
 - [Diapositivas de clase](./Diapositivas%20de%20clase)
 - [Ejercicios](./Ejercicios)
-- [Parciales](./parciales)
+- [Parciales](./Parciales)
 - [Tareas](./Tareas)
 - [Trabajos practicos](./Trabajos%20practicos)
 
@@ -39,7 +39,7 @@ El repositorio está dividido en apartados:
 | Apuntes | [`Apuntes/`](./Apuntes) | Apuntes y material de estudio |
 | Diapositivas de clase | [`Diapositivas de clase/`](./Diapositivas%20de%20clase) | Diapositivas teóricas y prácticas |
 | Ejercicios | [`Ejercicios/`](./Ejercicios) | Ejercicios de la materia |
-| Parciales | [`parciales/`](./parciales) | Parciales |
+| Parciales | [`Parciales/`](./Parciales) | Parciales |
 | Tareas | [`Tareas/`](./Tareas) | Tareas de la materia |
 | Trabajos Prácticos | [`Trabajos practicos/`](./Trabajos%20practicos) | Trabajos prácticos de la materia |
 
