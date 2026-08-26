@@ -42,8 +42,6 @@ El repositorio en esta rama contiene unicamente los Trabajos Practicos:
 | Apartado | Carpeta | Contenido |
 |----------|---------|-----------|
 | Trabajos Practicos | [`Trabajos Practicos/`](./Trabajos%20Practicos) | Trabajos practicos de la materia |
-| TP1 | [`Tp1/`](./Trabajos%20Practicos/Tp1) | Consigna, codigo fuente y .hex del TP1 |
-| TP2 | [`Tp2/`](./Trabajos%20Practicos/Tp2) | Trabajo practico 2 (en desarrollo) |
 
 Cada TP debe incluir:
 
