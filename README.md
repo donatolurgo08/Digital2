@@ -20,45 +20,34 @@ Esta rama es una linea de trabajo **separada del main**, creada para avanzar en 
 
 ## Indice
 
-- [Apuntes](./Apuntes)
-- [Diapositivas de clase](./Diapositivas%20de%20clase)
-- [Ejercicios](./Ejercicios)
-- [Parciales](./Parciales)
-- [Tareas](./Tareas)
 - [Trabajos Practicos](./Trabajos%20Practicos)
+  - [Tp1](./Trabajos%20Practicos/Tp1)
+  - [Tp2](./Trabajos%20Practicos/Tp2)
 
 ## Contenido
 
 ```
 ED2/
 ├── README.md                # este archivo
-├── Apuntes/                 # apuntes y material de estudio
-├── Diapositivas de clase/   # diapositivas de clase
-│   ├── Teorico/
-│   └── Practico/
-├── Ejercicios/              # ejercicios de la materia
-├── Parciales/               # parciales
-├── Tareas/                  # tareas de la materia
+├── .gitignore
 └── Trabajos Practicos/      # trabajos practicos de la materia
-    ├── Tp1/
-    └── Tp2/
+    ├── Tp1/                 # TP1 (consigna, codigo y .hex)
+    └── Tp2/                 # TP2 (en desarrollo)
 ```
 
 ## Estructura de archivos
 
-El repositorio esta dividido en apartados:
+El repositorio en esta rama contiene unicamente los Trabajos Practicos:
 
 | Apartado | Carpeta | Contenido |
 |----------|---------|-----------|
-| Apuntes | [`Apuntes/`](./Apuntes) | Apuntes y material de estudio |
-| Diapositivas de clase | [`Diapositivas de clase/`](./Diapositivas%20de%20clase) | Diapositivas teoricas y practicas |
-| Ejercicios | [`Ejercicios/`](./Ejercicios) | Ejercicios de la materia |
-| Parciales | [`Parciales/`](./Parciales) | Parciales |
-| Tareas | [`Tareas/`](./Tareas) | Tareas de la materia |
 | Trabajos Practicos | [`Trabajos Practicos/`](./Trabajos%20Practicos) | Trabajos practicos de la materia |
+| TP1 | [`Tp1/`](./Trabajos%20Practicos/Tp1) | Consigna, codigo fuente y .hex del TP1 |
+| TP2 | [`Tp2/`](./Trabajos%20Practicos/Tp2) | Trabajo practico 2 (en desarrollo) |
 
-Cada ejercicio/tarea debe incluir:
+Cada TP debe incluir:
 
+- La **consigna**: `.pdf`
 - El **codigo fuente**: `.S`, `.asm` o `.c`
 - El **archivo .hex** compilado, para poder ejecutarlo en MPLAB
 
@@ -66,11 +55,11 @@ Cada ejercicio/tarea debe incluir:
 
 ## Convencion de nombres
 
-Para evitar que los archivos se pisen entre participantes, agregar el nombre de quien lo hizo:
+Para evitar que los archivos se pisen entre participantes, organizar cada TP en su propia carpeta (`Tp1/`, `Tp2/`, ...) y agregar el nombre de quien lo hizo cuando corresponda:
 
 ```
-Tarea_1_Nombre.asm
-Ejercicio3_Nombre.S
+Tp1/TPL1_Nombre.S
+Tp2/TPL2_Nombre.S
 ```
 
 ## Como colaborar
