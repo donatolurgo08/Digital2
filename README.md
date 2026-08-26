@@ -1,4 +1,4 @@
-# Electronica digital 2
+# Electronica digital 2 (Co-Work)
 
 Repositorio (carpeta) para subir todo tipo de material util de la materia **Electronica Digital 2**.
 
