@@ -298,6 +298,45 @@ LOOP_BRL
 
 RETURN
 ;*******************************************************************************
+; @brief    Efecto de arrastre(Crawling)
+;
+; @details  Ejecuta el encendido (Progressive_Led_On) y apagado (Progressive_Led_Off)
+;           de los leds, repitiendo la secuencia tres veces (Counter_Secuences),
+;           con una intermitencia de 100ms.     
+;*******************************************************************************
+SUBROUTINE
+CRAWLING
+        CFG_DELAY_100ms
+        LEDS_OFF
+LOOP_CW
+        CALL PROGRESSIVE_LED_ON
+        CALL PROGRESSIVE_LED_OFF
+        DECF COUNTER_SECUENCES, F ; resta uno al contador de repeticiones
+        BTFSS STATUS,Z  ; FLAG seteado(igual a 1)?
+        GOTO LOOP_CW ; NO -> se repite el barrido
+        CFG_SECUENCES ; SI -> el contador llego a 0, es decir, se repitió 3 veces
+
+RETURN
+;*******************************************************************************
+; @brief    Barrido hacia la derecha (Forward_Led)
+;
+; @details  Enciende los leds de forma progresiva de LED0 a LED7, generando el
+;           efecto de barrido hacia la derecha.
+;               
+;*******************************************************************************
+SUBROUTINE
+FORWARD_LED
+        BSF STATUS, C ; setea el LED0 
+        
+FW_LOOP
+       LEDS_RLF ; desplaza el led encendido una posición a la derecha (LED0->LED1...)
+       CALL DELAY_3LOOP ;llama al delay
+       BTFSS LED7 ; LED7=ON?
+       GOTO FW_LOOP ; NO-> repite el barrido
+      RETURN ; SI-> termina
+
+RETURN
+;*******************************************************************************
 ; @brief    Encendido progresivo de los LEDs (Crawling ON).
 ;
 ; @details  Enciende los LEDs secuencialmente ingresando unos lógicos desde
