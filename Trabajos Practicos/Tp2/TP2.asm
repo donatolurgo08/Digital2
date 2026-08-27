@@ -191,6 +191,36 @@ MAIN_LOOP
 ; SUBRUTINAS
 ;===============================================================================
 ;*******************************************************************************
+; @brief    Genera un retardo mediante tres bucles anidados.
+;
+; @details  Utiliza DELAY1_Init, DELAY2_Init y DELAY3_Init como
+;           valores iniciales y DELAY1, DELAY2 y DELAY3 como contadores.
+;*******************************************************************************
+
+DELAY_3LOOP
+    MOVF    DELAY1_Init,W       ; Copia el valor inicial del contador 1 a W
+    MOVWF   DELAY1              ; Inicia el contador 1
+
+LOOP1
+    MOVF    DELAY2_Init,W       ; Copia el valor inicial del contador 2 a W
+    MOVWF   DELAY2              ; Inicia el contador 2
+
+LOOP2
+    MOVF    DELAY3_Init,W       ; Copia el valor inicial del contador 3 a W
+    MOVWF   DELAY3              ; Inicia el contador 3
+
+LOOP3
+    DECFSZ  DELAY3,F            ; Decrementa el contador 3
+    GOTO    LOOP3               ; Repite hasta que DELAY3 llegue a 0
+
+    DECFSZ  DELAY2,F            ; Decrementa el contador 2
+    GOTO    LOOP2               ; Vuelve a cargar DELAY3 y repetir
+
+    DECFSZ  DELAY1,F            ; Decrementa el contador 1
+    GOTO    LOOP1               ; Vuelve a cargar DELAY2 y DELAY3
+
+    RETURN                      ; Termina el delay y vuelve al CALL
+;*******************************************************************************
 ; @brief    Testeo de hardware para los 8 LEDs
 ;
 ; @details  Ejecuta un parpadeo sincronizado para los 8 LEDs, cumpliendo un
