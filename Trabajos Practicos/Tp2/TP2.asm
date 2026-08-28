@@ -1,5 +1,4 @@
-;===============================================================================
-; @file       G6_TPL2_ED2.asm
+;===============================================================================; @file       G6_TPL2_ED2.asm
 ;
 ; @author     Conde_Ana_Victoria
 ;	      Lauc_Mirko_Gaston
@@ -128,6 +127,7 @@ CFG_DELAY_100ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'167'
         MOVWF   DELAY3_Init
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_200ms MACRO
         MOVLW   D'5'
@@ -136,6 +136,7 @@ CFG_DELAY_200ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'139'
         MOVWF   DELAY3_Init
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_300ms MACRO
         MOVLW   D'5'
@@ -144,6 +145,7 @@ CFG_DELAY_300ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'117'
         MOVWF   DELAY3_Init
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_1s MACRO
         MOVLW   D'46'
@@ -152,6 +154,7 @@ CFG_DELAY_1s MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'37'
         MOVWF   DELAY3_Init
+        ENDM
 ;===============================================================================
 ; INICIALIZACION DEL MCU (CODIGO ABSOLUTO)
 ;===============================================================================
