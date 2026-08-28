@@ -73,13 +73,12 @@ CFG_LEDS MACRO
 ENDM
 ;_______________________________________________________________________________
 LEDS_ON MACRO
-        MOVLW   b'11111111'     ; Decirle a gemini q corriga este codigo
+        MOVLW   b'11111111'
         MOVWF   PORTD
 ENDM
 ;-------------------------------------------------------------------------------
 LEDS_OFF MACRO
-        CLRF    PORTD           ; Rota los bits del Puerto D a la izquierda
-;                                 a través del carry
+        CLRF    PORTD
 ENDM
 ;-------------------------------------------------------------------------------
 LEDS_RLF MACRO
@@ -88,7 +87,8 @@ LEDS_RLF MACRO
 ENDM
 ;-------------------------------------------------------------------------------
 LEDS_RRF MACRO
-        RRF     PORTD,  F       ;mover todo a la derecha ->
+        RRF     PORTD,  F       ; Rota los bits del Puerto D a la izquierda
+;                                 a través del carry
 ENDM
 ;_______________________________________________________________________________
 CFG_BUZZER MACRO
@@ -240,10 +240,10 @@ RETURN
 ;*******************************************************************************
 ;
 BUZZER_BIP
-        BUZZER_ON               ;Macro que enciende el puerto RC0
+        BUZZER_ON               ; Macro que enciende el puerto RC0
         CFG_DELAY_200ms
         CALL    DELAY_3LOOP
-        BUZZER_OFF              ;Macro que apaga el puerto RC0
+        BUZZER_OFF              ; Macro que apaga el puerto RC0
 RETURN
 ;
 ;*******************************************************************************
@@ -292,11 +292,9 @@ BIDIR_RUNNING_LIGHT
 LOOP_BRL
         CALL    FORWARD_LED
         CALL    BACKWARD_LED
-        DECF    COUNTER_SECUENCES, F ;resta uno al contador de repeticiones
-        BTFSS   STATUS, Z            ;FLAG seteado(igual a 1)?
-        GOTO    LOOP_BRL             ;NO -> se repite el barrido
+        DECFSZ    COUNTER_SECUENCES, F
+        GOTO    LOOP_BRL
         CFG_SECUENCES
-;                                     SI -> el contador llego a 0, es decir, se repitió 3 veces
 RETURN
 ;
 ;*******************************************************************************
@@ -313,11 +311,9 @@ CRAWLING
 LOOP_CW
         CALL    PROGRESSIVE_LED_ON
         CALL    PROGRESSIVE_LED_OFF
-        DECF    COUNTER_SECUENCES, F ;resta uno al contador de repeticiones
-        BTFSS   STATUS,Z             ;FLAG seteado(igual a 1)?
-        GOTO    LOOP_CW              ;NO -> se repite el barrido
+        DECFSZ    COUNTER_SECUENCES, F
+        GOTO    LOOP_CW
         CFG_SECUENCES
-;                                     SI -> el contador llego a 0, es decir, se repitió 3 veces
 RETURN
 ;
 ;*******************************************************************************
@@ -330,12 +326,10 @@ RETURN
 ;
 FORWARD_LED
         BSF     STATUS, C       ; Setea el carry en 1 para ingresar el primer LED
-
 FW_LOOP
        LEDS_RLF                 ; Desplaza el led encendido una posición a la derecha (LED0->LED1...)
        CALL     DELAY_3LOOP
        BTFSS LED7               ; LED7 = ON?
-
        GOTO     FW_LOOP         ; NO -> Sigue desplazando
        RETURN                   ; SI -> Finaliza
 ;
@@ -355,45 +349,6 @@ BW_LOOP
         GOTO    BW_LOOP         ; NO -> Sigue desplazando
 RETURN                          ; SI -> FIN
 ;
-;*******************************************************************************
-; @brief    Efecto de arrastre(Crawling)
-;
-; @details  Ejecuta el encendido (Progressive_Led_On) y apagado (Progressive_Led_Off)
-;           de los leds, repitiendo la secuencia tres veces (Counter_Secuences),
-;           con una intermitencia de 100ms.     
-;*******************************************************************************
-SUBROUTINE
-CRAWLING
-        CFG_DELAY_100ms
-        LEDS_OFF
-LOOP_CW
-        CALL PROGRESSIVE_LED_ON
-        CALL PROGRESSIVE_LED_OFF
-        DECF COUNTER_SECUENCES, F ; resta uno al contador de repeticiones
-        BTFSS STATUS,Z  ; FLAG seteado(igual a 1)?
-        GOTO LOOP_CW ; NO -> se repite el barrido
-        CFG_SECUENCES ; SI -> el contador llego a 0, es decir, se repitió 3 veces
-
-RETURN
-;*******************************************************************************
-; @brief    Barrido hacia la derecha (Forward_Led)
-;
-; @details  Enciende los leds de forma progresiva de LED0 a LED7, generando el
-;           efecto de barrido hacia la derecha.
-;               
-;*******************************************************************************
-SUBROUTINE
-FORWARD_LED
-        BSF STATUS, C ; setea el LED0 
-        
-FW_LOOP
-       LEDS_RLF ; desplaza el led encendido una posición a la derecha (LED0->LED1...)
-       CALL DELAY_3LOOP ;llama al delay
-       BTFSS LED7 ; LED7=ON?
-       GOTO FW_LOOP ; NO-> repite el barrido
-      RETURN ; SI-> termina
-
-RETURN
 ;*******************************************************************************
 ; @brief    Encendido progresivo de los LEDs (Crawling ON).
 ;
