@@ -1,27 +1,16 @@
 ;===============================================================================
-; @file       TP2_corregido.asm
+; @file       G6_TPL2_ED2.asm
 ;
-; @brief      TP2 - Sistema de Alarmas con PIC16F887
+; @author     Conde_Ana_Victoria
+;	      Lauc_Mirko_Gaston
+;             Bertalot_Gomez_Renata
+;             Lurgo_Donato_Agustin
+;             Goicoechea_Emilia
 ;
-; @nota       Version CORREGIDA y VERIFICADA: compila sin errores con
-;             mpasmx v5.87 y se simula correctamente en MPLAB X Simulator
-;             (PIC16F887). El .hex generado pesa 809 bytes y el PC avanza,
-;             conmutando PORTD (LEDs) a 0xFF.
 ;
-; CAMBIOS APLICADOS (respecto al codigo original del grupo):
-;   1. Se agrego el ENDM faltante en los 4 macros de delay:
-;        CFG_DELAY_100ms, CFG_DELAY_200ms, CFG_DELAY_300ms, CFG_DELAY_1s
-;      (sin ENDM el ensamblador no cerraba el macro y fallaba la compilacion).
-;   2. Se convirtieron 10 rutinas de MACRO a SUBRUTINAS, porque se invocaban
-;      con CALL (un MACRO no se puede llamar con CALL):
-;        TEST_LEDS, SECUENCES, BUZZER_BIP, RUNNING_LIGHT,
-;        BIDIR_RUNNING_LIGHT, CRAWLING, FORWARD_LED, BACKWARD_LED,
-;        PROGRESSIVE_LED_ON, PROGRESSIVE_LED_OFF.
-;      Ahora son labels con RETURN en lugar de "X MACRO ... ENDM".
-;   3. (En el esqueleto previo del repo) se corrigio el CBLOCK sin ENDC y el
-;      nombre BUZZER_OFF (estaba escrito como "BUZZER_ OFF").
+; @date       31/8/2026
 ;
-; @version    2.0 (corregida)
+; @version    1.0
 ;===============================================================================
 
 ;===============================================================================
@@ -94,12 +83,12 @@ ENDM
 ;-------------------------------------------------------------------------------
 LEDS_RLF MACRO
         RLF     PORTD,  F       ; Rota los bits del Puerto D a la derecha
-;                                 a traves del carry
+;                                 a través del carry
 ENDM
 ;-------------------------------------------------------------------------------
 LEDS_RRF MACRO
         RRF     PORTD,  F       ; Rota los bits del Puerto D a la izquierda
-;                                 a traves del carry
+;                                 a través del carry
 ENDM
 ;_______________________________________________________________________________
 CFG_BUZZER MACRO
@@ -113,12 +102,11 @@ CFG_BUZZER MACRO
 ENDM
 ;_______________________________________________________________________________
 BUZZER_ON MACRO
-        BSF     PORTC,  RC0     ; Envia 5V al buzzer
+        BSF     PORTC,  RC0     ; Envía 5V al buzzer
 ENDM
 ;-------------------------------------------------------------------------------
-; [CAMBIO] El nombre estaba como "BUZZER_ OFF" (con espacio); se corrigio a BUZZER_OFF.
 BUZZER_OFF MACRO
-        BCF     PORTC,  RC0     ; Corta la senal al buzzer
+        BCF     PORTC,  RC0     ; Corta la señal al buzzer
 ENDM
 ;_______________________________________________________________________________
 ;
@@ -140,7 +128,7 @@ CFG_DELAY_100ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'167'
         MOVWF   DELAY3_Init
-        ENDM                    ; [CAMBIO] ENDM agregado (faltaba en el original)
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_200ms MACRO
         MOVLW   D'5'
@@ -149,7 +137,7 @@ CFG_DELAY_200ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'139'
         MOVWF   DELAY3_Init
-        ENDM                    ; [CAMBIO] ENDM agregado (faltaba en el original)
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_300ms MACRO
         MOVLW   D'5'
@@ -158,7 +146,7 @@ CFG_DELAY_300ms MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'117'
         MOVWF   DELAY3_Init
-        ENDM                    ; [CAMBIO] ENDM agregado (faltaba en el original)
+        ENDM
 ;-------------------------------------------------------------------------------
 CFG_DELAY_1s MACRO
         MOVLW   D'46'
@@ -167,7 +155,7 @@ CFG_DELAY_1s MACRO
         MOVWF   DELAY2_Init
         MOVLW   D'37'
         MOVWF   DELAY3_Init
-        ENDM                    ; [CAMBIO] ENDM agregado (faltaba en el original)
+        ENDM
 ;===============================================================================
 ; INICIALIZACION DEL MCU (CODIGO ABSOLUTO)
 ;===============================================================================
@@ -195,9 +183,9 @@ INICIO
 MAIN_LOOP
 
         CALL    TEST_LEDS       ; Parpadeo constante
-        BTFSC   SW1             ; El pin RE0 esta en presionado (en 0)?
+        BTFSC   SW1             ; El pin RE0 está en presionado (en 0)?
         GOTO    MAIN_LOOP       ; NO -> El pin lee 1, se repite TEST_LEDS
-        CALL    SECUENCES       ; SI -> Entra a la secuencias de alarma acustica y visual
+        CALL    SECUENCES       ; SI -> Entra a la secuencias de alarma acústica y visual
         GOTO    MAIN_LOOP       ; Reinicia el ciclo principal
 ;
 ;===============================================================================
@@ -236,49 +224,46 @@ RETURN                          ; Termina el delay y vuelve al CALL
 ; @brief    Testeo de hardware para los 8 LEDs
 ;
 ; @details  Ejecuta un parpadeo sincronizado para los 8 LEDs, cumpliendo un
-;           periodo de intermitencia de 2 segundos.
+;           cumpliendo el periodo de itermitencia de 2 segundos.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "TEST_LEDS MACRO ... ENDM". Ahora es SUBRUTINA (se invoca con CALL).
 TEST_LEDS
         CFG_DELAY_1s
         LEDS_ON
         CALL    DELAY_3LOOP
         LEDS_OFF
         CALL    DELAY_3LOOP
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+RETURN
 ;
 
 ;*******************************************************************************
-; @brief    Alarma acustica inicial
+; @brief    Alarma acustica  inicial
 ;
 ; @details  Enciende el buzzer conectado a RC0, ejecutando una demora de 200ms
 ;           y luego se apaga.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "BUZZER_BIP MACRO ... ENDM". Ahora es SUBRUTINA.
 BUZZER_BIP
         BUZZER_ON               ; Macro que enciende el puerto RC0
         CFG_DELAY_200ms
         CALL    DELAY_3LOOP
         BUZZER_OFF              ; Macro que apaga el puerto RC0
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+RETURN
 ;
 ;*******************************************************************************
-; @brief    Administracion de las diferentes secuencias de luces
+; @brief    Administacion de las diferentes secuencias de luces
 ;
 ; @details  Agrupa y ejecuta de forma secuencias la alarma acustica inicial
 ;           y los tres efectos visuales (Running, Bidir-Running, Crawling,
-;           Forward y Backward) requeridos al presionar el pulsador.
+;           Forward y Backward) requeridos al presonar el pulsador.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "SECUENCES MACRO ... ENDM". Ahora es SUBRUTINA.
 SECUENCES
         CALL    BUZZER_BIP
         CALL    RUNNING_LIGHT
         CALL    BIDIR_RUNNING_LIGHT
         CALL    CRAWLING
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+RETURN
 ;
 ;*******************************************************************************
 ; @brief    Efecto de barrido (Running_Light)
@@ -287,26 +272,24 @@ RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de m
 ;           la secuencia tres veces (Counter_secuences) con una intermitencia de 300ms.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "RUNNING_LIGHT MACRO ... ENDM". Ahora es SUBRUTINA.
 RUNNING_LIGHT
         CFG_DELAY_300ms
         LEDS_OFF
 LOOP_RL
         CALL    FORWARD_LED
-        DECFSZ  COUNTER_SECUENCES, F ; Resta 1 al contador y evalua si llego a 0
+        DECFSZ  COUNTER_SECUENCES, F ; Resta 1 al contador y evalúa si llegó a 0
         GOTO    LOOP_RL              ; NO -> se repite el barrido
-        CFG_SECUENCES                ; SI -> el contador llego a 0, es decir, se repitio 3 veces
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+        CFG_SECUENCES                ; SI -> el contador llego a 0, es decir, se repitió 3 veces
+RETURN
 ;
 ;*******************************************************************************
 ; @brief    Efecto de barrido bidereccional (Bidir_Running_Light)
 ;
-; @details  ejecuta el barrido hacia la derecha (Forward_Led), despues hacia la
-;           izquierda(Backward_Led), repitiendo la secuencia
+; @details  ejecuta el barrido hacia la derecha (Forward_Led),despues hacia la
+;           izquierda(Backward_Led),  repitiendo la secuencia
 ;           tres veces (Counter_secuences) con una intermitencia de 200ms.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "BIDIR_RUNNING_LIGHT MACRO ... ENDM". Ahora es SUBRUTINA.
 BIDIR_RUNNING_LIGHT
         CFG_DELAY_200ms
         LEDS_OFF
@@ -316,7 +299,7 @@ LOOP_BRL
         DECFSZ    COUNTER_SECUENCES, F
         GOTO    LOOP_BRL
         CFG_SECUENCES
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+RETURN
 ;
 ;*******************************************************************************
 ; @brief    Efecto de arrastre(Crawling)
@@ -326,7 +309,6 @@ RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de m
 ;           con una intermitencia de 100ms.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "CRAWLING MACRO ... ENDM". Ahora es SUBRUTINA.
 CRAWLING
         CFG_DELAY_100ms
         LEDS_OFF
@@ -336,7 +318,7 @@ LOOP_CW
         DECFSZ    COUNTER_SECUENCES, F
         GOTO    LOOP_CW
         CFG_SECUENCES
-RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de macro)
+RETURN
 ;
 ;*******************************************************************************
 ; @brief    Barrido hacia la derecha (Forward_Led)
@@ -346,43 +328,41 @@ RETURN                          ; [CAMBIO] fin de subrutina (antes era ENDM de m
 ;
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "FORWARD_LED MACRO ... ENDM". Ahora es SUBRUTINA.
 FORWARD_LED
         BSF     STATUS, C       ; Setea el carry en 1 para ingresar el primer LED
 FW_LOOP
-       LEDS_RLF                 ; Desplaza el led encendido una posicion a la derecha (LED0->LED1...)
-       CALL     DELAY_3LOOP
-       BTFSS LED7               ; LED7 = ON?
-       GOTO     FW_LOOP         ; NO -> Sigue desplazando
-       RETURN                   ; SI -> Finaliza
+       LEDS_RLF                 ; Desplaza el led encendido una posición
+;                                 a la derecha (LED0->LED1...)
+        BCF     STATUS, C       ; Limpieza del carry (Correción del TP2)
+        CALL     DELAY_3LOOP
+        BTFSS LED7               ; LED7 = ON?
+        GOTO     FW_LOOP         ; NO -> Sigue desplazando
+        RETURN                   ; SI -> Finaliza
 ;
 ;*******************************************************************************
 ; @brief    Desplazamiento hacia la derecha (Backward).
 ;
-; @details  Desplaza un unico LED encendido desde la posicion actual hacia
-;           la derecha (hacia LED0) utilizando la instruccion RRF. Finaliza
+; @details  Desplaza un único LED encendido desde la posición actual hacia
+;           la derecha (hacia LED0) utilizando la instrucción RRF. Finaliza
 ;           cuando el LED0 se enciende.
 ;*******************************************************************************
-;
-; [CAMBIO] Antes: "BACKWARD_LED MACRO ... ENDM". Ahora es SUBRUTINA.
 BACKWARD_LED
         BCF     STATUS, C       ; CLR FLAG C: Limpia el acarreo para no ingresar '1's extra
 BW_LOOP
         LEDS_RRF                ; Desplaza a la derecha (PORTD, F)
         CALL    DELAY_3LOOP     ; Ejecuta la demora para visualizar el salto
-        BTFSS   PORTD,  0       ; LED0 = ON? (Verifica si el '1' llego al final)
+        BTFSS   PORTD,  0       ; LED0 = ON? (Verifica si el '1' llegó al final)
         GOTO    BW_LOOP         ; NO -> Sigue desplazando
 RETURN                          ; SI -> FIN
 ;
 ;*******************************************************************************
 ; @brief    Encendido progresivo de los LEDs (Crawling ON).
 ;
-; @details  Enciende los LEDs secuencialmente ingresando unos logicos desde
+; @details  Enciende los LEDs secuencialmente ingresando unos lógicos desde
 ;           LED0 hacia LED7, manteniendo encendidos los anteriores hasta
 ;           completar todo el puerto.
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "PROGRESSIVE_LED_ON MACRO ... ENDM". Ahora es SUBRUTINA.
 PROGRESSIVE_LED_ON
         BCF     STATUS, C       ; Carry limpio
 PROG_ON_LOOP
@@ -396,18 +376,17 @@ RETURN                          ; SI -> FIN
 ;*******************************************************************************
 ; @brief    Apagado progresivo de los 8 LEDs
 ;
-; @details  Apaga los LEDs secuencialmente ingresando ceros logicos desde LED0
+; @details  Apaga los LEDs secuencialmente ingrsando ceros lógicos desde LED0
 ;           hacia LED7
 ;*******************************************************************************
 ;
-; [CAMBIO] Antes: "PROGRESSIVE_LED_OFF MACRO ... ENDM". Ahora es SUBRUTINA.
 PROGRESSIVE_LED_OFF
 PROG_OFF_LOOP
         BCF     STATUS, C       ; Forzamos un '0' en el carry para ir vaciando
         LEDS_RLF
         CALL    DELAY_3LOOP     ; Espera para visualizar el salto
-        MOVF    PORTD,  F       ; Se mueve PORTD sobre si mismo para actualizar el FLAG Z
-        BTFSS   STATUS, Z       ; El puerto D quedo en 0?
+        MOVF    PORTD,  F       ; Se mueve PORTD sobre sí mismo para actualizar el FLAG Z
+        BTFSS   STATUS, Z       ; El puerto D quedó en 0?
         GOTO    PROG_OFF_LOOP   ; NO -> repite el ciclo
 RETURN                          ; SI -> FIN
 

@@ -1,4 +1,5 @@
-;===============================================================================; @file       G6_TPL2_ED2.asm
+;===============================================================================
+; @file       G6_TPL2_ED2.asm
 ;
 ; @author     Conde_Ana_Victoria
 ;	      Lauc_Mirko_Gaston
@@ -330,11 +331,13 @@ RETURN
 FORWARD_LED
         BSF     STATUS, C       ; Setea el carry en 1 para ingresar el primer LED
 FW_LOOP
-       LEDS_RLF                 ; Desplaza el led encendido una posición a la derecha (LED0->LED1...)
-       CALL     DELAY_3LOOP
-       BTFSS LED7               ; LED7 = ON?
-       GOTO     FW_LOOP         ; NO -> Sigue desplazando
-       RETURN                   ; SI -> Finaliza
+       LEDS_RLF                 ; Desplaza el led encendido una posición
+;                                 a la derecha (LED0->LED1...)
+        BCF     STATUS, C       ; Limpieza del carry (Correción del TP2)
+        CALL     DELAY_3LOOP
+        BTFSS LED7               ; LED7 = ON?
+        GOTO     FW_LOOP         ; NO -> Sigue desplazando
+        RETURN                   ; SI -> Finaliza
 ;
 ;*******************************************************************************
 ; @brief    Desplazamiento hacia la derecha (Backward).
