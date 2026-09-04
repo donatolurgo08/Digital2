@@ -140,14 +140,74 @@ MAIN_LOOp
 ;===============================================================================
 ; SUBRUTINAS
 ;===============================================================================
+;===============================================================================
+; TABLA LUT
+;===============================================================================
+ORG 0x0100
+TABALA_7SEG
+    ADDWF PCL, F ; suma el número recibido en W al contador del programa
+    RETLW b'00111111' ; muestra el 0 -> prende A, B, C, D, E, F 
+    RETLW b'00000110' ; muestra el 1 -> prende B, C
+    RETLW b'01011011' ; muestra el 2 -> prende A, B, D, E, G
+    RETLW b'01001111' ; muestra el 3 -> prende A, B, C, D, G
+    RETLW b'01100110' ; muestra el 4 -> prende B, C, F, G
+    RETLW b'01101101' ; muestra el 5 -> prende A, C, D, F, G
+    RETLW b'01111101' ; muestra el 6 -> prende A, C, D, E, F, G
+    RETLW b'00000111' ; muestra el 7 -> prende A, B, C
+    RETLW b'01111111' ; muestra el 8 -> prende A, B, C, D, E, F, G
+    RETLW b'01100111' ; muestra el 9 -> prende A, B, C, F, G
+
+
 ;*******************************************************************************
-; @brief    Descripci�n general de la subrutina.
+; @brief    TEST_DSPL
 ;
-; @details  Descripci�n espec�fica de la subrutina.
+; @details  enciende todos los segmentos de todos los digitos temporalmente
 ;*******************************************************************************
-SUBROUTINE
-    ;...
-    RETURN
+
+TEST_DSPL
+ MOVLW b'01111111'
+ MOVWF PORTD
+ 
+ MOVLW b'00000111'
+ MOVWF PORTC
+ 
+ MOVLW D'250'
+ MOVWF COUNTER_TEST
+
+TEST_LOOP
+  CALL DELAY_3LOOP
+  DECFSZ COUNTER_TEST, F
+  GOTO TEST_LOOP
+
+  CLRF PORTC
+  CLR PORTD
+  
+  RETURN
+
+;*******************************************************************************
+; @brief   MUX_DSPL
+;
+; @details  evalua la variable COUNTER_DSPL para determinar cuál de los 3
+;           displays debe actualizarse en el ciclo acual
+;******************************************************************************* 
+
+MUX_DSPL
+        CFG_DELAY_3LOOP
+        MOVLW  D'3'
+        SUBWF  COUNTER_DSPL, W   ; hace W=COUNTER_DSPL-3
+        BTFSC  STATUS, Z         ; Z=1? -> counter_dspl = 3
+        GOTO   UPDATE_DSPL_3     ; SI -> actualiza display 3
+
+        MOVLW  D'2'              ; NO -> va a preguntar si el counter_dspl =2
+        SUBWF  COUNTER_DSPL, W   ; hace W=COUNTER_DSPL-2
+        BTFSC  STATUS, Z         ; Z=1? -> counter_dspl = 2
+        GOTO   UPDATE_DSPL_2     ; SI -> actualiza display 2
+
+        MOVLW  D'1'              ; NO->va a preguntar si el counter_dspl = 1 
+        SUBWF  COUNTER_DSPL, W   ; hace W=COUNTER_DSPL-1
+        BTFSC  STATUS, Z         ; Z=1? -> counter_dspl = 1
+        GOTO   UPDATE_DSPL_1     ; SI -> actualiza display 1
+        GOTO   RST_COUNTER_DSPL  ; NO -> reinicia el contador a 3 
 
 ;===============================================================================
     END
