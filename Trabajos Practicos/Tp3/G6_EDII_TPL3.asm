@@ -67,13 +67,73 @@ CBLOCK 0x20
 ; INICIALIZACI�N DE MACROS PARA CONFIGURACI�N DE REGISTROS
 ;===============================================================================
 INICIO	    ;-----Inicializaci�n de Macros-------
-CFG_DSPL
+CFG_DSPL MACRO
+        BSF STATUS, RP0
+        BSF STATUS, RP1
+        CLRF ANSEL
+        CLRF ANSELH
+;
+        BSF STATUS, RP0
+        BCF STATUS, RP1
+        BCF TRISC, 0
+        BCF TRISC, 1
+        BCF TRISC, 2
+        CLRF TRISD
+;
+        BCF STATUS, RP0
+        BCF STATUS, RP1
+        CLRF PORTC
+        CLRF PORTD
+ENDM
+;===============================================================================
+DSPL_ALL_OFF MACRO
+        BCF STATUS, RP0
+        BCF STATUS, RRP1
+        CLRF PORTC
+        CLRF PORTD
+ENDM
+;===============================================================================
+CFG_DIGITS_DSPL MACRO
+        MOVLW   0x0A
+        MOVWF   DATA_DSPL_1
+;
+        MOVLW   0x00
+        MOVWF   DATA_DSPL_2
+;
+        MOVLW   0x06
+        MOVWF   DATA_DSPL_3
+ENDM
+;===============================================================================
+CFG_DELAY_2ms
+        MOVLW   d'45'
+        MOVWF   DELAY1_Init
+        MOVLW   d'15'
+        MOVWF   DELAY2_Init
+ENDM
+;===============================================================================
+CFG_DELAY_300ms
+        MOVLW   d'133'
+        MOVWF   DELAY1_Init
+        MOVLW   d'248'
+        MOVWF   DELAY2_Init
+        MOVLW   d'3'
+        MOVWF   DELAY3_Init
+ENDM
+;===============================================================================
+CFG_DELAY_1s
+        MOVLW   d'133'
+        MOVWF   DELAY1_Init
+        MOVLW   d'248'
+        MOVWF   DELAY2_Init
+        MOVLW   d'10'
+        MOVWF   DELAY3_Init
+ENDM
 
 
 ;===============================================================================
 ; INICIO PROGRAMA PRINCIPAL
 ;===============================================================================
-MAIN_LOOP
+MAIN_LOOp
     ;...
     GOTO    MAIN_LOOP
 
