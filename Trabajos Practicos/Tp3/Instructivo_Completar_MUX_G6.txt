@@ -1,0 +1,135 @@
+# Instructivo — Completar multiplexado TP3 Grupo 6 (BC337, lógica positiva)
+
+**Archivo base:** `Trabajos Practicos/Tp3/G6_EDII_TPL3.asm:128`
+**Falta detectada:** `MAIN_LOOp` vacío, `UPDATE_DSPL_*`/`RST_COUNTER_DSPL`/`DELAY_3LOOP` dummy, `CFG_DELAY_3LOOP` vacía. El `.hex` compila pero no barre displays.
+
+## 1. Qué tenés que armar
+
+```
+MAIN_LOOP (ciclo infinito)
+  ├─ actualizar datos (si hay contador → separar dígitos → TABALA_7SEG)
+  └─ MUX_DSPL (barrido 1→2→3 → repetir)
+       ├─ UPDATE_DSPL_1 → segmentos + RC0=1 + 3ms + RC0=0
+       ├─ UPDATE_DSPL_2 → segmentos + RC1=1 + 3ms + RC1=0
+       └─ UPDATE_DSPL_3 → segmentos + RC2=1 + 3ms + RC2=0
+```
+
+Regla Grupo 6: `BSF PORTC,n` = BC337 ON, `BCF PORTC,n` = OFF. **Solo un Dn=1 por vez** (§25).
+
+## 2. MAIN_LOOP — reemplazar G6_EDII_TPL3.asm:128
+
+```asm
+MAIN_LOOP
+    ; si usás contador:
+    ; incf CONTADOR,F
+    ; call SEPARAR_DIGITOS  ; decenas/unidades → DATA_DSPL_*
+
+    call MUX_DSPL       ; un barrido completo es 3×MUX (el MUX ya decide qué D actualizar por COUNTER_DSPL)
+    goto MAIN_LOOP
+```
+
+> No dejes `GOTO MAIN_LOOP` sin contenido — debe llamar al MUX continuamente (§22).
+
+## 3. UPDATE_DSPL_* — reemplazar los dummy G6_EDII_TPL3.asm:192
+
+Copia este patrón (lógica positiva):
+
+```asm
+UPDATE_DSPL_1
+    movf DATA_DSPL_1,W
+    call TABALA_7SEG     ; W = patrón
+    movwf PORTD          ; segmentos
+    bsf PORTC,0          ; D1 ON
+    call DELAY_3LOOP
+    bcf PORTC,0          ; D1 OFF
+    return
+
+UPDATE_DSPL_2
+    movf DATA_DSPL_2,W
+    call TABALA_7SEG
+    movwf PORTD
+    bsf PORTC,1
+    call DELAY_3LOOP
+    bcf PORTC,1
+    return
+
+UPDATE_DSPL_3
+    movf DATA_DSPL_3,W
+    call TABALA_7SEG
+    movwf PORTD
+    bsf PORTC,2
+    call DELAY_3LOOP
+    bcf PORTC,2
+    return
+
+RST_COUNTER_DSPL
+    movlw D'3'
+    movwf COUNTER_DSPL
+    return
+```
+
+Respetá el orden anti-fantasma de §13: **deshabilitar → dato → habilitar → retardo → deshabilitar** (acá ya está).
+
+## 4. DELAY_3LOOP y CFG_DELAY_3LOOP
+
+Tenés `CFG_DELAY_2ms/300ms/1s` pero `MUX_DSPL:192` llama `CFG_DELAY_3LOOP` (vacía). Definila antes de `MUX_DSPL`:
+
+```asm
+CFG_DELAY_3LOOP MACRO
+    movlw D'67'          ; ~3ms @4MHz (1 inst =1us)
+    movwf DELAY1_Init
+    movlw D'15'
+    movwf DELAY2_Init
+    movlw D'1'
+    movwf DELAY3_Init
+    ENDM
+
+DELAY_3LOOP
+    movf DELAY3_Init,W
+    movwf DELAY3
+D3: movf DELAY2_Init,W
+    movwf DELAY2
+D2: movf DELAY1_Init,W
+    movwf DELAY1
+D1: decfsz DELAY1,F
+    goto D1
+    decfsz DELAY2,F
+    goto D2
+    decfsz DELAY3,F
+    goto D3
+    return
+```
+
+> 3ms es referencia de `Proyectos con PIC` (§16). Si parpadea, bajá a 2ms; si se ve opaco, subí a 4ms. Ciclo 3×3ms=9ms → ~111Hz.
+
+## 5. Inicialización (ya tenés G6_EDII_TPL3.asm:70 CFG_DSPL)
+
+Asegurate en `INICIO` llamar:
+
+```asm
+INICIO
+    call CFG_DSPL
+    call CFG_DIGITS_DSPL
+    movlw D'1'
+    movwf COUNTER_DSPL
+    goto MAIN_LOOP
+```
+
+Y que `CFG_DSPL` deje `TRISC 0-2` y `TRISD` en 0 (salida) y `PORTC/PORTD` en 0 — ya está en `G6_EDII_TPL3.asm:70`.
+
+## 6. Si lleva contador (§17)
+
+```asm
+SEPARAR_DIGITOS
+    ; CONTADOR (0-999) → DATA_DSPL_1/2/3
+    ; usa DIVISION por 10 o restas sucesivas, luego call TABALA_7SEG en cada UPDATE
+    return
+```
+
+## 7. Probar
+
+- `Ctrl+Shift+B` → debe generar `G6_EDII_TPL3.HEX` sin `Error[113]`.
+- Simulación: un solo `PORTC,n` en 1 por vez, patrón de `TABALA_7SEG:139` correcto, sin fantasmas.
+- Hardware: 3× BC337 con base a RC0-2, colector a dígito, emisor a GND, segmentos PORTD con resistencias.
+
+Con esto el `MAIN_LOOP` deja de ser `GOTO` vacío y el MUX barre `1→2→3→1...` con lógica positiva como pide Grupo 6.
