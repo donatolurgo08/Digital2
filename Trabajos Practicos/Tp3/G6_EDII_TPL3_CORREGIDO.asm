@@ -14,8 +14,6 @@
 ; 5) MUX_DSPL duplicado -> eliminado el primero y agregado CFG_DELAY_3LOOP MACRO  ; FIX: Macro agregada para MUX (Symbol not defined)/ENDM
 ; 6) G6_EDII_TPL3.asm:128  MAIN_LOOp -> MAIN_LOOP  ; FIX: MAIN_LOOp -> MAIN_LOOP (G6_EDII_TPL3.asm:128)
 ; 7) Faltantes COUNTER_TEST, DELAY_3LOOP, UPDATE_DSPL_1/2/3, RST_COUNTER_DSPL
-; 8) Reindentado MPASM (116x Illegal label) -> mnemonicos con TAB
-; Comando: C:\mpasmx\mpasmx.exe /p16f887 G6_EDII_TPL3_CORREGIDO.asm
 ;===============================================================================
 
 ;===============================================================================
