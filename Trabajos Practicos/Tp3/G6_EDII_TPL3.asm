@@ -13,24 +13,24 @@
 ;===============================================================================
 
 ;===============================================================================
-; DIRECTIVAS DE INCLUSI�N
+; DIRECTIVAS DE INCLUSIÓN
 ;===============================================================================
 	LIST P=16F887
 #include "p16f887.inc"
 
 ;===============================================================================
-; CONFIGURACI�N GENERAL DEL MCU
+; CONFIGURACIÓN GENERAL DEL MCU
 ;===============================================================================
 	__CONFIG _CONFIG1, _XT_OSC & _WDTE_OFF & _MCLRE_ON & _LVP_OFF
 
 ;===============================================================================
-; DEFINICI�N DE CONSTANTES
+; DEFINICIÓN DE CONSTANTES
 ;===============================================================================
 #DEFINE CTRL_DSPL_1 PORTC, RC0
 #DEFINE CTRL_DSPL_2 PORTC, RC1
 #DEFINE CTRL_DSPL_3 PORTC, RC2
 ;===============================================================================
-; DEFINICI�N DE VARIABLES
+; DEFINICIÓN DE VARIABLES
 ;===============================================================================
 	CBLOCK 0x20
             DELAY1_Init
@@ -48,21 +48,21 @@
              COUNTER_TEST
 	ENDC
 ;===============================================================================
-; DECLARACI�N DE MACROS PARA CONFIGURACI�N DE REGISTROS
+; DECLARACIÓN DE MACROS PARA CONFIGURACIÓN DE REGISTROS
 ;===============================================================================
 
 ;===============================================================================
-; INICIALIZACI�N DEL MCU (C�DIGO ABSOLUTO)
+; INICIALIZACIÓN DEL MCU (CÓDIGO ABSOLUTO)
 ;===============================================================================
     ORG     0x00	;Vector de Reset
     GOTO    INICIO	;Salto al inicio del programa principal
-    ORG     0x05	;Ubicaci�n Programa Principal en la memoria
+    ORG     0x05	;UbicaciÓn Programa Principal en la memoria
 			;de programa
 
 ;===============================================================================
-; INICIALIZACI�N DE MACROS PARA CONFIGURACI�N DE REGISTROS
+; INICIALIZACIÓN DE MACROS PARA CONFIGURACIÓN DE REGISTROS
 ;===============================================================================
-INICIO	    ;-----Inicializaci�n de Macros-------
+INICIO	    ;-----InicializaciÓn de Macros-------
 CFG_DSPL MACRO
         BSF STATUS, RP0
         BSF STATUS, RP1
