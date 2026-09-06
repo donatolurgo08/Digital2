@@ -156,7 +156,7 @@ MAIN_LOOP
 ; TABLA LUT
 ;===============================================================================
 	ORG 0x0100
-TABALA_7SEG
+TABLA_7SEG
     ADDWF PCL, F ; suma el nÃºmero recibido en W al contador del programa
     RETLW b'00111111' ; muestra el 0 -> prende A, B, C, D, E, F 
     RETLW b'00000110' ; muestra el 1 -> prende B, C
