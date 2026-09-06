@@ -5,7 +5,7 @@
 ; @author     Conde / Goicoechea / Lauc / Lurgo / Bertalot - Grupo 6
 ; @date       7/9/2026
 ;
-; CORRECCIONES APLICADAS (ver CORRECCIONES_para_compilar_TP3.txt):
+; CORRECCIONES APLICADAS:
 ; 1) CBLOCK 0x20 sin ENDC (G6_EDII_TPL3.asm:35) -> agregado ENDC tras COUNTER_SEGMENTS
 ;    y eliminadas 6 lineas sueltas CFG_DSPL/CFG_DIGITS_DSPL/DSPL_ALL_OFF/CFG_DELAY_*
 ; 2) G6_EDII_TPL3.asm:86  BCF STATUS, RRP1 -> BCF STATUS, RP1
