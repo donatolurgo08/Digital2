@@ -15,13 +15,13 @@
 ;===============================================================================
 ; DIRECTIVAS DE INCLUSI�N
 ;===============================================================================
-LIST P=16F887
+	LIST P=16F887
 #include "p16f887.inc"
 
 ;===============================================================================
 ; CONFIGURACI�N GENERAL DEL MCU
 ;===============================================================================
-__CONFIG _CONFIG1, _XT_OSC & _WDTE_OFF & _MCLRE_ON & _LVP_OFF
+	__CONFIG _CONFIG1, _XT_OSC & _WDTE_OFF & _MCLRE_ON & _LVP_OFF
 
 ;===============================================================================
 ; DEFINICI�N DE CONSTANTES
@@ -32,7 +32,7 @@ __CONFIG _CONFIG1, _XT_OSC & _WDTE_OFF & _MCLRE_ON & _LVP_OFF
 ;===============================================================================
 ; DEFINICI�N DE VARIABLES
 ;===============================================================================
-CBLOCK 0x20
+	CBLOCK 0x20
             DELAY1_Init
             DELAY2_Init
             DELAY3_Init
@@ -45,15 +45,11 @@ CBLOCK 0x20
             COUNTER_DSPL
             DATA_DSPL_3
             COUNTER_SEGMENTS
+             COUNTER_TEST
+	ENDC
 ;===============================================================================
 ; DECLARACI�N DE MACROS PARA CONFIGURACI�N DE REGISTROS
 ;===============================================================================
-            CFG_DSPL
-            CFG_DIGITS_DSPL
-            DSPL_ALL_OFF
-            CFG_DELAY_2ms
-            CFG_DELAY_300ms
-            CFG_DELAY_1s
 
 ;===============================================================================
 ; INICIALIZACI�N DEL MCU (C�DIGO ABSOLUTO)
@@ -84,14 +80,14 @@ CFG_DSPL MACRO
         BCF STATUS, RP1
         CLRF PORTC
         CLRF PORTD
-ENDM
+	ENDM
 ;===============================================================================
 DSPL_ALL_OFF MACRO
         BCF STATUS, RP0
-        BCF STATUS, RRP1
+        BCF STATUS, RP1
         CLRF PORTC
         CLRF PORTD
-ENDM
+	ENDM
 ;===============================================================================
 CFG_DIGITS_DSPL MACRO
         MOVLW   0x0A
@@ -102,38 +98,36 @@ CFG_DIGITS_DSPL MACRO
 ;
         MOVLW   0x06
         MOVWF   DATA_DSPL_3
-ENDM
-;===============================================================================
-CFG_DELAY_2ms
+CFG_DELAY_2ms MACRO
         MOVLW   d'45'
         MOVWF   DELAY1_Init
         MOVLW   d'15'
         MOVWF   DELAY2_Init
-ENDM
+	ENDM
 ;===============================================================================
-CFG_DELAY_300ms
-        MOVLW   d'133'
+CFG_DELAY_300ms MACRO
+        MOVLW   d\'133\'
         MOVWF   DELAY1_Init
-        MOVLW   d'248'
+        MOVLW   d\'248\'
         MOVWF   DELAY2_Init
-        MOVLW   d'3'
+        MOVLW   d\'3\'
         MOVWF   DELAY3_Init
-ENDM
+	ENDM
 ;===============================================================================
-CFG_DELAY_1s
-        MOVLW   d'133'
+CFG_DELAY_1s MACRO
+        MOVLW   d\'133\'
         MOVWF   DELAY1_Init
-        MOVLW   d'248'
+        MOVLW   d\'248\'
         MOVWF   DELAY2_Init
-        MOVLW   d'10'
+        MOVLW   d\'10\'
         MOVWF   DELAY3_Init
-ENDM
+	ENDM
 
 
 ;===============================================================================
 ; INICIO PROGRAMA PRINCIPAL
 ;===============================================================================
-MAIN_LOOp
+MAIN_LOOP
     ;...
     GOTO    MAIN_LOOP
 
@@ -143,7 +137,7 @@ MAIN_LOOp
 ;===============================================================================
 ; TABLA LUT
 ;===============================================================================
-ORG 0x0100
+	ORG 0x0100
 TABALA_7SEG
     ADDWF PCL, F ; suma el número recibido en W al contador del programa
     RETLW b'00111111' ; muestra el 0 -> prende A, B, C, D, E, F 
@@ -180,17 +174,20 @@ TEST_LOOP
   GOTO TEST_LOOP
 
   CLRF PORTC
-  CLR PORTD
+  CLRF PORTD
   
   RETURN
 
 ;*******************************************************************************
-; @brief   MUX_DSPL
+; @brief   CFG_DELAY_3LOOP MACRO
+
 ;
 ; @details  evalua la variable COUNTER_DSPL para determinar cuál de los 3
 ;           displays debe actualizarse en el ciclo acual
 ;******************************************************************************* 
 
+CFG_DELAY_3LOOP MACRO
+	ENDM
 MUX_DSPL
         CFG_DELAY_3LOOP
         MOVLW  D'3'
@@ -210,5 +207,15 @@ MUX_DSPL
         GOTO   RST_COUNTER_DSPL  ; NO -> reinicia el contador a 3 
 
 ;===============================================================================
+UPDATE_DSPL_1
+	RETURN
+UPDATE_DSPL_2
+	RETURN
+UPDATE_DSPL_3
+	RETURN
+RST_COUNTER_DSPL
+	RETURN
+DELAY_3LOOP
+	RETURN
     END
 ;===============================================================================
