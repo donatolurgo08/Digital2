@@ -128,7 +128,7 @@ SEPARAR_DIGITOS
 
 ## 7. Probar
 
-- `Ctrl+Shift+B` → debe generar `G6_EDII_TPL3.HEX` sin `Error[113]`.
+- `Ctrl+Shift+B` → debe generar `G6_EDII_TPL3.HEX`.
 - Simulación: un solo `PORTC,n` en 1 por vez, patrón de `TABALA_7SEG:139` correcto, sin fantasmas.
 - Hardware: 3× BC337 con base a RC0-2, colector a dígito, emisor a GND, segmentos PORTD con resistencias.
 
