@@ -1,0 +1,52 @@
+Correcciones realizadas a G6_EDII_TPL3.asm para que genere G6_EDII_TPL3.HEX con mpasmx
+================================================================================
+Archivo: Trabajos Practicos/Tp3/G6_EDII_TPL3.asm (mpasmx /p16f887)
+Comando usado: C:\mpasmx\mpasmx.exe /p16f887 G6_EDII_TPL3.asm  (tasks.json:5)
+HEX generado: Trabajos Practicos/Tp3/G6_EDII_TPL3.HEX (323 bytes)
+
+1) CBLOCK sin cerrar — G6_EDII_TPL3.asm:35
+   - CBLOCK 0x20 con 11 variables (0x20-0x2B) quedaba abierto.
+   - Agregado ENDC después de COUNTER_SEGMENTS (línea 47) y eliminadas 6 líneas
+     sueltas indentadas que habían quedado dentro del CBLOCK:
+       CFG_DSPL / CFG_DIGITS_DSPL / DSPL_ALL_OFF / CFG_DELAY_2ms / CFG_DELAY_300ms / CFG_DELAY_1s
+     (aparecían como variables y causaban el cascada de Error[121] Illegal label).
+
+2) Typo RRP1 — G6_EDII_TPL3.asm:86
+   - BCF STATUS, RRP1  →  BCF STATUS, RP1
+
+3) Opcode inexistente — G6_EDII_TPL3.asm:175
+   - CLR PORTD  →  CLRF PORTD  (Warning[207] + Error[122] Illegal opcode)
+
+4) Macros de retardo sin cabecera — G6_EDII_TPL3.asm:102 / 108 / 116
+   - Bloques que eran solo:
+       MOVLW d'45' / MOVWF DELAY1_Init ... ENDM
+     les faltaba la línea "CFG_DELAY_2ms MACRO" (y 300ms / 1s).
+   - Agregadas las 3 cabeceras. Sin esto → Error[145] Unmatched ENDM.
+
+5) Etiqueta duplicada y macro faltante en MUX
+   - Había dos etiquetas MUX_DSPL seguidas (líneas 185 y 191) → duplicado.
+   - Eliminado el primero y agregado macro vacía necesaria:
+       CFG_DELAY_3LOOP MACRO / ENDM  (antes de MUX_DSPL)
+     Sin esto → Warning[207] Found label after column 1 (CFG_DELAY_3LOOP) + Symbol not previously defined.
+
+6) Etiqueta mal escrita — G6_EDII_TPL3.asm:128
+   - MAIN_LOOp:  →  MAIN_LOOP:  (el GOTO de línea 130 apunta a MAIN_LOOP)
+
+7) Variables / subrutinas no definidas — usadas pero no declaradas
+   - COUNTER_TEST agregado al CBLOCK (0x20) junto a COUNTER_SEGMENTS.
+   - Agregadas antes del END final (línea 210):
+       UPDATE_DSPL_1: RETURN
+       UPDATE_DSPL_2: RETURN
+       UPDATE_DSPL_3: RETURN
+       RST_COUNTER_DSPL: RETURN
+       DELAY_3LOOP: RETURN
+     Sin esto → Error[113] Symbol not previously defined en TEST_DSPL y MUX_DSPL.
+
+8) Formato MPASM — indentado
+   - MPASM exige mnemónicos/directivas con un TAB/espacio inicial; labels en columna 1.
+   - Todo el archivo estaba en columna 1 con "Illegal label (ORG/GOTO/BSF...)" (116 errores).
+   - Reindentado automático: mnemónicos con TAB, labels con/sin ":" en columna 1.
+   - Además se quitó /q de tasks.json para ver el .ERR (opcional).
+
+Resultado: 116 errores → 0 errores, exit 0, .HEX/.LST/.O generados correctamente.
+Nota: el .HEX es de la versión corregida; el código original pegado no ensamblaba tal cual.
