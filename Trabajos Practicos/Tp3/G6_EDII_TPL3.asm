@@ -129,6 +129,11 @@ INICIO      ;-----Inicialización de Macros-------
         CFG_DIGITS_DSPL     ; Ejecuta la carga de datos del grupo
 
     CALL    TEST_DSPL
+
+   DSPL_ALL_OFF
+   CFG_DELAY_2ms            ; Evita el parpadeo visble
+   MOVLW   d'3'
+   MOVWF   COUNTER_DSPL     ; Estado inicial del contador de multiplexado
 ;===============================================================================
 ; INICIO PROGRAMA PRINCIPAL
 ;===============================================================================
@@ -201,6 +206,7 @@ MUX_DSPL
 ;           y activa el transistor correspondiente en el PORTC según COUNTER_DSPL.
 ;*******************************************************************************
 UPDATE_DSPL_3
+        CLRF    PORTC
         MOVF    DATA_DSPL_3, W
         CALL    TABLE_DECO_DSPL_CC
         MOVWF    PORTD
@@ -211,6 +217,7 @@ UPDATE_DSPL_3
         GOTO    DECF_COUNTER_DSPL
 ;-------------------------------------------------------------------------------
 UPDATE_DSPL_2
+        CLRF    PORTC
         MOVF    DATA_DSPL_2, W
         CALL    TABLE_DECO_DSPL_CC
         MOVWF    PORTD
@@ -237,6 +244,11 @@ UPDATE_DSPL_1
 ;*******************************************************************************
 DECF_COUNTER_DSPL
         DECF    COUNTER_DSPL, F
+        BTFSS   STATUS, Z 
+        GOTO DSPL_CNT_OK
+        MOVLW   d'3'
+        MOVWF   COUNTER_DSPL
+DSPL_CNT_OK
         RETURN
 
 RST_COUNTER_DSPL
@@ -253,6 +265,7 @@ TEST_DSPL
         MOVWF  COUNTER_DSPL
 ;
 LOOP_TEST_DSPL
+        CLRF  PORTC
         MOVF  COUNTER_DSPL, W
         CALL   TABLE_CTRL_DSPL_CC
         MOVWF  PORTC
@@ -267,26 +280,15 @@ LOOP_TEST_SEGMENT
 ;
         CFG_DELAY_300ms
         CALL    DELAY_3LOOP
+        CALL    DELAY_3LOOP
 ;
         BCF     STATUS, C
         RLF     SEGMENT_SHADOW, F
         DECFSZ  COUNTER_SEGMENTS, F
         GOTO    LOOP_TEST_SEGMENT
-;
-        MOVLW   b'01111111'
-        MOVWF   PORTD
-;
-        CFG_DELAY_1s
-        CALL    DELAY_3LOOP
-        CFG_DELAY_1s
-        CALL    DELAY_3LOOP
+
 ;
         CLRF    PORTD
-        CFG_DELAY_1s
-        CALL    DELAY_3LOOP
-        CFG_DELAY_1s
-        CALL    DELAY_3LOOP
-;
         DECF    COUNTER_DSPL, F
         MOVF    COUNTER_DSPL, W
         BTFSS   STATUS, Z
@@ -296,20 +298,21 @@ LOOP_TEST_SEGMENT
 ;===============================================================================
 ; TABLA LUT - CÁTODO COMÚN
 ;===============================================================================
-    ORG     0x0080
+    ORG     0x00C0
 TABLE_DECO_DSPL_CC
         ADDWF   PCL, F
-        RETLW   b'00111111'
-        RETLW   b'00000110'
-        RETLW   b'01011011'
-        RETLW   b'01001111'
-        RETLW   b'01100110'
-        RETLW   b'01101101'
-        RETLW   b'01111101'
-        RETLW   b'00000111'
-        RETLW   b'01111111'
-        RETLW   b'01100111'
-        RETLW   b'01101111'
+      RETLW   b'00111111'      
+      RETLW   b'00000110'      
+      RETLW   b'01011011'      
+      RETLW   b'01001111'      
+      RETLW   b'01100110'      
+      RETLW   b'01101101'      
+      RETLW   b'01111101'      
+      RETLW   b'00000111'      
+      RETLW   b'01111111'      
+      RETLW   b'01100111'      
+      RETLW   b'00111101'      
+
 TABLE_CTRL_DSPL_CC
         ADDWF   PCL, F
         RETLW   b'00000000'
