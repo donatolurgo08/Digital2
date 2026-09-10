@@ -311,34 +311,28 @@ LOOP_TEST_SEGMENT
 ; las tablas se pisan o el salto cae fuera de pagina. El G10 que funciona
 ; deja las tablas pegadas al codigo, sin ORG.
 ;       ORG     0x00C0
+
 TABLE_DECO_DSPL_CC
         ADDWF   PCL, F
-      RETLW   b'00111111'
-      RETLW   b'00000110'
-      RETLW   b'01011011'
-      RETLW   b'01001111'
-      RETLW   b'01100110'
-      RETLW   b'01101101'
-      RETLW   b'01111101'
-      RETLW   b'00000111'
-      RETLW   b'01111111'
-      RETLW   b'01100111'
-; CORRECCION (G10): patron G mal. Original b'00111101' (0x3D, sin segmento g).
-; El G10 usa H'7D' = b'01111101'. Se muestra G06 correctamente.
-;     RETLW   b'00111101'
-      RETLW   b'01111101'       ; CORRECCION: G catodo comun
+        RETLW   b'00111111'     ; 0
+        RETLW   b'00000110'     ; 1
+        RETLW   b'01011011'     ; 2
+        RETLW   b'01001111'     ; 3
+        RETLW   b'01100110'     ; 4
+        RETLW   b'01101101'     ; 5
+        RETLW   b'01111101'     ; 6
+        RETLW   b'00000111'     ; 7
+        RETLW   b'01111111'     ; 8
+        RETLW   b'01100111'     ; 9
+        RETLW   b'01111101'     ; G   <-- ESTA ES LA QUE TENÉS QUE CAMBIAR
+
 
 TABLE_CTRL_DSPL_CC
         ADDWF   PCL, F
         RETLW   b'00000000'
-; CORRECCION (G10): tabla de control espejada. Original 01,02,04 (counter3->RC2).
-; El G10 que funciona usa 04,02,01 (counter3->RC0). Si no, se ve 60G en vez de G06.
-;       RETLW   b'00000001'
-;       RETLW   b'00000010'
-;       RETLW   b'00000100'
-        RETLW   b'00000100'     ; CORRECCION: indice 1 -> RC2 (igual G10)
-        RETLW   b'00000010'     ; CORRECCION: indice 2 -> RC1 (igual G10)
-        RETLW   b'00000001'     ; CORRECCION: indice 3 -> RC0 (igual G10)
+        RETLW   b'00000001'     ; Display 1 -> RC0
+        RETLW   b'00000010'     ; Display 2 -> RC1
+        RETLW   b'00000100'     ; Display 3 -> RC2
 ;===============================================================================
     END
 ;===============================================================================
