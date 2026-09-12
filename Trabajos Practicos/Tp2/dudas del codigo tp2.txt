@@ -1,0 +1,24 @@
+;                       -----------RESOLUCIÓN DE DUDAS---------
+;
+;             Linea 58
+;          *¿Que onda con los Bancos de Memoria (STATUS, RP0 y RP1)?*
+;          ->    El pic esta dividido en 4 bancos (0, 1, 2 y 3). El micro solo
+;             puede leer una sección a la vez. Los bits RP0 y RP1 del registro
+;             STATUS son los marcapáginas:
+;               * RP1 = 0, RP0 = 0: Banco 0. Aquí viven los registros PORT(que
+;               manejan el volatje real de los pines, encendiendo o apagando cosas)
+;               * RP1 = 0, RP0 = 1: Banco 1. Aqui viven los registros TRIS(que
+;               configuran si un pin es entrada o salida)
+;               * RP1 = 1, RP0 = 1: Banco 3. Aqui vive el registro ANSEL, que apaga
+;               las entradas analógicas.
+;             Por eso en CFG_SWITCH saltás al Banco 3 para limpiar ANSEL, luego bajás
+;             al Banco 1 para configurar TRISE, y finalmente volvés al Banco 0 para
+;             que el programa trabaje normalmente con los voltajes.
+;             Linea 71
+;          *¿Qué hace realmente TRISD?
+;          ->    El TRIS viene de Tri-State. Este registro funciona como una
+;             compuerta de dirección:
+;               * Si le ponemos un 1, el pin es una ENTRADA (input = in = 1)
+;               * Si le ponemos un 0, estamos poniendo los bits del Puerto D en 0
+;               configurandolos como salidas digitales para que puedan alimentar a los LEDs
+;
