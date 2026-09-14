@@ -9,28 +9,28 @@
 ;
 ; @date       7/9/2026
 ;
-; @version    1.1 (corregido contra G10 que funciona - muestra G06)
+; @version    1.1 
 ;===============================================================================
 
 ;===============================================================================
-; DIRECTIVAS DE INCLUSIÓN
+; DIRECTIVAS DE INCLUSIÃN
 ;===============================================================================
     LIST P=16F887
     #include "p16f887.inc"
 
 ;===============================================================================
-; CONFIGURACIÓN GENERAL DEL MCU
+; CONFIGURACIÃN GENERAL DEL MCU
 ;===============================================================================
     __CONFIG _CONFIG1, _XT_OSC & _WDTE_OFF & _MCLRE_ON & _LVP_OFF
 
 ;===============================================================================
-; DEFINICIÓN DE CONSTANTES
+; DEFINICIÃN DE CONSTANTES
 ;===============================================================================
     #DEFINE CTRL_DSPL_1 PORTC, RC0
     #DEFINE CTRL_DSPL_2 PORTC, RC1
     #DEFINE CTRL_DSPL_3 PORTC, RC2
 ;===============================================================================
-; DEFINICIÓN DE VARIABLES
+; DEFINICIÃN DE VARIABLES
 ;===============================================================================
     CBLOCK 0x20
             DELAY1_Init
@@ -47,7 +47,7 @@
             SEGMENT_SHADOW
     ENDC
 ;===============================================================================
-; DECLARACIÓN DE MACROS PARA CONFIGURACIÓN DE REGISTROS
+; DECLARACIÃN DE MACROS PARA CONFIGURACIÃN DE REGISTROS
 ;===============================================================================
 CFG_DSPL MACRO
         BSF STATUS, RP0
@@ -118,18 +118,18 @@ CFG_DELAY_1s MACRO
         MOVWF   DELAY3_Init
     ENDM
 ;===============================================================================
-; INICIALIZACIÓN DEL MCU (CÓDIGO ABSOLUTO)
+; INICIALIZACIÃN DEL MCU (CÃDIGO ABSOLUTO)
 ;===============================================================================
     ORG     0x00 ;Vector de Reset
     GOTO    INICIO  ;Salto al inicio del programa principal
-    ORG     0x05 ;Ubicación Programa Principal en la memoria
+    ORG     0x05 ;UbicaciÃ³n Programa Principal en la memoria
             ;de programa
 
 ;===============================================================================
-; INICIALIZACIÓN DE MACROS PARA CONFIGURACIÓN DE REGISTROS
+; INICIALIZACIÃN DE MACROS PARA CONFIGURACIÃN DE REGISTROS
 ;===============================================================================
-INICIO      ;-----Inicialización de Macros-------
-        CFG_DSPL            ; Ejecuta la configuración de puertos
+INICIO      ;-----InicializaciÃ³n de Macros-------
+        CFG_DSPL            ; Ejecuta la configuraciÃ³n de puertos
         CFG_DELAY_2ms       ; Ejecuta la carga de variables del delay
         CFG_DIGITS_DSPL     ; Ejecuta la carga de datos del grupo
 
@@ -180,7 +180,7 @@ LOOP3
 ;*******************************************************************************
 ; @brief   MUX_DSPL
 ;
-; @details  evalua la variable COUNTER_DSPL para determinar cuál de los 3
+; @details  evalua la variable COUNTER_DSPL para determinar cuÃ¡l de los 3
 ;           displays debe actualizarse en el ciclo acual
 ;*******************************************************************************
 
@@ -205,10 +205,10 @@ MUX_DSPL
         GOTO   RST_COUNTER_DSPL  ; NO -> reinicia el contador a 3
 
 ;*******************************************************************************
-; @brief    Actualiza los datos y la señal de control del display activo.
+; @brief    Actualiza los datos y la seÃ±al de control del display activo.
 ;
-; @details  Envía el patrón de segmentos (LUT) de DATA_DSPL_i al PORTD
-;           y activa el transistor correspondiente en el PORTC según COUNTER_DSPL.
+; @details  EnvÃ­a el patrÃ³n de segmentos (LUT) de DATA_DSPL_i al PORTD
+;           y activa el transistor correspondiente en el PORTC segÃºn COUNTER_DSPL.
 ;*******************************************************************************
 UPDATE_DSPL_3
         CLRF    PORTC
@@ -296,15 +296,29 @@ LOOP_TEST_SEGMENT
         GOTO    LOOP_TEST_SEGMENT
 
 ;
+       ; Enciende todos los segmentos durante 2 s
+        MOVLW   b'01111111'
+        MOVWF   PORTD
+        CFG_DELAY_1s
+        CALL    DELAY_3LOOP
+        CFG_DELAY_1s
+        CALL    DELAY_3LOOP
+;
+; Apaga todos los segmentos durante 2 s
         CLRF    PORTD
+        CFG_DELAY_1s
+        CALL    DELAY_3LOOP
+        CFG_DELAY_1s
+        CALL    DELAY_3LOOP
+;
         DECF    COUNTER_DSPL, F
         MOVF    COUNTER_DSPL, W
         BTFSS   STATUS, Z
         GOTO    LOOP_TEST_DSPL
-        RETURN
+RETURN
 
 ;===============================================================================
-; TABLA LUT - CÁTODO COMÚN
+; TABLA LUT - CÃTODO COMÃN
 ;===============================================================================
 ; CORRECCION (G10/PCL): se elimina el ORG 0x00C0 fijo.
 ; Con ORG fijo + ADDWF PCL,F sin PCLATH, si el codigo supera ~187 words
@@ -324,8 +338,7 @@ TABLE_DECO_DSPL_CC
         RETLW   b'00000111'     ; 7
         RETLW   b'01111111'     ; 8
         RETLW   b'01100111'     ; 9
-        RETLW   b'01111101'     ; G   <-- ESTA ES LA QUE TENÉS QUE CAMBIAR
-
+	RETLW   b'01111101'     ; G tipo 6 (a,c,d,e,f,g)
 
 TABLE_CTRL_DSPL_CC
         ADDWF   PCL, F
