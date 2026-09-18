@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar PIC16F887",
+            "type": "process",
+            "command": "C:\\Program Files\\Microchip\\xc8\\v4.00\\pic-as\\bin\\pic-as.exe",
+            "args": [
+                "-mcpu=PIC16F887",
+                "-mdfp=C:\\Program Files\\Microchip\\MPLABX\\v6.35\\packs\\Microchip\\PIC16Fxxx_DFP\\1.8.167\\xc8",
+                "-xassembler-with-cpp",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}
