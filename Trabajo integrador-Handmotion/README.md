@@ -29,7 +29,7 @@ pendientes; no deben suponerse.
 
 ## Entorno
 
-Abrir `Trabajo integrador.code-workspace` desde la raíz del repositorio. El
+Abrir `Trabajo integrador.code-workspace` desde esta carpeta. El
 entorno instalado incluye MPLAB X 6.35, XC8 4.00 (`pic-as`) y la extensión
 PIC Assembly para VS Code. La configuración de compilación del proyecto se
 documentará junto con el primer firmware compilable.
