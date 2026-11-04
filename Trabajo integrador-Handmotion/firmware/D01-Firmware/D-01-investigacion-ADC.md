@@ -152,9 +152,8 @@ interrupciones periféricas/globales.
 - Mantener la lectura seleccionable por canal para poder sumar Y y Z en una
   ampliación futura.
 
-### Fuentes consultadas
+### Fuentes consultadas — ADC
 
 1. Microchip, *PIC16F882/883/884/886/887 Data Sheet*, DS41291D, secciones 3.1,
    3.2.1, 3.4.1 y 9.0–9.3; tablas 1-2, 9-1 y 9-2; características ADC en
    sección 17.0, pp. 99–109 y 257–258 del documento. [PDF oficial](https://ww1.microchip.com/downloads/en/DeviceDoc/41291D.pdf).
-
