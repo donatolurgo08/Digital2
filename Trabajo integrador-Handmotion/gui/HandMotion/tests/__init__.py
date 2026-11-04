@@ -1,0 +1,1 @@
+"""Pruebas unitarias de módulos puros (sensores, procesamiento, lógica, protocolo)."""

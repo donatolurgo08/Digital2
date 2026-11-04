@@ -1,0 +1,12 @@
+flowchart LR
+    PIC[PIC16F887<br/>LM35 + ADXL335] -->|USB-TTL / EUSART| SP[communication/serial_port]
+    SP -->|bytes| PR[communication/protocol]
+    PR -->|tramas| SE[sensors/]
+    SE -->|°C, g| PS[processing/]
+    PS -->|señal filtrada| LG[logic/]
+    LG -->|alarmas / gestos| ST[core/state]
+    ST -->|señales Qt| UI[ui/]
+    UI -->|acciones| CT[core/controller]
+    CT -->|comandos| PR
+    PR -->|bytes| SP
+    SP --> PIC
