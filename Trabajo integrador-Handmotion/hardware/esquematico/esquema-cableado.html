@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hand Motion – Esquema con cableado Rev D</title>
+<style>
+:root{--bg:#fff;--fg:#1c1c1c;--mu:#666;--bx:#f4f6f8;--bd:#8a94a0;--gnd:#555;--p5:#d12c2c;--p3:#e07a00;--pv:#8a3fc4;--an:#1c6fd1;--dg:#14895a;--pr:#b0307f;--nc:#aaa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16191d;--fg:#e8e8e8;--mu:#9aa0a6;--bx:#22272d;--bd:#5d6772;--gnd:#aaa;--p5:#ff6b6b;--p3:#ffa94d;--pv:#c792ea;--an:#5aa9ff;--dg:#3fd49a;--pr:#f06bb8;--nc:#777}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#16191d;--fg:#e8e8e8;--mu:#9aa0a6;--bx:#22272d;--bd:#5d6772;--gnd:#aaa;--p5:#ff6b6b;--p3:#ffa94d;--pv:#c792ea;--an:#5aa9ff;--dg:#3fd49a;--pr:#f06bb8;--nc:#777}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+h1{font-size:20px;margin:0 0 4px}p.s{margin:0 0 10px;color:var(--mu);font-size:13px}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;margin-bottom:10px}.lg b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.w{overflow-x:auto;border:1px solid var(--bd);border-radius:8px}
+svg{display:block;min-width:1500px;width:100%;height:auto}
+.box{fill:var(--bx);stroke:var(--bd)}text{font-family:ui-monospace,Menlo,Consolas,monospace;fill:var(--fg)}
+.sm{font-size:11px}.pn{font-size:9.5px;fill:var(--mu)}.nt{font-size:10px;font-weight:600}.rt{font-size:8.5px}.ti{font-size:12px;font-weight:700;fill:var(--mu);letter-spacing:.05em}
+.sy{fill:none;stroke:var(--gnd);stroke-width:1.6}.cp{fill:none;stroke:var(--fg);stroke-width:1.6}
+.n{font-size:13px;margin-top:12px}.n li{margin-bottom:4px}
+</style></head><body>
+<h1>Hand Motion – Esquema con cableado (Rev D)</h1>
+<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las resistencias no tienen valor porque están POR DEFINIR.</p>
+<div class="lg">
+<span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN_9V / USB_VCC</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
+</div>
+<div class="w"><svg id="d" viewBox="0 0 1740 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Esquema con cableado Hand Motion"></svg></div>
+<ul class="n">
+<li><b>MOD1.VCC va solo a +3V3</b> (cable que sube por el borde izquierdo desde PS1). Nunca a +5V.</li>
+<li><b>J1.VCC (USB_VCC) queda sin conectar a +5V:</b> el conversor se alimenta por USB y solo comparte GND.</li>
+<li><b>Cruces:</b> los cables RD0 y RD1 pasan por debajo del PIC (están en el lado izquierdo del chip) y los de DIG1–3 y BZ_CTRL también.</li>
+<li><b>Verificar antes de soldar:</b> 5,0 V y 3,3 V reales en PS1, patillaje E-B-C de Q1–Q4, pines de los displays, RXD/TXD del USB-TTL, diodo del buzzer.</li>
+<li><b>Ganancia:</b> con offset de 1,65 V en reposo, Av = 1 + Rf/Rg debe quedar por debajo de 3 o la salida se satura contra los 5 V.</li>
+</ul>
+<script>
+var S='',$=function(s){S+=s};
+function c(n){if(n=='GND')return'var(--gnd)';if(n=='+5V')return'var(--p5)';if(n=='+3V3')return'var(--p3)';if(/VIN_9V|USB_VCC/.test(n))return'var(--pv)';if(n=='NC')return'var(--nc)';if(/SEG|CC$|DIG|Q\d_B|BZ|LED|D\d_A/.test(n))return'var(--dg)';if(/PG|MCLR|TTL/.test(n))return'var(--pr)';return'var(--an)'}
+function T(x,y,s,k,a,f){$('<text x="'+x+'" y="'+y+'" class="'+(k||'')+'" text-anchor="'+(a||'start')+'"'+(f?' fill="'+f+'"':'')+'>'+s+'</text>')}
+function W(n,p){var s='M'+p[0]+' '+p[1];for(var i=2;i<p.length;i+=2)s+='L'+p[i]+' '+p[i+1];$('<path d="'+s+'" fill="none" stroke="'+c(n)+'" stroke-width="1.8" stroke-linejoin="round"/>')}
+function D(n,x,y){$('<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+c(n)+'"/>')}
+function G(x,y){$('<path d="M'+x+' '+y+'v5m-7 0h14m-11.5 3h9m-6.5 3h4" class="sy"/>')}
+function V(x,y,l,n){var k=c(n||'+5V');$('<path d="M'+x+' '+y+'v-7m-7 0h14" fill="none" stroke="'+k+'" stroke-width="1.8"/>');T(x,y-10,l||'+5V','nt','middle',k)}
+function RH(x1,x2,y,l){$('<rect x="'+x1+'" y="'+(y-6)+'" width="'+(x2-x1)+'" height="12" class="box"/>');T((x1+x2)/2,y+3,l,'rt','middle')}
+function RV(x,y1,y2,l){$('<rect x="'+(x-6)+'" y="'+y1+'" width="12" height="'+(y2-y1)+'" class="box"/>');T(x+10,(y1+y2)/2+3,l,'rt')}
+function CV(x,y1,y2,l){var m=(y1+y2)/2;$('<path d="M'+x+' '+y1+'V'+(m-3)+'M'+(x-8)+' '+(m-3)+'h16M'+(x-8)+' '+(m+3)+'h16M'+x+' '+(m+3)+'V'+y2+'" class="cp"/>');T(x+12,m+4,l,'rt')}
+function P(x,y,w,h,r,d,L,R,b){$('<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" class="box"/>');T(x+w/2,b?y+h-7:y+15,'<tspan font-weight="700">'+r+'</tspan> '+d,'sm','middle');L.forEach(function(p){T(x+5,p[2]+4,p[0],'pn')});R.forEach(function(p){T(x+w-5,p[2]+4,p[0],'pn','end')})}
+function lb(x,y,s,n){T(x,y,s,'nt','start',c(n||s))}
+function OA(x,y,r,pm,pp,po){$('<path d="M'+x+' '+(y-34)+'L'+x+' '+(y+34)+'L'+(x+56)+' '+y+'Z" class="box"/>');T(x+5,y-12,'−','sm');T(x+5,y+24,'+','sm');T(x+16,y+3,r,'pn');T(x-4,y-21,pm,'pn','end');T(x-4,y+15,pp,'pn','end');T(x+60,y-4,po,'pn')}
+function CH(oy,ref,pm,pp,po,rg,rf,cf,nin,na,nf){var x=320;OA(x,oy,ref,pm,pp,po);
+W(nin,[150,oy+18,x,oy+18]);D(nin,250,oy+18);CV(250,oy+18,oy+62,cf);G(250,oy+62);lb(160,oy+14,nin);
+W(nf,[x,oy-18,290,oy-18]);D(nf,290,oy-18);W(nf,[290,oy-18,290,oy-55,330,oy-55]);RH(330,380,oy-55,rf);W(na,[380,oy-55,420,oy-55,420,oy]);
+W(nf,[290,oy-18,265,oy-18]);RH(225,265,oy-18,rg);W(nf,[225,oy-18,215,oy-18]);G(215,oy-18);
+W(na,[x+56,oy,420,oy]);D(na,420,oy)}
+function PW(x,y,u,cr){$('<rect x="'+x+'" y="'+y+'" width="56" height="46" rx="3" class="box"/>');T(x+28,y+19,u,'sm','middle');T(x+28,y+34,'pin 8 / 4','pn','middle');
+W('+5V',[x+20,y,x+20,y-14,x+76,y-14]);D('+5V',x+20,y-14);V(x+20,y-14);W('GND',[x+20,y+46,x+20,y+60,x+76,y+60]);D('GND',x+20,y+60);G(x+20,y+60);CV(x+76,y-14,y+60,cr)}
+function NC(x,y,l){T(x,y+4,'NC','pn',l?'end':'start')}
+
+T(20,14,'ALIMENTACIÓN, SENSORES Y AMPLIFICACIÓN','ti');T(800,14,'MICROCONTROLADOR','ti');T(1060,14,'PROGRAMACIÓN / UART','ti');T(1450,14,'DISPLAYS Y ALARMAS','ti');
+/* LM35 */
+P(50,30,80,75,'U4','LM35',[['+VS','+5V',66],['GND','GND',90]],[['VOUT','AN0',66]]);
+W('+5V',[50,66,24,66]);V(24,66);CV(24,66,90,'C8');W('GND',[50,90,24,90]);G(24,90);
+W('AN0',[130,66,680,66,680,152,800,152]);lb(400,62,'AN0');
+/* MOD1 */
+P(50,150,100,395,'MOD1','ADXL335',[['VCC','+3V3',215],['GND','GND',250],['ST','NC',285]],[['X','X_IN',190],['Y','Y_IN',348],['Z','Z_IN',518]]);
+W('+3V3',[50,215,10,215]);D('+3V3',24,215);CV(24,215,250,'C9');W('GND',[50,250,24,250]);D('GND',24,250);G(24,250);NC(78,285+0,0);
+W('+3V3',[60,620,10,620,10,215]);lb(14,420,'+3V3');
+/* PS1 / BT1 */
+P(60,580,110,110,'PS1','9V→5V/3V3',[['+3V3','+3V3',620]],[['+5V','+5V',615],['GND','GND',650]]);
+W('+5V',[170,615,190,615]);V(190,615);W('GND',[170,650,190,650]);G(190,650);
+W('VIN_9V',[115,690,115,735]);lb(122,715,'VIN_9V');P(60,735,110,50,'BT1','9 V',[],[]);T(70,775,'−','sm');T(70,755,'+','sm');G(115,785);
+/* canales */
+CH(172,'U2A','2','3','1','R3 Rg','R6 Rf','C5','X_IN','X_AMP','X_FB');
+CH(330,'U2B','6','5','7','R4 Rg','R7 Rf','C6','Y_IN','Y_AMP','Y_FB');
+CH(500,'U3A','2','3','1','R5 Rg','R8 Rf','C7','Z_IN','Z_AMP','Z_FB');
+W('X_AMP',[420,172,800,172]);lb(560,168,'X_AMP');
+W('Y_AMP',[420,330,650,330,650,272,800,272]);lb(500,326,'Y_AMP');
+W('Z_AMP',[420,500,660,500,660,292,800,292]);lb(520,496,'Z_AMP');
+/* VREF */
+OA(320,690,'U3B','6','5','7');
+V(270,612);W('+5V',[270,612,270,622]);RV(270,622,650,'R1');W('VREF_DIV',[270,650,270,708,320,708]);D('VREF_DIV',270,708);W('VREF_DIV',[270,708,270,720]);RV(270,720,748,'R2');W('GND',[270,748,270,760]);G(270,760);
+W('VREF',[376,690,470,690]);W('VREF',[420,690,420,640,300,640,300,672,320,672]);D('VREF',420,690);$('<circle cx="470" cy="690" r="4" class="box"/>');T(480,694,'VREF (punto de prueba)','nt','start',c('VREF'));
+PW(460,590,'U2','C3');PW(600,590,'U3','C4');
+/* U1 */
+P(800,100,160,436,'U1','PIC16F887',[],[]);
+var LP=['1 MCLR','2 RA0/AN0','3 RA1/AN1','4 RA2','5 RA3','6 RA4','7 RA5/AN4','8 RE0/AN5','9 RE1/AN6','10 RE2','11 VDD','12 VSS','13 RA7','14 RA6','15 RC0','16 RC1','17 RC2','18 RC3','19 RD0','20 RD1'];
+var RP=['40 RB7/PGD','39 RB6/PGC','38 RB5','37 RB4','36 RB3/PGM','35 RB2','34 RB1','33 RB0','32 VDD','31 VSS','30 RD7','29 RD6','28 RD5','27 RD4','26 RC7/RX','25 RC6/TX','24 RC5','23 RC4','22 RD3','21 RD2'];
+LP.forEach(function(s,i){T(805,136+i*20,s,'pn')});RP.forEach(function(s,i){T(955,136+i*20,s,'pn','end')});
+[192,212,312,372,392].forEach(function(y){NC(794,y-4+4,1)});[172,192,232,252,272,452,472].forEach(function(y){NC(966,y-4+4,0)});
+/* MCLR / ICSP */
+W('MCLR',[800,132,770,132,770,85,1060,85]);D('MCLR',900,85);W('+5V',[900,85,900,76]);RV(900,64,76,'');T(912,73,'R23','rt');W('+5V',[900,64,900,56]);V(900,56);
+P(1060,60,100,190,'J2','ICSP',[['1 MCLR','MCLR',85],['4 PGD','PGD',132],['5 PGC','PGC',152],['6 PGM','PGM',212]],[['2 VDD','+5V',105],['3 GND','GND',125]]);
+W('+5V',[1160,105,1180,105]);V(1180,105);W('GND',[1160,125,1180,125]);G(1180,125);
+W('PGD',[960,132,1060,132]);W('PGC',[960,152,1060,152]);W('PGM',[960,212,1060,212]);
+/* desacople PIC */
+W('+5V',[800,332,770,332]);V(770,332);CV(770,332,352,'C1');W('GND',[800,352,770,352]);G(770,352);
+W('+5V',[960,292,985,292]);V(985,292);CV(985,292,312,'C2');W('GND',[960,312,985,312]);G(985,312);
+/* LEDs */
+[[232,'LED1','R21','D1'],[252,'LED2','R22','D2']].forEach(function(a){var y=a[0];W(a[1],[800,y,785,y]);RH(745,785,y,a[2]);W('D'+a[1].slice(-1)+'_A',[745,y,735,y]);$('<path d="M735 '+(y-6)+'L735 '+(y+6)+'L721 '+y+'Z M721 '+(y-6)+'V'+(y+6)+'" class="cp" style="stroke:var(--dg)"/>');W('GND',[721,y,700,y]);G(700,y);T(694,y+3,a[3],'pn','end')});
+/* UART */
+P(1100,401,100,84,'J1','USB-TTL',[['TXD','RX_TTL',412],['RXD','TX_TTL',432]],[['VCC','USB_VCC',412],['GND','GND',432]],true);
+W('RX_TTL',[960,412,1100,412]);W('TX_TTL',[960,432,1100,432]);W('USB_VCC',[1200,412,1225,412]);T(1230,416,'USB_VCC aislado (no a +5V)','nt','start',c('USB_VCC'));W('GND',[1200,432,1225,432]);G(1225,432);
+/* segmentos */
+var sg=[[332,'RD7','R16','dp'],[352,'RD6','R15','g'],[372,'RD5','R14','f'],[392,'RD4','R13','e'],[492,'RD3','R12','d'],[512,'RD2','R11','c'],[560,'RD1','R10','b'],[580,'RD0','R9','a']];
+sg.forEach(function(s){var n=s[1]+'_SEG',m='SEG_'+s[3].toUpperCase();RH(1000,1050,s[0],s[2]);W(m,[1050,s[0],1450,s[0]]);lb(1070,s[0]-4,m)});
+[332,352,372,392,492,512].forEach(function(y){W('RD_SEG',[960,y,1000,y])});
+W('RD_SEG',[800,512,780,512,780,560,1000,560]);W('RD_SEG',[800,492,770,492,770,580,1000,580]);
+P(1450,305,130,295,'DS1–DS3','en paralelo',sg.map(function(s){return[s[3],'',s[0]]}),[]);
+T(1515,590,'cát. común','pn','middle');
+/* digitos */
+W('DIG1',[800,412,715,412,715,730,1000,730]);W('DIG2',[800,432,725,432,725,710,1000,710]);W('DIG3',[800,452,735,452,735,690,1000,690]);W('BZ_CTRL',[800,472,745,472,745,640,1000,640]);
+[[730,'R17','Q1_B'],[710,'R18','Q2_B'],[690,'R19','Q3_B'],[640,'R20','Q4_B']].forEach(function(a){RH(1000,1050,a[0],a[1]);W(a[2],[1050,a[0],1250,a[0]])});
+lb(1060,726,'DIG1');lb(1060,706,'DIG2');lb(1060,686,'DIG3');lb(1060,636,'BZ_CTRL');
+P(1250,600,130,170,'Q1–Q4','NPN',[['Q4.B','',640],['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q4.C','',640],['Q3.C','',690],['Q2.C','',710],['Q1.C','',730]]);
+T(1315,764,'E (Q1–Q4)','pn','middle');W('GND',[1315,770,1315,774]);G(1315,774);
+P(1450,660,130,90,'DS1–DS3','cátodos',[['DS3 CAT','',690],['DS2 CAT','',710],['DS1 CAT','',730]],[]);
+W('DS3_CC',[1380,690,1450,690]);W('DS2_CC',[1380,710,1450,710]);W('DS1_CC',[1380,730,1450,730]);
+/* buzzer */
+W('BZ_NEG',[1380,640,1640,640]);lb(1480,636,'BZ_NEG');P(1640,610,80,80,'BZ1','buzzer',[['−','',640]],[]);W('+5V',[1680,610,1680,596]);V(1680,596);T(1650,666,'+ arriba','pn');
+document.getElementById('d').innerHTML=S;
+</script></body></html>
