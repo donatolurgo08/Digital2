@@ -46,24 +46,24 @@
 <text class="p" x="620" y="496"></text>
 <text class="p" x="620" y="520">No conectar patas 13 y 14</text>
 <text class="p" x="620" y="544">Oscilador interno</text>
-<rect x="40" y="516" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="548">Displays cátodo común</text>
-<text class="p" x="60" y="568">RD0-RD7 pasan por resistencia</text>
-<text class="p" x="60" y="594">y van a los ánodos a-g y dp.</text>
+<rect x="40" y="516" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="548">Displays ánodo común</text>
+<text class="p" x="60" y="568">RD0-RD7: segmentos activos en bajo</text>
+<text class="p" x="60" y="594">a-g y dp, con R9-R16 en serie.</text>
 <text class="p" x="60" y="620">Un mismo segmento se une</text>
 <text class="p" x="60" y="646">en los tres displays.</text>
-<text class="p" x="60" y="672">Cátodo a colector del NPN.</text>
-<text class="p" x="60" y="698">Emisor del NPN a GND.</text>
-<text class="p" x="60" y="724">RC0, RC1 o RC2 a la base.</text>
-<text class="p" x="60" y="750">Nivel alto enciende el dígito.</text>
+<text class="p" x="60" y="672">Ánodo común al emisor BC337.</text>
+<text class="p" x="60" y="698">Colector BC337 a +5 V.</text>
+<text class="p" x="60" y="724">RC0-RC2 a base por R17-R19.</text>
+<text class="p" x="60" y="750">VBE y brillo deben verificarse.</text>
 <rect x="560" y="516" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="580" y="548">Alarmas</text>
-<text class="p" x="580" y="568">Pata 6, resistencia, LED 1, GND</text>
-<text class="p" x="580" y="594">Pata 7, resistencia, LED 2, GND</text>
-<text class="p" x="580" y="620">+5 V al positivo del buzzer</text>
-<text class="p" x="580" y="646">Negativo al colector NPN</text>
-<text class="p" x="580" y="672">Emisor del NPN a GND</text>
-<text class="p" x="580" y="698">Pata 18 a la base, con R</text>
-<text class="p" x="580" y="724">Nivel alto enciende</text>
-<text class="p" x="580" y="750">Revisar diodo del buzzer</text>
+<text class="p" x="580" y="568">Pata 4 / RA2, R21, LED1, GND</text>
+<text class="p" x="580" y="594">Pata 7 / RA5, R22, LED2, GND</text>
+<text class="p" x="580" y="620">Módulo: VCC a +5 V, GND común</text>
+<text class="p" x="580" y="646">Señal I/O directa a RC3 / pata 18</text>
+<text class="p" x="580" y="672">Sin Q4 ni R20</text>
+<text class="p" x="580" y="698">Polaridad y corriente por verificar</text>
+<text class="p" x="580" y="724">Firmware supone activo-alto</text>
+<text class="p" x="580" y="750">LED1 fue movido desde RA4</text>
 <rect x="1080" y="516" width="540" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="1100" y="548">USB-TTL y PICkit</text>
 <text class="p" x="1100" y="568">GND común con el circuito</text>
 <text class="p" x="1100" y="594">RC6/TX hacia RX del modulo</text>

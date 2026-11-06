@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1250" viewBox="0 0 1650 1250">
 <rect width="1650" height="1250" fill="#ffffff"/>
 <text x="40" y="46" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#111111">HAND MOTION — Hoja 2: PIC, displays, alarmas y enlace</text>
-<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#555555">Las etiquetas de red unen pines del mismo nombre. Los números junto al PIC son patas del DIP-40.</text>
+<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#c62828">PRELIMINAR: no usar el driver dibujado aquí. Ver esquema-cableado.html y conexiones.txt para ánodo común + BC337.</text>
 <rect x="20" y="20" width="1610" height="1210" fill="none" stroke="#111111" stroke-width="1"/>
 <rect x="200" y="150" width="300" height="800" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
 <text x="350.0" y="186" font-family="Segoe UI, Arial" font-size="17" fill="#111111" text-anchor="middle" font-weight="700">U1  PIC16F887</text>
@@ -142,7 +142,7 @@
 <line x1="700" y1="438" x2="760" y2="438" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="768" y="442" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="normal">dp</text>
 <text x="696" y="442" font-family="Segoe UI, Arial" font-size="9" fill="#1a3dcc" text-anchor="end" font-weight="700">SEG_DP</text>
-<text x="835" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">cátodo común</text>
+<text x="835" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">ánodo común</text>
 <line x1="835" y1="480" x2="835" y2="510" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="843" y="506" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="700">DIG1</text>
 <text x="835" y="172" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="700">DISPLAY 1</text>
@@ -193,7 +193,7 @@
 <line x1="970" y1="438" x2="1030" y2="438" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="1038" y="442" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="normal">dp</text>
 <text x="966" y="442" font-family="Segoe UI, Arial" font-size="9" fill="#1a3dcc" text-anchor="end" font-weight="700">SEG_DP</text>
-<text x="1105" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">cátodo común</text>
+<text x="1105" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">ánodo común</text>
 <line x1="1105" y1="480" x2="1105" y2="510" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="1113" y="506" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="700">DIG2</text>
 <text x="1105" y="172" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="700">DISPLAY 2</text>
@@ -244,7 +244,7 @@
 <line x1="1240" y1="438" x2="1300" y2="438" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="1308" y="442" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="normal">dp</text>
 <text x="1236" y="442" font-family="Segoe UI, Arial" font-size="9" fill="#1a3dcc" text-anchor="end" font-weight="700">SEG_DP</text>
-<text x="1375" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">cátodo común</text>
+<text x="1375" y="468" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="middle" font-weight="normal">ánodo común</text>
 <line x1="1375" y1="480" x2="1375" y2="510" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
 <text x="1383" y="506" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="700">DIG3</text>
 <text x="1375" y="172" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="700">DISPLAY 3</text>
@@ -264,7 +264,7 @@
 <line x1="1365" y1="644" x2="1385" y2="644" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
 <line x1="1371" y1="652" x2="1379" y2="652" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
 <text x="800" y="700" font-family="Segoe UI, Arial" font-size="11" fill="#555555" text-anchor="start" font-weight="normal">Los ocho segmentos de los tres displays van en paralelo, con una resistencia por línea.</text>
-<text x="800" y="720" font-family="Segoe UI, Arial" font-size="11" fill="#555555" text-anchor="start" font-weight="normal">El cátodo común de cada display baja al colector de su NPN. Emisor a GND.</text>
+<text x="800" y="720" font-family="Segoe UI, Arial" font-size="11" fill="#c62828" text-anchor="start" font-weight="700">Driver de este dibujo obsoleto: seguir conexiones.txt; BC337 en seguidor de emisor (C a +5 V, E al ánodo común).</text>
 <text x="800" y="740" font-family="Segoe UI, Arial" font-size="11" fill="#555555" text-anchor="start" font-weight="normal">Un nivel alto en la base enciende ese dígito: activar uno por vez (multiplexado).</text>
 <rect x="760" y="760" width="660" height="230" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
 <text x="1090.0" y="782" font-family="Segoe UI, Arial" font-size="13" fill="#111111" text-anchor="middle" font-weight="700">Alarmas</text>

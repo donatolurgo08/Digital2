@@ -2,14 +2,15 @@
 
 ## Organización
 
-El firmware se implementa en un archivo fuente Assembler para PIC16F887
-compatible con `pic-as`: `firmware/src/handmotion.S`. Se mantiene la organización
-comentada usada en los TP del repo (encabezado, directivas, configuración,
-constantes, variables, vectores, inicialización, programa principal, ISR y
-subrutinas). La sintaxis relocatable de `pic-as` se toma como referencia del TP1;
-no se copian directivas MPASM de TP3/TP4 sin verificar compatibilidad.
+El firmware está escrito en Assembler para PIC16F887 compatible con `pic-as`.
+`firmware/src/handmotion.S` contiene el vector, la configuración, los datos
+compartidos y el bucle principal; el multiplexado está separado en
+`firmware/src/modules/display.inc`, incluido durante el ensamblado. Así se
+mantiene un único HEX de salida y se separan las responsabilidades por módulo.
+La sintaxis relocatable de `pic-as` se toma como referencia del TP1; no se copian
+directivas MPASM de TP3/TP4 sin verificar compatibilidad.
 
-Cuando el firmware esté estable, las responsabilidades podrán separarse en:
+Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 
 1. Inicialización y configuración de periféricos.
 2. Adquisición y conversión ADC.
@@ -66,6 +67,19 @@ Cuando el firmware esté estable, las responsabilidades podrán separarse en:
 - Estado: **escrita y compilada**, no probada en hardware. Si la prueba confirma
   un módulo activo-bajo, invertir los niveles de RC3 en firmware, sin modificar
   el conexionado.
+
+## Etapa 4: displays multiplexados
+
+- El código del multiplexado está separado en `firmware/src/modules/display.inc`
+  y se incorpora a `handmotion.S` durante el ensamblado.
+- TIMER1 usa reloj interno `FOSC/4`, prescaler 1:1 y recarga `0xF830` para un
+  periodo nominal de 1 ms; el programa sondea `TMR1IF` sin ISR.
+- Muestra decenas, unidades y `C` estándar (`a`, `d`, `e`, `f`). En displays
+  rojos de ánodo común, los patrones de RD0–RD7 son activos en bajo y RC0–RC2
+  habilitan cada dígito en alto.
+- Q1–Q3 BC337 se plantean como seguidores de emisor de lado alto. La caída VBE,
+  la corriente, el brillo y R9–R19 siguen pendientes de validación eléctrica.
+- Estado: **escrita y compilada**, no probada en hardware.
 
 ## Detalle de `pic-as` V4.00 verificado
 

@@ -15,8 +15,8 @@ resistencias todavía no tienen valor: no comprarlas por suposición.
 | 2 | MCP6002, DIP-8 | Acondicionamiento de X, Y y Z, más referencia. |
 | 3 | Capacitores de filtrado, 100 nF | Uno por eje. |
 | — | Resistencias de ganancia y referencia | Valores pendientes. |
-| 3 | Displays de 7 segmentos, cátodo común | Decenas, unidades y símbolo °C. |
-| 3 | Transistores NPN BC337 | Multiplexado de los cátodos. Verificar patillaje. |
+| 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |
+| 3 | Transistores NPN BC337 | Selectores propuestos como seguidores de emisor para los ánodos comunes. Verificar margen de tensión, corriente y patillaje. |
 | 1 | Módulo buzzer activo 3,3–5 V, 3 terminales (VCC, GND, I/O) | Alarma acústica. El I/O va directo a RC3; el módulo incluye el driver. |
 | 2 | LED rojos | Alarma visual. |
 | — | Resistencias de segmentos, LED y bases | Valores pendientes. |

@@ -35,9 +35,11 @@ e información de estado. La supervisión térmica no participa en el reconocimi
 - Alcance de la primera versión: se adquiere y procesa **solo X**. Y y Z quedan
   cableados y se incorporarán si el tiempo lo permite.
 - LM35 obligatoriamente en AN0.
-- Tres displays de cátodo común multiplexados: dos dígitos de temperatura y un
-  indicador de °C. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp) y selección de
-  dígitos en RC0–RC2 mediante Q1–Q3.
+- Tres displays rojos de **ánodo común** multiplexados: dos dígitos de temperatura
+  y una `C` estándar. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp), activos
+  en bajo; selección en RC0–RC2 mediante Q1–Q3 BC337, activos en alto.
+  La propuesta de Q1–Q3 como seguidores de emisor del lado alto tiene una caída
+  aproximada VBE; brillo/corriente y resistencias siguen pendientes de validar.
 - LED rojo y buzzer activo simultáneos cuando T > 40 °C. LED1 en RA2, LED2 en
   RA5. El buzzer es un módulo de 3 terminales (VCC, GND, I/O): VCC a +5 V, GND
   a GND e I/O directo a RC3. No lleva Q4 ni R20.

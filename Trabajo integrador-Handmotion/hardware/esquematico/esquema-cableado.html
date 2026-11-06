@@ -28,7 +28,8 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 <li><b>MOD1.VCC va solo a +3V3</b> (cable que sube por el borde izquierdo desde PS1). Nunca a +5V.</li>
 <li><b>J1.VCC (USB_VCC) queda sin conectar a +5V:</b> el conversor se alimenta por USB y solo comparte GND.</li>
 <li><b>Cruces:</b> los cables RD0 y RD1 pasan por debajo del PIC (están en el lado izquierdo del chip) y los de DIG1–3 y BZ_CTRL también.</li>
-<li><b>Verificar antes de soldar:</b> 5,0 V y 3,3 V reales en PS1, patillaje E-B-C de Q1–Q3, pines de los displays, RXD/TXD del USB-TTL, polaridad y corriente del terminal I/O del módulo buzzer.</li>
+ <li><b>Displays rojos de ánodo común:</b> RD0–RD7 activos en bajo. Q1–Q3 BC337 se proponen como seguidores de emisor del lado alto; colectores a +5 V y emisores a los ánodos comunes. VBE reduce el margen de tensión; probar un segmento antes del montaje completo.</li>
+ <li><b>Verificar antes de soldar:</b> 5,0 V y 3,3 V reales en PS1, patillaje E-B-C de Q1–Q3, pines de los displays, RXD/TXD del USB-TTL, polaridad y corriente del terminal I/O del módulo buzzer.</li>
 <li><b>LED1 en RA2 (pin 4):</b> RA4 es open-drain y no puede entregar corriente al LED. RA4 queda sin conectar.</li>
 <li><b>Ganancia:</b> con offset de 1,65 V en reposo, Av = 1 + Rf/Rg debe quedar por debajo de 3 o la salida se satura contra los 5 V.</li>
 </ul>
@@ -107,15 +108,15 @@ sg.forEach(function(s){var n=s[1]+'_SEG',m='SEG_'+s[3].toUpperCase();RH(1000,105
 [332,352,372,392,492,512].forEach(function(y){W('RD_SEG',[960,y,1000,y])});
 W('RD_SEG',[800,512,780,512,780,560,1000,560]);W('RD_SEG',[800,492,770,492,770,580,1000,580]);
 P(1450,305,130,295,'DS1–DS3','en paralelo',sg.map(function(s){return[s[3],'',s[0]]}),[]);
-T(1515,590,'cát. común','pn','middle');
+T(1515,590,'ánodos comunes','pn','middle');
 /* digitos */
 W('DIG1',[800,412,715,412,715,730,1000,730]);W('DIG2',[800,432,725,432,725,710,1000,710]);W('DIG3',[800,452,735,452,735,690,1000,690]);
 [[730,'R17','Q1_B'],[710,'R18','Q2_B'],[690,'R19','Q3_B']].forEach(function(a){RH(1000,1050,a[0],a[1]);W(a[2],[1050,a[0],1250,a[0]])});
 lb(1060,726,'DIG1');lb(1060,706,'DIG2');lb(1060,686,'DIG3');
-P(1250,600,130,170,'Q1–Q3','NPN BC337',[['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q3.C','',690],['Q2.C','',710],['Q1.C','',730]]);
-T(1315,764,'E (Q1–Q3)','pn','middle');W('GND',[1315,770,1315,774]);G(1315,774);
-P(1450,660,130,90,'DS1–DS3','cátodos',[['DS3 CAT','',690],['DS2 CAT','',710],['DS1 CAT','',730]],[]);
-W('DS3_CC',[1380,690,1450,690]);W('DS2_CC',[1380,710,1450,710]);W('DS1_CC',[1380,730,1450,730]);
+P(1250,600,130,170,'Q1–Q3','BC337 seguidor',[['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q3.E','',690],['Q2.E','',710],['Q1.E','',730]]);
+T(1315,764,'C (Q1–Q3) a +5V','pn','middle');
+P(1450,660,130,90,'DS1–DS3','ánodos',[['DS3 AN','',690],['DS2 AN','',710],['DS1 AN','',730]],[]);
+W('DS3_CA',[1380,690,1450,690]);W('DS2_CA',[1380,710,1450,710]);W('DS1_CA',[1380,730,1450,730]);
 /* buzzer */
 W('BZ_CTRL',[800,472,745,472,745,800,1612,800,1612,690,1620,690]);
 P(1620,600,90,100,'BZ1','módulo buzzer',[['VCC','',630],['GND','',660],['I/O','',690]],[]);

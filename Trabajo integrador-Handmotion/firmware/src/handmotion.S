@@ -5,15 +5,12 @@
 ;
 ; @date       06/11/2026
 ;
-; @brief      HAND MOTION - Etapa 3: alarma termica.
+; @brief      HAND MOTION - Etapas 2-4: ADC, alarma y displays.
 ;
 ; @details    PIC16F887 con oscilador interno a 8 MHz (OSCCON IRCF=111).
-;             Esta etapa configura el ADC a FOSC/32 (TAD = 4 us), lee el
-;             LM35 por AN0 y el eje X por AN1, convierte las cuentas a
-;             temperatura (grados C) y aceleracion (mg) y activa la alarma
-;             cuando TEMP_C supera los 40 C: LED1 (RA2), LED2 (RA5) y el
-;             modulo buzzer (RC3) encienden juntos. Todavia no hay displays
-;             ni EUSART: la temperatura y la aceleracion quedan en RAM.
+;             Configura el ADC a FOSC/32 (TAD = 4 us), lee LM35 en AN0 y X
+;             en AN1, convierte los datos, controla la alarma termica y
+;             multiplexa tres displays de anodo comun con TIMER1.
 ;
 ;             Mapa de pines segun la Rev D del esquema:
 ;               RA0/AN0  LM35                       entrada analogica
@@ -26,18 +23,20 @@
 ;               RE1/AN6  Z amplificado              entrada analogica
 ;               RE2/AN7  libre
 ;               RE3/MCLR reset externo              entrada (MCLRE=ON)
-;               RC0-RC2  DIG1-DIG3 (bases Q1-Q3)    salidas
+;               RC0-RC2  DIG1-DIG3 (bases Q1-Q3)    salidas activas altas
 ;               RC3      BZ_CTRL (I/O del modulo)   salida
 ;               RC6/TX   TX_TTL                     salida EUSART
 ;               RC7/RX   RX_TTL                     entrada EUSART
 ;               RD0-RD7  segmentos a,b,c,d,e,f,g,dp salidas
 ;               RB3/PGM, RB6/PGC, RB7/PGD           reservados a ICSP
 ;
-;             Etapas 2-3: compiladas. NO probadas en hardware.
+;             Etapas 2-4: compiladas. NO probadas en hardware.
+;             Displays rojos de anodo comun: segmentos activos bajos.
+;             Q1-Q3 BC337 se proyectan como seguidores de emisor del lado
+;             alto; verificar corriente y brillo antes de conectar todo.
 ;             Pendiente de hardware: valores de R9-R19 y R21-R23. LED1 se movio
 ;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.
-;             Pendiente de firmware: displays, temporizadores y protocolo
-;             serie (T-03).
+;             Pendiente de firmware: protocolo serie (T-03).
 ;             Pendiente de banco: polaridad electrica del terminal I/O del
 ;             buzzer; si es activo-bajo hay que invertir el nivel de RC3.
 ;===============================================================================
@@ -76,7 +75,6 @@
 ;
 ; Referencias para las etapas siguientes (todavia NO usadas en este archivo):
 ;   TIMER0  1:8 + recarga 6       -> 1 ms
-;   TIMER1  1:1 + recarga 0xF830  -> 1 ms por digito
 ;   EUSART  9600 Bd, BRGH=1       -> SPBRG = 51
         FOSC_KHZ        EQU     8000
         TCY_NS          EQU     500
@@ -90,6 +88,10 @@
         ADC_CTRL_BASE   EQU     0x81    ; ADON + ADCS = FOSC/32
         ADC_ACQ_LOOPS   EQU     14      ; ~23 us a 8 MHz
         ADC_GO          EQU     1       ; bit GO/DONE de ADCON0
+
+; TIMER1 interno FOSC/4, prescaler 1:1: 2000 cuentas = 1 ms.
+        TMR1_RELOAD_H   EQU     0xF8
+        TMR1_RELOAD_L   EQU     0x30
 
 ; Alarma termica: ambos LED y buzzer activos si TEMP_C > 40 C.
         TEMP_ALARM     EQU     40
@@ -136,7 +138,7 @@ MC_L:           DS      1       ; multiplicando desplazado, byte bajo
 MC_H:           DS      1       ; multiplicando desplazado, byte alto
 DELTA_L:        DS      1       ; X: cuentas-offset (entrada) / mg (salida)
 DELTA_H:        DS      1       ; idem, byte alto
-FLAGS:          DS      1       ; bit 0 = signo de X (1 = negativo)
+FLAGS:          DS      1       ; bit 0 = signo X; bits 2:1 = digito activo
 TEMP_C:         DS      1       ; temperatura en grados C (0..99)
 PROD_H:         DS      1       ; reserva del multiplicador en mul16x8
 
@@ -158,13 +160,13 @@ resetVec:
 
 main:
         CALL    init
+        CALL    display_init
 
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
-; Etapa 3: adquisicion continua de AN0 (LM35) y AN1 (X). Al actualizar la
-; temperatura, la alarma compara TEMP_C con 40 C y actualiza RA2, RA5 y RC3.
-; Las interrupciones permanecen deshabilitadas: todo es polling.
+; Adquisicion continua de AN0/AN1, alarma termica y servicio del display.
+; TIMER1 se sondea por polling; las interrupciones permanecen deshabilitadas.
 ; Resultados: TEMP_C = grados C; DELTA_H:DELTA_L = mg de X con signo.
 loop:
         MOVLW   0               ; AN0 = LM35
@@ -175,6 +177,7 @@ loop:
         MOVLW   1               ; AN1 = X amplificado
         CALL    leer_adc
         CALL    convertir_x_mg
+        CALL    display_service
 
         GOTO    loop
 
@@ -195,7 +198,7 @@ loop:
 ;             - LED1 (RA2) y LED2 (RA5) apagados: nivel bajo.
 ;             - DIG1-DIG3 (RC0-RC2) en bajo: ningun display habilitado.
 ;             - BZ_CTRL (RC3) en bajo: buzzer apagado (confirmar polaridad).
-;             - Segmentos (RD0-RD7) en bajo: todos los segmentos apagados.
+;             - Segmentos (RD0-RD7) en alto: apagados (anodo comun).
 ;
 ; @param    ninguno
 ; @return   ninguno
@@ -216,7 +219,9 @@ wait_osc:
         BANKSEL PORTA
         CLRF    PORTA           ; LED1/LED2 apagados
         CLRF    PORTC           ; digitos y buzzer apagados
-        CLRF    PORTD           ; segmentos apagados
+        MOVLW   0xFF
+        MOVWF   PORTD           ; segmentos activos bajos: todos apagados
+        CLRF    FLAGS           ; signo X y estado del display iniciales
 
         ;----- Direcciones de los puertos -----
         BANKSEL TRISA
@@ -511,6 +516,10 @@ mul16x8:
         MOVF    TMP,W
         MOVWF   RES_L           ; bajo = P_L
         RETURN
+
+;===============================================================================
+; Modulo separado: multiplexado de los displays (Etapa 4).
+        #include "modules/display.inc"
 
 ;===============================================================================
         END     resetVec
