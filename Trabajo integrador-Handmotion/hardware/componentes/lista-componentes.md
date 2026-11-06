@@ -1,55 +1,41 @@
-# Lista preliminar de componentes — HAND MOTION
+# Lista de materiales — HAND MOTION
 
-Lista inicial basada en los requisitos confirmados. Las cantidades y
-características marcadas como pendientes se cierran al definir encapsulado,
-esquema y componentes concretos.
+Componentes definidos para el prototipo. El conexionado está en
+[`../esquematico/conexiones.txt`](../esquematico/conexiones.txt). Las
+resistencias todavía no tienen valor: no comprarlas por suposición.
 
-## Componentes confirmados
+## Circuito
 
-| Cant. | Componente | Uso / estado |
+| Cant. | Componente | Función |
 |---:|---|---|
-| 1 | PIC16F887 | Microcontrolador; falta confirmar encapsulado. |
-| 1 | Módulo GY-61 con acelerómetro ADXL335 | Movimiento; inicialmente se usa el eje X. Verificar la versión y tensión del módulo. |
-| 1 | Sensor LM35 | Temperatura; salida conectada a AN0. |
-| 3 | Displays individuales de 7 segmentos, cátodo común | Dos dígitos numéricos y un display para C/punto decimal. |
-| 1 | LED rojo | Alarma de temperatura. |
-| 1 | Buzzer activo | Alarma acústica; confirmar tensión y corriente. |
-| 1 | Conversor USB-TTL | Enlace serie bidireccional con la computadora; tensión lógica pendiente. |
-| 1 | Computadora | Ejecuta la GUI y se comunica por puerto serie. |
-| 1 | Programador compatible con PIC16F887 | Para cargar el firmware; modelo pendiente. |
+| 1 | PIC16F887, PDIP-40 | Control, ADC, displays, alarmas y EUSART. |
+| 1 | Zócalo DIP-40 | Montaje del PIC. |
+| 1 | Módulo LilyPad ADXL335 | Ejes X, Y y Z. Solo 3,3 V: no tiene regulador propio. |
+| 1 | LM35 | Temperatura. Salida a AN0. Alimentación 4–30 V; en este circuito, 5 V. |
+| 2 | MCP6002, DIP-8 | Acondicionamiento de X, Y y Z, más referencia. |
+| 3 | Capacitores de filtrado, 100 nF | Uno por eje. |
+| — | Resistencias de ganancia y referencia | Valores pendientes. |
+| 3 | Displays de 7 segmentos, cátodo común | Decenas, unidades y símbolo °C. |
+| 3 | Transistores NPN BC337 | Multiplexado de los cátodos. Verificar patillaje. |
+| 1 | Módulo buzzer activo 3,3–5 V, 3 terminales (VCC, GND, I/O) | Alarma acústica. El I/O va directo a RC3; el módulo incluye el driver. |
+| 2 | LED rojos | Alarma visual. |
+| — | Resistencias de segmentos, LED y bases | Valores pendientes. |
+| 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
+| 1 | Batería de 9 V | Alimentación del módulo de protoboard. |
+| 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común. |
+| 1 | Conversor USB–TTL | Enlace con la PC. No es RS-232 y su VCC no se une al riel. |
+| 1 | Programador PICkit | Carga del firmware por ICSP. |
 
-No se incluye teclado matricial ni actuadores externos.
+## Montaje disponible
 
-## Componentes de soporte por definir en el esquema
+Protoboard, cables Dupont y multímetro.
 
-- Fuente regulada y distribución de alimentación compatibles con el PIC y los
-  módulos. No asumir una tensión hasta verificar el GY-61 concreto y el resto
-  del circuito.
-- Capacitores de desacople cerca de los pines de alimentación del PIC y módulos;
-  cantidad y valores según datasheets y montaje.
-- Se usará el oscilador interno del PIC; no hace falta cristal/resonador externo.
-  La frecuencia interna y los configuration bits siguen pendientes.
-- Circuito de reset/MCLR si la configuración del PIC lo requiere.
-- Resistencias limitadoras para los segmentos de los displays y para el LED.
-- Transistores/etapa de manejo para seleccionar los dígitos y sus resistencias
-  asociadas, según la topología de cátodo común, corriente y esquema de multiplexado.
-- Driver para el buzzer únicamente si sus requisitos eléctricos superan los que
-  puede manejar con seguridad un GPIO.
-- Conectores, headers, cables/jumpers y placa de prototipado o PCB.
+## Agregar al armar, aunque no estén en la lista inicial
 
-## Pendiente de especificar antes de comprar o conectar
+- Resistencia de pull-up en `MCLR`, si el reset externo queda habilitado.
+- Capacitor de 100 nF entre alimentación y GND de cada MCP6002.
+- Capacitor de 100 nF entre +3V3 y GND, junto al módulo acelerómetro.
+- Capacitor de 100 nF entre `+VS` y GND del LM35.
 
-- Encapsulado del PIC16F887 y números físicos de pin.
-- Pines, transistores/driver, resistencias y corrientes adecuados para los
-  displays de cátodo común.
-- Tensión de alimentación admitida por el GY-61 concreto y del conversor USB-TTL.
-- Corriente del buzzer y estrategia de manejo.
-- Frecuencia del oscilador interno, configuration bits y circuito de reset.
-- Corrientes por segmento, selección de dígitos y distribución de alimentación.
-
-## Instrumental útil para pruebas
-
-- Multímetro.
-- Fuente de laboratorio con límite de corriente ajustable.
-- Osciloscopio o analizador lógico para revisar multiplexado y EUSART (opcional).
-- Terminal serie para pruebas iniciales del enlace USB-TTL.
+No hace falta cristal externo: el PIC usa su oscilador interno a 8 MHz. Los
+configuration bits están definidos en el firmware.

@@ -13,7 +13,7 @@
   (`1`) o digital (`0`). Para usarlos como GPIO digital hay que desactivar su
   función analógica; configurar solo `TRIS` no basta.
 - Configurar primero el valor de salida seguro del puerto y después la dirección
-  de los pines, una vez confirmadas polaridad y asignación.
+  de los pines, una vez confirmado el mapa de pines y la polaridad del driver.
 
 Las operaciones de bits sobre `PORTx` son read-modify-write: el PIC lee los
 niveles de los pines, modifica el bit y vuelve a escribir el puerto. Si hay
@@ -38,7 +38,9 @@ esquema y programación antes de asignar números de pata o señales.
 
 ## Aplicación en HAND MOTION
 
-- GPIO para líneas de segmentos y selección de los tres displays multiplexados.
+- GPIO para líneas de segmentos y selección de los tres displays multiplexados
+  de cátodo común. Los segmentos requieren corriente por sus ánodos; la polaridad
+  de selección depende del circuito driver.
 - GPIO de control para LED rojo y buzzer activo.
 - Mantener separados los pines ADC del LM35 (AN0) y del acelerómetro X, y las
   líneas EUSART (RC6/TX, RC7/RX).
@@ -53,8 +55,8 @@ esquema y programación antes de asignar números de pata o señales.
 - La hoja de datos da límites absolutos de 25 mA por I/O y 200 mA combinados por
   grupos de puertos. **No son corrientes de diseño recomendadas**; respetar las
   especificaciones normales `VOH`/`VOL` y márgenes eléctricos.
-- La polaridad, tipo de display, resistencias, transistores y pines siguen
-  pendientes hasta revisar el circuito real.
+- El tipo cátodo común está confirmado; resistencias, transistores/driver,
+  corrientes y pines siguen pendientes hasta revisar el circuito real.
 
 ## Fuente
 

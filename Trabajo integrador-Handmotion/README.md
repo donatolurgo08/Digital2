@@ -14,8 +14,10 @@ acelerómetro analógico ADXL335 (módulo GY-61).
 - Comunicación bidireccional con una GUI de PC mediante EUSART y un conversor
   USB-TTL.
 - Firmware en Assembler para PIC16F887, compatible con `pic-as` (XC8).
+- Displays de siete segmentos de cátodo común.
+- Uso del oscilador interno del PIC; frecuencia y configuration bits pendientes.
 
-Los pines, reloj, configuración del PIC, características eléctricas, tiempos,
+Los pines, frecuencia y configuración del PIC, características eléctricas, tiempos,
 umbrales de gestos y protocolo serie que no estén confirmados se mantienen como
 pendientes; no deben suponerse.
 

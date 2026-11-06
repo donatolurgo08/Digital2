@@ -17,10 +17,10 @@ en `ADRESH:ADRESL`. El PIC16F887 dispone de los canales AN0–AN13.
 Para HAND MOTION:
 
 - El LM35 se conecta obligatoriamente a **AN0/RA0**.
-- El eje X del ADXL335 debe conectarse a otro canal ADC; el canal todavía no está
-  asignado.
-- La rutina de adquisición debería aceptar un canal como parámetro, para permitir
-  agregar Y y Z posteriormente sin cambiar el esquema general de lectura.
+- En la Rev D del esquema, el eje X del ADXL335 (amplificado por MCP6002) está en
+  **AN1/RA1**. Y y Z quedan cableados en **AN5/RE0** y **AN6/RE1**.
+- La rutina de adquisición acepta un canal como parámetro, para permitir agregar
+  Y y Z posteriormente sin cambiar el esquema general de lectura.
 
 ### Registros y bits principales
 
@@ -47,12 +47,16 @@ Mapa de canales disponible en el PIC16F887:
 | Canal | Pin del puerto |
 |---|---|
 | AN0 | RA0 — asignado al LM35 |
-| AN1–AN4 | RA1, RA2, RA3, RA5 |
-| AN5–AN7 | RE0, RE1, RE2 |
-| AN8–AN13 | RB2, RB3, RB1, RB4, RB0, RB5 |
+| AN1 | RA1 — asignado al eje X |
+| AN2 | RA2 — asignado a LED1 (digital) |
+| AN3–AN4 | RA3, RA5 — libres (AN4 comparte RA5 con LED2) |
+| AN5–AN6 | RE0, RE1 — asignados a Y y Z |
+| AN7 | RE2 — libre |
+| AN8–AN13 | RB2, RB3, RB1, RB4, RB0, RB5 — libres |
 
-Son canales candidatos, no asignaciones del proyecto. El pin físico depende del
-encapsulado concreto del PIC. Para una entrada analógica, el pin correspondiente
+Los canales AN0, AN1, AN5 y AN6 son las asignaciones confirmadas del proyecto
+(Rev D); el resto son canales disponibles. El pin físico depende del encapsulado
+concreto del PIC. Para una entrada analógica, el pin correspondiente
 debe tener el driver de salida deshabilitado (`TRIS=1`) y su bit analógico
 habilitado en `ANSEL` o `ANSELH`. Las entradas configuradas como analógicas se
 leen como cero a través de `PORT`; se debe leer el resultado convertido en
@@ -147,10 +151,10 @@ interrupciones periféricas/globales.
 
 - Leer el LM35 por AN0 para obtener la temperatura, mostrarla en los displays y
   activar la alarma cuando supere 40 °C.
-- Leer la salida X del ADXL335 por un canal diferente de AN0 y entregar las
-  muestras al reconocimiento de movimientos y a la GUI.
-- Mantener la lectura seleccionable por canal para poder sumar Y y Z en una
-  ampliación futura.
+- Leer la salida X del ADXL335 por **AN1** y entregar las muestras al
+  reconocimiento de movimientos y a la GUI.
+- Mantener la lectura seleccionable por canal para poder sumar Y (AN5) y Z (AN6)
+  en una ampliación futura.
 
 ### Fuentes consultadas — ADC
 

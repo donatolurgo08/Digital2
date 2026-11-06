@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="850" viewBox="0 0 1660 850">
+<rect width="100%" height="100%" fill="#f6f3ec"/>
+<style>
+  text { font-family: "Segoe UI", Arial, sans-serif; fill: #1c1917; }
+  .title { font-size: 26px; font-weight: 700; }
+  .sub { font-size: 15px; fill: #57534e; }
+  .h { font-size: 18px; font-weight: 700; }
+  .p { font-size: 15px; }
+  .s { font-size: 13px; fill: #57534e; }
+  .warn { font-size: 15px; font-weight: 700; fill: #9a3412; }
+</style>
+<text class="title" x="40" y="48">HAND MOTION — PIC, displays, alarmas y enlace</text>
+<text class="sub" x="40" y="76">Propuesta de patas. Los displays se cablean por letra, no por un numero supuesto.</text>
+<rect x="40" y="104" width="1580" height="390" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="136">PIC16F887 en zócalo DIP-40</text>
+<text class="p" x="64" y="160">1    MCLR      pull-up y PICkit</text>
+<text class="p" x="64" y="184">2    AN0       salida del LM35</text>
+<text class="p" x="64" y="208">3    AN1       salida X</text>
+<text class="p" x="64" y="232">6    RA4       LED de alarma 1</text>
+<text class="p" x="64" y="256">7    RA5       LED de alarma 2</text>
+<text class="p" x="64" y="280">8    AN5       salida Y</text>
+<text class="p" x="64" y="304">9    AN6       salida Z</text>
+<text class="p" x="64" y="328">11   VDD       +5 V</text>
+<text class="p" x="64" y="352">12   VSS       GND</text>
+<text class="p" x="64" y="376">15   RC0       decenas</text>
+<text class="p" x="64" y="400">16   RC1       unidades</text>
+<text class="p" x="64" y="424">17   RC2       símbolo °C</text>
+<text class="p" x="64" y="448">18   RC3       buzzer</text>
+<text class="p" x="64" y="472">19   RD0       segmento a</text>
+<text class="p" x="64" y="496">20   RD1       segmento b</text>
+<text class="p" x="64" y="520">21   RD2       segmento c</text>
+<text class="p" x="64" y="544">22   RD3       segmento d</text>
+<text class="p" x="620" y="160">25   TX        RX del USB-TTL</text>
+<text class="p" x="620" y="184">26   RX        TX del USB-TTL</text>
+<text class="p" x="620" y="208">27   RD4       segmento e</text>
+<text class="p" x="620" y="232">28   RD5       segmento f</text>
+<text class="p" x="620" y="256">29   RD6       segmento g</text>
+<text class="p" x="620" y="280">30   RD7       punto decimal</text>
+<text class="p" x="620" y="304">31   VSS       GND</text>
+<text class="p" x="620" y="328">32   VDD       +5 V</text>
+<text class="p" x="620" y="352">36   PGM       ICSP pata 6</text>
+<text class="p" x="620" y="376">39   PGC       ICSP pata 5</text>
+<text class="p" x="620" y="400">40   PGD       ICSP pata 4</text>
+<text class="p" x="620" y="424"></text>
+<text class="p" x="620" y="448">Libres: patas 4, 5, 10,</text>
+<text class="p" x="620" y="472">23, 24, 33, 34, 35, 37, 38</text>
+<text class="p" x="620" y="496"></text>
+<text class="p" x="620" y="520">No conectar patas 13 y 14</text>
+<text class="p" x="620" y="544">Oscilador interno</text>
+<rect x="40" y="516" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="548">Displays cátodo común</text>
+<text class="p" x="60" y="568">RD0-RD7 pasan por resistencia</text>
+<text class="p" x="60" y="594">y van a los ánodos a-g y dp.</text>
+<text class="p" x="60" y="620">Un mismo segmento se une</text>
+<text class="p" x="60" y="646">en los tres displays.</text>
+<text class="p" x="60" y="672">Cátodo a colector del NPN.</text>
+<text class="p" x="60" y="698">Emisor del NPN a GND.</text>
+<text class="p" x="60" y="724">RC0, RC1 o RC2 a la base.</text>
+<text class="p" x="60" y="750">Nivel alto enciende el dígito.</text>
+<rect x="560" y="516" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="580" y="548">Alarmas</text>
+<text class="p" x="580" y="568">Pata 6, resistencia, LED 1, GND</text>
+<text class="p" x="580" y="594">Pata 7, resistencia, LED 2, GND</text>
+<text class="p" x="580" y="620">+5 V al positivo del buzzer</text>
+<text class="p" x="580" y="646">Negativo al colector NPN</text>
+<text class="p" x="580" y="672">Emisor del NPN a GND</text>
+<text class="p" x="580" y="698">Pata 18 a la base, con R</text>
+<text class="p" x="580" y="724">Nivel alto enciende</text>
+<text class="p" x="580" y="750">Revisar diodo del buzzer</text>
+<rect x="1080" y="516" width="540" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="1100" y="548">USB-TTL y PICkit</text>
+<text class="p" x="1100" y="568">GND común con el circuito</text>
+<text class="p" x="1100" y="594">RC6/TX hacia RX del modulo</text>
+<text class="p" x="1100" y="620">RC7/RX desde TX del modulo</text>
+<text class="p" x="1100" y="646">No unir su VCC al riel</text>
+<text class="p" x="1100" y="672">No usar RS-232</text>
+<text class="p" x="1100" y="698">ICSP 1: MCLR</text>
+<text class="p" x="1100" y="724">2 +5 V   3 GND   4 PGD</text>
+<text class="p" x="1100" y="750">5 PGC    6 PGM</text>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="920" viewBox="0 0 1660 920">
+<rect width="100%" height="100%" fill="#f6f3ec"/>
+<style>
+  text { font-family: "Segoe UI", Arial, sans-serif; fill: #1c1917; }
+  .title { font-size: 26px; font-weight: 700; }
+  .sub { font-size: 15px; fill: #57534e; }
+  .h { font-size: 18px; font-weight: 700; }
+  .p { font-size: 15px; }
+  .s { font-size: 13px; fill: #57534e; }
+  .warn { font-size: 15px; font-weight: 700; fill: #9a3412; }
+</style>
+<text class="title" x="40" y="48">HAND MOTION — Alimentación y analógico</text>
+<text class="sub" x="40" y="76">Propuesta de conexión. Resistencias y capacitores de señal sin valor cerrado.</text>
+<text class="warn" x="40" y="108">No aplicar 5 V al chip ADXL335. El GY-61 admite 5 V solo si tiene regulador propio.</text>
+<rect x="40" y="132" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="164">Fuente de 5 V</text>
+<text class="p" x="60" y="188">+5 V al PIC, patas 11 y 32</text>
+<text class="p" x="60" y="216">GND al PIC, patas 12 y 31</text>
+<text class="p" x="60" y="244">100 nF entre patas 11 y 12</text>
+<text class="p" x="60" y="272">100 nF entre patas 32 y 31</text>
+<text class="p" x="60" y="300">LM35 +VS y MCP6004 pata 4</text>
+<text class="p" x="60" y="328">Terminal positivo del buzzer</text>
+<text class="p" x="60" y="356">VCC del USB-TTL: no unirlo</text>
+<text class="s" x="60" y="400">El conversor se alimenta por USB.</text>
+<rect x="560" y="132" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="580" y="164">GY-61 / ADXL335</text>
+<text class="p" x="580" y="188">VCC a +5 V solo si regula</text>
+<text class="p" x="580" y="216">Si no regula: fuente de 3,3 V</text>
+<text class="p" x="580" y="244">GND al GND común</text>
+<text class="p" x="580" y="272">X a MCP6004 pata 3</text>
+<text class="p" x="580" y="300">Y a MCP6004 pata 5</text>
+<text class="p" x="580" y="328">Z a MCP6004 pata 10</text>
+<text class="p" x="580" y="356">ST, si existe, sin conectar</text>
+<text class="s" x="580" y="400">El orden del conector depende de la placa.</text>
+<rect x="1080" y="132" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="1100" y="164">LM35</text>
+<text class="p" x="1100" y="188">Cara plana, patas hacia abajo:</text>
+<text class="p" x="1100" y="216">Izquierda: +VS a +5 V</text>
+<text class="p" x="1100" y="244">Centro: VOUT</text>
+<text class="p" x="1100" y="272">VOUT a PIC pata 2 / AN0</text>
+<text class="p" x="1100" y="300">Derecha: GND</text>
+<text class="p" x="1100" y="328">No pasa por el MCP6004</text>
+<text class="p" x="1100" y="356">AN0 queda reservado</text>
+<text class="s" x="1100" y="400">Agregar 100 nF entre +VS y GND.</text>
+<rect x="40" y="456" width="1540" height="430" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="488">MCP6004 — patas confirmadas</text>
+<text class="p" x="60" y="512">Pata 4 a +5 V. Pata 11 a GND. Agregar 100 nF entre ambas.</text>
+<rect x="60" y="540" width="470" height="250" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+<text class="h" x="78" y="572">Canal A — eje X</text>
+<text class="p" x="78" y="604">Pata 3, entrada +, señal X</text>
+<text class="p" x="78" y="628">Capacitor de X a GND</text>
+<text class="p" x="78" y="652">Pata 2, entrada -</text>
+<text class="p" x="78" y="676">Rf hacia la pata 1</text>
+<text class="p" x="78" y="700">Rg hacia GND o VREF</text>
+<text class="p" x="78" y="724">Pata 1 al PIC pata 3</text>
+<text class="p" x="78" y="748">PIC: RA1/AN1</text>
+<rect x="560" y="540" width="470" height="250" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+<text class="h" x="578" y="572">Canal B — eje Y</text>
+<text class="p" x="578" y="604">Pata 5, entrada +, señal Y</text>
+<text class="p" x="578" y="628">Capacitor de Y a GND</text>
+<text class="p" x="578" y="652">Pata 6, entrada -</text>
+<text class="p" x="578" y="676">Rf hacia la pata 7</text>
+<text class="p" x="578" y="700">Rg hacia GND o VREF</text>
+<text class="p" x="578" y="724">Pata 7 al PIC pata 8</text>
+<text class="p" x="578" y="748">PIC: RE0/AN5</text>
+<rect x="1060" y="540" width="470" height="250" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+<text class="h" x="1078" y="572">Canal C — eje Z</text>
+<text class="p" x="1078" y="604">Pata 10, entrada +, señal Z</text>
+<text class="p" x="1078" y="628">Capacitor de Z a GND</text>
+<text class="p" x="1078" y="652">Pata 9, entrada -</text>
+<text class="p" x="1078" y="676">Rf hacia la pata 8</text>
+<text class="p" x="1078" y="700">Rg hacia GND o VREF</text>
+<text class="p" x="1078" y="724">Pata 8 al PIC pata 9</text>
+<text class="p" x="1078" y="748">PIC: RE1/AN6</text>
+<text class="p" x="60" y="820">Canal D: divisor de +5 V a la pata 12. Unir patas 13 y 14. Esa salida es VREF.</text>
+<text class="p" x="60" y="848">Rg puede ir a GND hasta definir el offset. RA2 y RA3 del PIC quedan libres.</text>
+</svg>

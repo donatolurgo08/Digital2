@@ -1,0 +1,754 @@
+================================================================================
+ HAND MOTION - LISTA DE CONEXIONES (NETLIST DESCRIPTIVA)
+================================================================================
+ Proyecto : Hand Motion - reconocimiento de movimiento + temperatura
+ Revision : D
+ Fecha    : 2026-11-04 (actualizado 2026-11-06)
+ Cambio   : Rev B: 2 x MCP6002 en lugar de 1 x MCP6004.
+            Rev C: sensor LilyPad ADXL335 a 3,3 V.
+            Rev D: alimentacion desde modulo de protoboard con bateria de
+                   9 V: riel de 5 V y riel de 3,3 V. Se elimina el
+                   regulador U5 y se agregan BT1 y PS1.
+             Actualizacion 2026-11-06: LED1 pasa de RA4 a RA2 (RA4 es
+                   open-drain y no puede entregar corriente al LED). El
+                   buzzer comprado es un modulo activo de 3,3-5 V con tres
+                   terminales (VCC, GND, señal); la señal va directo a RC3,
+                   y se eliminan Q4 y R20. Q1-Q3 confirmados como BC337.
+ Fuente   : "Lista de materiales - Hand Motion"
+ Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
+            Esta pensado para transcribir el circuito a otro CAD.
+
+ Formato de nodo:  REF.PIN   (ej. U1.11 = pata 11 del PIC)
+ Si el componente no tiene numeracion fija, se usa REF.NOMBRE
+ (ej. Q1.C = colector de Q1, DS1.a = segmento a del display 1).
+
+ Las resistencias siguen sin valor definido. Donde dice "POR DEFINIR" no se
+ debe inventar un valor. Los capacitores de desacople y los filtros de los
+ ejes ya tienen valor.
+================================================================================
+
+
+================================================================================
+ 1. DESIGNACIONES (REFDES)
+================================================================================
+ BT1   Bateria de 9 V
+ PS1   Modulo de alimentacion de protoboard (entrada 9 V, salidas 5 V y 3,3 V)
+ U1    PIC16F887, PDIP-40, en zocalo DIP-40
+ U2    MCP6002 #1, DIP-8   -> canal A = eje X, canal B = eje Y
+ U3    MCP6002 #2, DIP-8   -> canal A = eje Z, canal B = buffer de VREF
+ U4    LM35, TO-92
+ MOD1  Modulo LilyPad ADXL335 (SparkFun DEV-09267 o compatible)
+       3,3 V, 6 pads para soldar o coser
+ DS1   Display 7 segmentos, catodo comun - decenas
+ DS2   Display 7 segmentos, catodo comun - unidades
+ DS3   Display 7 segmentos, catodo comun - simbolo grados C
+ Q1    NPN BC337 - multiplexado de DS1
+ Q2    NPN BC337 - multiplexado de DS2
+ Q3    NPN BC337 - multiplexado de DS3
+ D1    LED rojo - alarma 1
+ D2    LED rojo - alarma 2
+ BZ1   Modulo buzzer activo 3,3-5 V (3 terminales: VCC, GND, I/O)
+ J1    Modulo conversor USB-TTL (4 terminales: VCC, GND, RXD, TXD)
+ J2    Conector ICSP de 6 pines para PICkit
+ R1    Resistencia superior del divisor de VREF        (POR DEFINIR)
+ R2    Resistencia inferior del divisor de VREF        (POR DEFINIR)
+ R3    Rg del canal X                                  (POR DEFINIR)
+ R4    Rg del canal Y                                  (POR DEFINIR)
+ R5    Rg del canal Z                                  (POR DEFINIR)
+ R6    Rf del canal X                                  (POR DEFINIR)
+ R7    Rf del canal Y                                  (POR DEFINIR)
+ R8    Rf del canal Z                                  (POR DEFINIR)
+ R9    Limitadora segmento a                            (POR DEFINIR)
+ R10   Limitadora segmento b                            (POR DEFINIR)
+ R11   Limitadora segmento c                            (POR DEFINIR)
+ R12   Limitadora segmento d                            (POR DEFINIR)
+ R13   Limitadora segmento e                            (POR DEFINIR)
+ R14   Limitadora segmento f                            (POR DEFINIR)
+ R15   Limitadora segmento g                            (POR DEFINIR)
+ R16   Limitadora segmento dp                           (POR DEFINIR)
+ R17   Base de Q1                                       (POR DEFINIR)
+ R18   Base de Q2                                       (POR DEFINIR)
+ R19   Base de Q3                                       (POR DEFINIR)
+ R21   Limitadora de D1                                 (POR DEFINIR)
+ R22   Limitadora de D2                                 (POR DEFINIR)
+ R23   Pull-up de MCLR                                  (POR DEFINIR)
+ C1    Desacople VDD del PIC, pata 11                   100 nF
+ C2    Desacople VDD del PIC, pata 32                   100 nF
+ C3    Desacople de U2                                  100 nF
+ C4    Desacople de U3                                  100 nF
+ C5    Filtro de la entrada X                           100 nF
+ C6    Filtro de la entrada Y                           100 nF
+ C7    Filtro de la entrada Z                           100 nF
+ C8    Desacople de U4 (LM35)                           100 nF
+ C9    Desacople del riel de 3,3 V, junto a MOD1          100 nF
+
+
+================================================================================
+ 2. NETLIST - RED POR RED
+================================================================================
+
+--------------------------------------------------------------------------------
+ RED: +5V
+--------------------------------------------------------------------------------
+ U1.11     VDD                      alimentacion principal del PIC
+ U1.32     VDD                      segunda alimentacion del PIC
+ U2.8      VDD                      MCP6002 #1
+ U3.8      VDD                      MCP6002 #2
+ U4.1      +VS                      LM35
+ PS1.+5V   salida de 5 V            modulo de protoboard
+ BZ1.VCC   alimentacion del modulo buzzer
+ R1.1      extremo superior         divisor de VREF
+ R23.1     extremo superior         pull-up de MCLR
+ C1.1      placa 1                  desacople PIC
+ C2.1      placa 1                  desacople PIC
+ C3.1      placa 1                  desacople U2
+ C4.1      placa 1                  desacople U3
+ C8.1      placa 1                  desacople LM35
+ J2.2      pin 2                    VDD del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: GND
+--------------------------------------------------------------------------------
+ U1.12     VSS                      PIC
+ U1.31     VSS                      PIC
+ U2.4      VSS                      MCP6002 #1
+ U3.4      VSS                      MCP6002 #2
+ U4.3      GND                      LM35
+ PS1.GND   GND                      modulo de protoboard
+ BT1.-     terminal negativo        bateria de 9 V (via PS1)
+ BZ1.GND   GND del modulo buzzer
+ C9.2      placa 2                  desacople de 3,3 V
+ R2.2      extremo inferior         divisor de VREF
+ R3.2      extremo inferior         Rg de X (ver nota 6.1)
+ R4.2      extremo inferior         Rg de Y (ver nota 6.1)
+ R5.2      extremo inferior         Rg de Z (ver nota 6.1)
+ C1.2      placa 2
+ C2.2      placa 2
+ C3.2      placa 2
+ C4.2      placa 2
+ C5.2      placa 2
+ C6.2      placa 2
+ C7.2      placa 2
+ C8.2      placa 2
+ Q1.E      emisor
+ Q2.E      emisor
+ Q3.E      emisor
+ D1.K      catodo
+ D2.K      catodo
+ J1.GND    GND del modulo USB-TTL
+ J2.3      pin 3                    GND del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: +3V3   (alimentacion del acelerometro)
+--------------------------------------------------------------------------------
+ PS1.+3V3  salida de 3,3 V          modulo de protoboard
+ MOD1.VCC  VCC del modulo           LilyPad ADXL335
+ C9.1      placa 1                  desacople de 3,3 V
+
+ ATENCION: el modulo LilyPad ADXL335 admite solo 1,8 V a 3,6 V.
+ No conectar nunca MOD1.VCC a +5V. Esta red es exclusivamente de 3,3 V.
+ Los 3,3 V salen del modulo de protoboard: no hace falta regulador aparte.
+
+--------------------------------------------------------------------------------
+ RED: VIN_9V   (entrada del modulo de alimentacion)
+--------------------------------------------------------------------------------
+ BT1.+     terminal positivo        bateria de 9 V
+ PS1.VIN   entrada                  modulo de protoboard
+
+--------------------------------------------------------------------------------
+ RED: USB_VCC   (aislada a proposito)
+--------------------------------------------------------------------------------
+ J1.VCC    VCC del modulo USB-TTL
+
+ ATENCION: no unir esta red a +5V. El conversor se alimenta por el cable
+ USB. Solo se comparte GND.
+
+--------------------------------------------------------------------------------
+ RED: AN0   (temperatura)
+--------------------------------------------------------------------------------
+ U4.2      VOUT                     salida del LM35
+ U1.2      RA0/AN0                  entrada analogica 0
+
+--------------------------------------------------------------------------------
+ RED: X_IN   (salida cruda del eje X)
+--------------------------------------------------------------------------------
+ MOD1.X    salida X del modulo
+ C5.1      placa 1                  filtro a GND
+ U2.3      INA+                     entrada no inversora del canal A
+
+--------------------------------------------------------------------------------
+ RED: X_FB   (nudo de realimentacion del canal X)
+--------------------------------------------------------------------------------
+ U2.2      INA-                     entrada inversora del canal A
+ R3.1      extremo superior         Rg de X
+ R6.2      extremo derecho          Rf de X
+
+--------------------------------------------------------------------------------
+ RED: X_AMP   (salida amplificada del eje X)
+--------------------------------------------------------------------------------
+ U2.1      OUTA                     salida del canal A
+ R6.1      extremo izquierdo        Rf de X
+ U1.3      RA1/AN1                  entrada analogica 1
+
+--------------------------------------------------------------------------------
+ RED: Y_IN   (salida cruda del eje Y)
+--------------------------------------------------------------------------------
+ MOD1.Y    salida Y del modulo
+ C6.1      placa 1                  filtro a GND
+ U2.5      INB+                     entrada no inversora del canal B
+
+--------------------------------------------------------------------------------
+ RED: Y_FB   (nudo de realimentacion del canal Y)
+--------------------------------------------------------------------------------
+ U2.6      INB-                     entrada inversora del canal B
+ R4.1      extremo superior         Rg de Y
+ R7.2      extremo derecho          Rf de Y
+
+--------------------------------------------------------------------------------
+ RED: Y_AMP   (salida amplificada del eje Y)
+--------------------------------------------------------------------------------
+ U2.7      OUTB                     salida del canal B
+ R7.1      extremo izquierdo        Rf de Y
+ U1.8      RE0/AN5                  entrada analogica 5
+
+--------------------------------------------------------------------------------
+ RED: Z_IN   (salida cruda del eje Z)
+--------------------------------------------------------------------------------
+ MOD1.Z    salida Z del modulo
+ C7.1      placa 1                  filtro a GND
+ U3.3      INA+                     entrada no inversora del canal A
+
+--------------------------------------------------------------------------------
+ RED: Z_FB   (nudo de realimentacion del canal Z)
+--------------------------------------------------------------------------------
+ U3.2      INA-                     entrada inversora del canal A
+ R5.1      extremo superior         Rg de Z
+ R8.2      extremo derecho          Rf de Z
+
+--------------------------------------------------------------------------------
+ RED: Z_AMP   (salida amplificada del eje Z)
+--------------------------------------------------------------------------------
+ U3.1      OUTA                     salida del canal A
+ R8.1      extremo izquierdo        Rf de Z
+ U1.9      RE1/AN6                  entrada analogica 6
+
+--------------------------------------------------------------------------------
+ RED: VREF_DIV   (nudo del divisor de referencia)
+--------------------------------------------------------------------------------
+ R1.2      extremo inferior         divisor
+ R2.1      extremo superior         divisor
+ U3.5      INB+                     entrada no inversora del canal B
+
+--------------------------------------------------------------------------------
+ RED: VREF   (referencia tamponada, reservada)
+--------------------------------------------------------------------------------
+ U3.7      OUTB                     salida del canal B
+ U3.6      INB-                     realimentacion unitaria
+ (sin carga por ahora: queda como punto de prueba)
+
+ Nota: U3B es un seguidor de tension. VREF queda disponible para futuras
+ resistencias de offset. Hoy no alimenta ninguna Rg.
+
+--------------------------------------------------------------------------------
+ RED: MCLR
+--------------------------------------------------------------------------------
+ U1.1      RE3/MCLR/VPP             reset del PIC
+ R23.2     extremo inferior         pull-up a +5V
+ J2.1      pin 1                    MCLR del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: PGD
+--------------------------------------------------------------------------------
+ U1.40     RB7/PGD                  datos de programacion
+ J2.4      pin 4                    PGD del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: PGC
+--------------------------------------------------------------------------------
+ U1.39     RB6/PGC                  reloj de programacion
+ J2.5      pin 5                    PGC del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: PGM
+--------------------------------------------------------------------------------
+ U1.36     RB3/PGM                  PGM del conector ICSP
+ J2.6      pin 6                    PGM del conector ICSP
+
+--------------------------------------------------------------------------------
+ RED: TX_TTL   (PIC transmite -> modulo recibe)
+--------------------------------------------------------------------------------
+ U1.25     RC6/TX                   salida de la EUSART
+ J1.RXD    RXD del modulo USB-TTL
+
+--------------------------------------------------------------------------------
+ RED: RX_TTL   (modulo transmite -> PIC recibe)
+--------------------------------------------------------------------------------
+ U1.26     RC7/RX                   entrada de la EUSART
+ J1.TXD    TXD del modulo USB-TTL
+
+--------------------------------------------------------------------------------
+ REDES DE SEGMENTOS - LADO PIC (antes de la resistencia)
+--------------------------------------------------------------------------------
+ RED: RD0_SEG
+ U1.19     RD0                      salida del PIC
+ R9.1      extremo izquierdo        limitadora del segmento a
+
+ RED: RD1_SEG
+ U1.20     RD1
+ R10.1     extremo izquierdo
+
+ RED: RD2_SEG
+ U1.21     RD2
+ R11.1     extremo izquierdo
+
+ RED: RD3_SEG
+ U1.22     RD3
+ R12.1     extremo izquierdo
+
+ RED: RD4_SEG
+ U1.27     RD4
+ R13.1     extremo izquierdo
+
+ RED: RD5_SEG
+ U1.28     RD5
+ R14.1     extremo izquierdo
+
+ RED: RD6_SEG
+ U1.29     RD6
+ R15.1     extremo izquierdo
+
+ RED: RD7_SEG
+ U1.30     RD7
+ R16.1     extremo izquierdo
+
+--------------------------------------------------------------------------------
+ REDES DE SEGMENTOS - LADO DISPLAY (despues de la resistencia)
+ Cada red se reparte a los tres displays en paralelo.
+--------------------------------------------------------------------------------
+ RED: SEG_A
+ R9.2      extremo derecho
+ DS1.a     anodo segmento a
+ DS2.a     anodo segmento a
+ DS3.a     anodo segmento a
+
+ RED: SEG_B
+ R10.2     extremo derecho
+ DS1.b     anodo segmento b
+ DS2.b     anodo segmento b
+ DS3.b     anodo segmento b
+
+ RED: SEG_C
+ R11.2     extremo derecho
+ DS1.c     anodo segmento c
+ DS2.c     anodo segmento c
+ DS3.c     anodo segmento c
+
+ RED: SEG_D
+ R12.2     extremo derecho
+ DS1.d     anodo segmento d
+ DS2.d     anodo segmento d
+ DS3.d     anodo segmento d
+
+ RED: SEG_E
+ R13.2     extremo derecho
+ DS1.e     anodo segmento e
+ DS2.e     anodo segmento e
+ DS3.e     anodo segmento e
+
+ RED: SEG_F
+ R14.2     extremo derecho
+ DS1.f     anodo segmento f
+ DS2.f     anodo segmento f
+ DS3.f     anodo segmento f
+
+ RED: SEG_G
+ R15.2     extremo derecho
+ DS1.g     anodo segmento g
+ DS2.g     anodo segmento g
+ DS3.g     anodo segmento g
+
+ RED: SEG_DP
+ R16.2     extremo derecho
+ DS1.dp    anodo punto decimal
+ DS2.dp    anodo punto decimal
+ DS3.dp    anodo punto decimal
+
+--------------------------------------------------------------------------------
+ REDES DE SELECCION DE DIGITO
+--------------------------------------------------------------------------------
+ RED: DIG1
+ U1.15     RC0
+ R17.1     extremo izquierdo
+
+ RED: DIG2
+ U1.16     RC1
+ R18.1     extremo izquierdo
+
+ RED: DIG3
+ U1.17     RC2
+ R19.1     extremo izquierdo
+
+ RED: Q1_B
+ R17.2     extremo derecho
+ Q1.B      base
+
+ RED: Q2_B
+ R18.2     extremo derecho
+ Q2.B      base
+
+ RED: Q3_B
+ R19.2     extremo derecho
+ Q3.B      base
+
+ RED: DS1_CC   (catodo comun del display 1)
+ DS1.CAT   catodo comun (todas las patas de catodo comun del display)
+ Q1.C      colector
+
+ RED: DS2_CC   (catodo comun del display 2)
+ DS2.CAT   catodo comun
+ Q2.C      colector
+
+ RED: DS3_CC   (catodo comun del display 3)
+ DS3.CAT   catodo comun
+ Q3.C      colector
+
+--------------------------------------------------------------------------------
+ REDES DE ALARMA VISUAL
+--------------------------------------------------------------------------------
+ RED: LED1
+ U1.4      RA2/AN2
+ R21.1     extremo izquierdo
+
+ RED: LED2
+ U1.7      RA5/AN4
+ R22.1     extremo izquierdo
+
+ RED: D1_A
+ R21.2     extremo derecho
+ D1.A      anodo
+
+ RED: D2_A
+ R22.2     extremo derecho
+ D2.A      anodo
+
+--------------------------------------------------------------------------------
+ REDES DE ALARMA SONORA
+--------------------------------------------------------------------------------
+ RED: BZ_CTRL
+ U1.18     RC3
+ BZ1.I/O   terminal de control del modulo buzzer
+
+
+================================================================================
+ 3. PINES NO CONECTADOS (dejar al aire, sin pista)
+================================================================================
+ U1.5      RA3/AN3/VREF+    reservado como VREF+ del ADC
+ U1.6      RA4              open-drain, sin uso (LED1 se movio a RA2)
+ U1.10     RE2/AN7
+ U1.13     RA7/OSC1         oscilador interno, no se usa
+ U1.14     RA6/OSC2         oscilador interno, no se usa
+ U1.23     RC4
+ U1.24     RC5
+ U1.33     RB0
+ U1.34     RB1
+ U1.35     RB2
+ U1.37     RB4
+ U1.38     RB5
+ MOD1.ST   self-test del modulo, si existe
+ J1.VCC    se alimenta por USB (ver red USB_VCC)
+
+ Los pines 39 y 40 del PIC quedan exclusivos del programador:
+ no conectarles nada mas.
+
+
+================================================================================
+ 4. PATILLAJE DE CADA COMPONENTE
+================================================================================
+
+ U1 - PIC16F887, PDIP-40
+  11  VDD          +5V
+  12  VSS          GND
+  32  VDD          +5V
+  31  VSS          GND
+   1  RE3/MCLR/VPP MCLR
+   2  RA0/AN0      AN0
+   3  RA1/AN1      X_AMP
+   4  RA2/AN2      LED1
+   5  RA3/AN3      no conectar
+   6  RA4          no conectar
+   7  RA5/AN4      LED2
+   8  RE0/AN5      Y_AMP
+   9  RE1/AN6      Z_AMP
+  10  RE2/AN7      no conectar
+  13  RA7/OSC1     no conectar
+  14  RA6/OSC2     no conectar
+  15  RC0          DIG1
+  16  RC1          DIG2
+  17  RC2          DIG3
+  18  RC3          BZ_CTRL (I/O del modulo buzzer)
+  19  RD0          RD0_SEG
+  20  RD1          RD1_SEG
+  21  RD2          RD2_SEG
+  22  RD3          RD3_SEG
+  23  RC4          no conectar
+  24  RC5          no conectar
+  25  RC6/TX       TX_TTL
+  26  RC7/RX       RX_TTL
+  27  RD4          RD4_SEG
+  28  RD5          RD5_SEG
+  29  RD6          RD6_SEG
+  30  RD7          RD7_SEG
+  33  RB0          no conectar
+  34  RB1          no conectar
+  35  RB2          no conectar
+  36  RB3/PGM      PGM
+  37  RB4          no conectar
+  38  RB5          no conectar
+  39  RB6/PGC      PGC
+  40  RB7/PGD      PGD
+
+ U2 y U3 - MCP6002, DIP-8 (los dos iguales)
+   1  OUTA     salida A
+   2  INA-     entrada inversora A
+   3  INA+     entrada no inversora A
+   4  VSS      GND
+   5  INB+     entrada no inversora B
+   6  INB-     entrada inversora B
+   7  OUTB     salida B
+   8  VDD      +5V
+
+   U2A = eje X      (3 = X_IN, 2 = X_FB, 1 = X_AMP)
+   U2B = eje Y      (5 = Y_IN, 6 = Y_FB, 7 = Y_AMP)
+   U3A = eje Z      (3 = Z_IN, 2 = Z_FB, 1 = Z_AMP)
+   U3B = VREF       (5 = VREF_DIV, 6 = VREF, 7 = VREF)
+
+ U4 - LM35, TO-92 (cara plana hacia el observador, patas hacia abajo)
+   1  +VS      +5V
+   2  VOUT     AN0
+   3  GND      GND
+
+ BT1 - bateria de 9 V
+   +   terminal positivo, a PS1.VIN
+   -   terminal negativo, a GND (entrada de PS1)
+
+ PS1 - modulo de alimentacion de protoboard
+   VIN   entrada, desde BT1.+
+   GND   GND comun
+   +5V   salida de 5 V
+   +3V3  salida de 3,3 V
+   VERIFICAR con multimetro que entregue 5,0 V y 3,3 V reales, y que las
+   dos salidas compartan GND, antes de conectar el sensor.
+
+ MOD1 - LilyPad ADXL335 (6 pads)
+   VCC   +3V3   (1,8 V a 3,6 V; nunca 5 V)
+   GND   GND
+   X     X_IN
+   Y     Y_IN
+   Z     Z_IN
+   ST    no conectar
+   Los pads son para soldar o coser. Identificarlos por la serigrafia
+   de la placa, no por la posicion: el orden fisico cambia entre clones.
+
+ DS1, DS2, DS3 - display 7 segmentos, catodo comun
+   a, b, c, d, e, f, g, dp   anodos de segmento
+   CAT                        catodo comun (puede haber 2 patas: unirlas)
+
+ Q1, Q2, Q3 - NPN BC337 (confirmado)
+   B   base
+   C   colector
+   E   emisor
+   VERIFICAR el orden real de patas del BC337 (E-B-C visto de frente, con
+   la cara plana hacia el observador) antes de soldarlo.
+
+ D1, D2 - LED rojo
+   A   anodo
+   K   catodo
+
+ BZ1 - modulo buzzer activo 3,3-5 V (3 terminales)
+   VCC   +5V
+   GND   GND
+   I/O   RC3 (BZ_CTRL), entrada de control
+   El modulo ya incluye el driver: no lleva Q4 ni R20. Confirmar la
+   polaridad del I/O con la prueba de banco de la nota 6.7 antes de
+   conectarlo al PIC.
+
+ J1 - modulo USB-TTL
+   VCC   USB_VCC (no unir a +5V)
+   GND   GND comun
+   RXD   TX_TTL (recibe del PIC)
+   TXD   RX_TTL (entrega al PIC)
+   VERIFICAR la serigrafia: en algunos modulos RXD/TXD estan rotulados
+   al reves respecto de la PC.
+
+ J2 - conector ICSP (PICkit, 6 pines)
+   1  MCLR
+   2  +5V
+   3  GND
+   4  PGD
+   5  PGC
+   6  PGM
+
+
+================================================================================
+ 5. RESUMEN DE UNA LINEA POR RED (para carga rapida)
+================================================================================
+ +5V       = PS1.+5V, U1.11, U1.32, U2.8, U3.8, U4.1, BZ1.VCC, R1.1,
+             R23.1, C1.1, C2.1, C3.1, C4.1, C8.1, J2.2
+ GND       = PS1.GND, BT1.-, U1.12, U1.31, U2.4, U3.4, U4.3, R2.2, R3.2,
+             R4.2, R5.2, C1.2, C2.2, C3.2, C4.2, C5.2, C6.2, C7.2, C8.2,
+             C9.2, Q1.E, Q2.E, Q3.E, D1.K, D2.K, J1.GND, J2.3, BZ1.GND
+ +3V3      = PS1.+3V3, MOD1.VCC, C9.1      (nunca unir a +5V)
+ VIN_9V    = BT1.+, PS1.VIN
+ USB_VCC   = J1.VCC                        (no unir a +5V)
+ AN0       = U4.2, U1.2
+ X_IN      = MOD1.X, C5.1, U2.3
+ X_FB      = U2.2, R3.1, R6.2
+ X_AMP     = U2.1, R6.1, U1.3
+ Y_IN      = MOD1.Y, C6.1, U2.5
+ Y_FB      = U2.6, R4.1, R7.2
+ Y_AMP     = U2.7, R7.1, U1.8
+ Z_IN      = MOD1.Z, C7.1, U3.3
+ Z_FB      = U3.2, R5.1, R8.2
+ Z_AMP     = U3.1, R8.1, U1.9
+ VREF_DIV  = R1.2, R2.1, U3.5
+ VREF      = U3.7, U3.6
+ MCLR      = U1.1, R23.2, J2.1
+ PGD       = U1.40, J2.4
+ PGC       = U1.39, J2.5
+ PGM       = U1.36, J2.6
+ TX_TTL    = U1.25, J1.RXD
+ RX_TTL    = U1.26, J1.TXD
+ RD0_SEG   = U1.19, R9.1
+ RD1_SEG   = U1.20, R10.1
+ RD2_SEG   = U1.21, R11.1
+ RD3_SEG   = U1.22, R12.1
+ RD4_SEG   = U1.27, R13.1
+ RD5_SEG   = U1.28, R14.1
+ RD6_SEG   = U1.29, R15.1
+ RD7_SEG   = U1.30, R16.1
+ SEG_A     = R9.2, DS1.a, DS2.a, DS3.a
+ SEG_B     = R10.2, DS1.b, DS2.b, DS3.b
+ SEG_C     = R11.2, DS1.c, DS2.c, DS3.c
+ SEG_D     = R12.2, DS1.d, DS2.d, DS3.d
+ SEG_E     = R13.2, DS1.e, DS2.e, DS3.e
+ SEG_F     = R14.2, DS1.f, DS2.f, DS3.f
+ SEG_G     = R15.2, DS1.g, DS2.g, DS3.g
+ SEG_DP    = R16.2, DS1.dp, DS2.dp, DS3.dp
+ DIG1      = U1.15, R17.1
+ DIG2      = U1.16, R18.1
+ DIG3      = U1.17, R19.1
+ Q1_B      = R17.2, Q1.B
+ Q2_B      = R18.2, Q2.B
+ Q3_B      = R19.2, Q3.B
+ DS1_CC    = DS1.CAT, Q1.C
+ DS2_CC    = DS2.CAT, Q2.C
+ DS3_CC    = DS3.CAT, Q3.C
+ LED1      = U1.4, R21.1
+ LED2      = U1.7, R22.1
+ D1_A      = R21.2, D1.A
+ D2_A      = R22.2, D2.A
+ BZ_CTRL   = U1.18, BZ1.I/O
+
+
+================================================================================
+ 6. NOTAS DE DISENO
+================================================================================
+
+ 6.1 Rg de los canales
+     R3, R4 y R5 van hoy de la entrada inversora a GND. Si mas adelante se
+     necesita sumar offset, el extremo inferior se mueve de GND a VREF.
+     No cambiar las dos cosas a la vez: cada Rg va a GND o a VREF.
+
+ 6.2 Ganancia
+     Cada canal es un amplificador no inversor:
+         Av = 1 + (Rf / Rg)
+     R6/R3 para X, R7/R4 para Y, R8/R5 para Z. Valores POR DEFINIR.
+
+ 6.3 Divisor de VREF
+     R1 de +5V a VREF_DIV, R2 de VREF_DIV a GND.
+     VREF = 5 V * R2 / (R1 + R2). Valores POR DEFINIR.
+
+ 6.4 Multiplexado de displays
+     Un solo digito encendido por vez. Nivel ALTO en RC0/RC1/RC2 enciende
+     el NPN correspondiente. El firmware debe respetar el tiempo de
+     refresco para que no se vea parpadeo.
+
+ 6.5 Corriente de segmentos
+     La corriente de los segmentos sale de PORTD a traves de R9..R16.
+     Elegir el valor respetando la corriente recomendada por pata del
+     puerto (no el maximo absoluto de 25 mA).
+
+ 6.6 Desacople
+     C1 junto a las patas 11-12 del PIC y C2 junto a las 32-31.
+     C3 junto a U2 (patas 8-4) y C4 junto a U3 (patas 8-4).
+     C8 entre las patas 1 y 3 del LM35.
+     C9 entre +3V3 y GND, junto a MOD1.
+
+ 6.7 Buzzer
+     Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
+     GND e I/O a RC3. El modulo ya incluye el driver, por lo que se eliminan
+     Q4 y R20.
+     Antes de conectarlo al PIC, probar la polaridad y la corriente del
+     terminal I/O: alimentar el modulo y llevar el I/O a +5V y a GND con una
+     resistencia de 1 k en serie, midiendo la corriente. Si consume pocos mA,
+     va directo a RC3. Si el modulo exige la corriente del buzzer por el I/O,
+     detenerse y volver a evaluar un driver externo.
+      Si la prueba muestra que el modulo es activo-bajo, el firmware debe
+      invertir el nivel logico de RC3; el cableado no cambia. No agregar un
+      diodo externo sin identificar antes el circuito del modulo.
+
+ 6.8 Zocalo DIP-40
+     El zocalo no agrega conexiones: cada pata coincide con la del PIC.
+
+ 6.9 Oscilador
+     El PIC usa oscilador interno a 8 MHz (OSCCON = 0x70). No hay cristal ni
+     capacitores de oscilacion. Configuration bits definidos en el firmware
+     (FOSC = INTRC_NOCLKOUT).
+     El pull-up R23 hace falta si el reset externo queda habilitado.
+
+ 6.10 Niveles logicos
+     Confirmar que el modulo USB-TTL trabaje a 3,3 V o 5 V y que su
+     salida TXD sea compatible con la entrada del PIC a 5 V.
+
+ 6.11 Sensor LilyPad ADXL335
+     Alimentar solo a 3,3 V. La salida es ratiometrica respecto de su
+     propia alimentacion: en reposo entrega aproximadamente VCC/2 (1,65 V)
+     y la sensibilidad es 300 mV/g a 3,3 V.
+     El fondo de escala es 3,3 V contra un ADC referenciado a 5 V, asi que
+     se pierde parte del rango. La ganancia del MCP6002 lo recupera; los
+     valores de R siguen POR DEFINIR.
+     C5, C6 y C7 = 100 nF es el valor que recomienda el datasheet del
+     ADXL335 para dejar unos 50 Hz de ancho de banda.
+     El modulo no tiene regulador propio: los 3,3 V salen de PS1.
+
+ 6.12 Montaje del modulo
+     La placa es circular, de unos 20 mm, con pads para soldar o coser.
+     Para protoboard, soldar cables finos a cada pad. Fijarla a la mano
+     con el eje Z perpendicular a la palma, para que la gravedad quede
+     sobre un solo eje en reposo.
+
+ 6.13 Alimentacion
+     BT1 (9 V) entra a PS1.VIN. PS1 entrega +5V y +3V3, con GND comun.
+     El regulador de 5 V del modulo disipa (9 - 5) V multiplicado por la
+     corriente del circuito: con cargas altas puede calentar. No taparlo.
+     La bateria de 9 V alcanza para el prototipo. Si la autonomia no
+     alcanza, usar una fuente de 9 V enchufable en lugar de la bateria.
+
+
+================================================================================
+ 7. PENDIENTE ANTES DE COMPRAR O SOLDAR
+================================================================================
+ - Valor de R1, R2 (divisor de VREF).
+ - Valor de R3..R8 (ganancia de X, Y, Z).
+ - Valor de R9..R16 (segmentos).
+ - Valor de R17..R19 (bases de Q1..Q3).
+ - Valor de R21, R22 (LED) y R23 (pull-up de MCLR).
+ - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
+ - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
+ - Patillaje E-B-C de los BC337 comprados.
+ - Polaridad y corriente del terminal I/O del modulo buzzer (nota 6.7).
+ - Serigrafia de RXD/TXD del modulo USB-TTL.
+
+================================================================================
+ FIN DEL ARCHIVO
+================================================================================

@@ -3,8 +3,9 @@
 ## Alcance inicial
 
 El reconocimiento utilizará exclusivamente la salida X del ADXL335 del módulo
-GY-61. Los ejes Y y Z quedan fuera de la primera versión. El LM35 y la alarma
-térmica son funciones independientes.
+LilyPad (3,3 V), cableada a AN1. Los ejes Y y Z quedan fuera de la primera
+versión, aunque ya estén cableados a AN5 y AN6. El LM35 y la alarma térmica son
+funciones independientes.
 
 ## Diseño pendiente
 
