@@ -44,7 +44,7 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
   limitar el margen de tensión y el brillo; validar con un solo dígito primero.
 - Verificar corrientes y compatibilidad eléctrica antes de conectar displays,
   LED o buzzer. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ ya están
-  calculadas; R9–R16 dependen de Vf y de la corriente por segmento.
+  calculadas; R9–R16 = 150 Ω es provisional y se confirma midiendo Vf.
 - Buzzer: el módulo es de 3 terminales y su I/O va directo a RC3. Confirmar la
   polaridad; el firmware actual supone activo-alto (RC3 = 0 apagado).
 

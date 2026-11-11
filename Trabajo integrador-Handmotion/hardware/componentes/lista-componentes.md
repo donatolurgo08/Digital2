@@ -1,9 +1,9 @@
 # Lista de materiales — HAND MOTION
 
 Componentes definidos para el prototipo. El conexionado está en
-[`../esquematico/conexiones.txt`](../esquematico/conexiones.txt). Las
-resistencias de segmento siguen pendientes; las de base, LED y MCLR ya están
-calculadas.
+[`../esquematico/conexiones.txt`](../esquematico/conexiones.txt). R17–R19,
+R21–R22 y R23 están calculadas; R9–R16 tienen un valor provisional de 150 Ω
+que se confirma midiendo el display.
 
 ## Circuito
 
@@ -21,7 +21,7 @@ calculadas.
 | 3 | Resistencias de 330 Ω, 1/4 W | Base de Q1–Q3 (R17–R19), para 10 mA de pico por segmento. |
 | 2 | Resistencias de 220 Ω, 1/4 W | Limitadoras de LED1 y LED2 (R21–R22), ~11 mA. |
 | 1 | Resistencia de 10 kΩ, 1/4 W | Pull-up de MCLR (R23). |
-| 8 | Resistencias de segmento | R9–R16: valor pendiente de medir Vf y la corriente elegida; ≈150 Ω para 10 mA. |
+| 8 | Resistencias de 150 Ω, 1/4 W (provisional) | Segmentos R9–R16; ≈10 mA por segmento. Confirmar midiendo Vf y el ánodo real. |
 | 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
 | 1 | Batería de 9 V | Alimentación del módulo de protoboard. |
 | 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común. |

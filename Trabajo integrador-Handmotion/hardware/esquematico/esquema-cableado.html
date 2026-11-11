@@ -19,7 +19,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 .n{font-size:13px;margin-top:12px}.n li{margin-bottom:4px}
 </style></head><body>
 <h1>Hand Motion – Esquema con cableado (Rev E)</h1>
-<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 siguen POR DEFINIR.</p>
+<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 = 150 Ω (provisional).</p>
 <div class="lg">
 <span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN_9V / USB_VCC</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
 </div>
@@ -89,7 +89,7 @@ W('+5V',[960,292,985,292]);V(985,292);CV(985,292,312,'C2');W('GND',[960,312,985,
 P(1100,401,100,84,'J1','USB-TTL',[['TXD','RX_TTL',412],['RXD','TX_TTL',432]],[['VCC','USB_VCC',412],['GND','GND',432]],true);
 W('RX_TTL',[960,412,1100,412]);W('TX_TTL',[960,432,1100,432]);W('USB_VCC',[1200,412,1225,412]);T(1230,416,'USB_VCC aislado (no a +5V)','nt','start',c('USB_VCC'));W('GND',[1200,432,1225,432]);G(1225,432);
 /* segmentos */
-var sg=[[332,'RD7','R16','dp'],[352,'RD6','R15','g'],[372,'RD5','R14','f'],[392,'RD4','R13','e'],[492,'RD3','R12','d'],[512,'RD2','R11','c'],[560,'RD1','R10','b'],[580,'RD0','R9','a']];
+var sg=[[332,'RD7','R16 150','dp'],[352,'RD6','R15 150','g'],[372,'RD5','R14 150','f'],[392,'RD4','R13 150','e'],[492,'RD3','R12 150','d'],[512,'RD2','R11 150','c'],[560,'RD1','R10 150','b'],[580,'RD0','R9 150','a']];
 sg.forEach(function(s){var n=s[1]+'_SEG',m='SEG_'+s[3].toUpperCase();RH(1000,1050,s[0],s[2]);W(m,[1050,s[0],1450,s[0]]);lb(1070,s[0]-4,m)});
 [332,352,372,392,492,512].forEach(function(y){W('RD_SEG',[960,y,1000,y])});
 W('RD_SEG',[800,512,780,512,780,560,1000,560]);W('RD_SEG',[800,492,770,492,770,580,1000,580]);

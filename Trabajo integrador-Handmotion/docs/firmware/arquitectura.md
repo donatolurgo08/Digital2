@@ -84,7 +84,7 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 - Q1–Q3 BC337 se plantean como seguidores de emisor de lado alto. La caída VBE,
   la corriente y el brillo siguen pendientes de validación eléctrica.
   R17–R19 = 330 Ω (base), R21–R22 = 220 Ω (LED) y R23 = 10 kΩ (MCLR); R9–R16
-  quedan pendientes de Vf y de la corriente por segmento.
+  = 150 Ω provisionales, a confirmar midiendo Vf.
 - Estado: **escrita y compilada**, no probada en hardware.
 
 ## Detalle de `pic-as` V4.00 verificado

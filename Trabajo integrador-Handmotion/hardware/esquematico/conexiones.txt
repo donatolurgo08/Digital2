@@ -29,11 +29,10 @@
  Si el componente no tiene numeracion fija, se usa REF.NOMBRE
  (ej. Q1.C = colector de Q1, DS1.a = segmento a del display 1).
 
- Las resistencias de segmento (R9-R16) siguen sin valor definitivo: dependen
- de la corriente por segmento y de la tension real del anodo. R17-R19, R21,
- R22 y R23 ya estan calculadas (nota 6.14). Donde dice "POR DEFINIR" no se
- debe inventar un valor. Los capacitores de desacople y los filtros de los
- ejes ya tienen valor.
+ Las resistencias de segmento (R9-R16) tienen un valor provisional de 150 ohm:
+ dependen de la corriente por segmento y de la tension real del anodo, asi que
+ se confirman midiendo. R17-R19, R21, R22 y R23 ya estan calculadas (nota
+ 6.14). Los capacitores de desacople y los filtros de los ejes ya tienen valor.
 ================================================================================
 
 
@@ -58,14 +57,14 @@
  BZ1   Modulo buzzer activo 3,3-5 V (3 terminales: VCC, GND, I/O)
  J1    Modulo conversor USB-TTL (4 terminales: VCC, GND, RXD, TXD)
  J2    Conector ICSP de 6 pines para PICkit
- R9    Limitadora segmento a                            (POR DEFINIR)
- R10   Limitadora segmento b                            (POR DEFINIR)
- R11   Limitadora segmento c                            (POR DEFINIR)
- R12   Limitadora segmento d                            (POR DEFINIR)
- R13   Limitadora segmento e                            (POR DEFINIR)
- R14   Limitadora segmento f                            (POR DEFINIR)
- R15   Limitadora segmento g                            (POR DEFINIR)
- R16   Limitadora segmento dp                           (POR DEFINIR)
+ R9    Limitadora segmento a                            150 ohm, 1/4 W (provisional)
+ R10   Limitadora segmento b                            150 ohm, 1/4 W (provisional)
+ R11   Limitadora segmento c                            150 ohm, 1/4 W (provisional)
+ R12   Limitadora segmento d                            150 ohm, 1/4 W (provisional)
+ R13   Limitadora segmento e                            150 ohm, 1/4 W (provisional)
+ R14   Limitadora segmento f                            150 ohm, 1/4 W (provisional)
+ R15   Limitadora segmento g                            150 ohm, 1/4 W (provisional)
+ R16   Limitadora segmento dp                           150 ohm, 1/4 W (provisional)
  R17   Base de Q1                                       330 ohm, 1/4 W
  R18   Base de Q2                                       330 ohm, 1/4 W
  R19   Base de Q3                                       330 ohm, 1/4 W
@@ -623,10 +622,11 @@
       activos bajos. Elegir cada resistor considerando VBE del BC337, Vf del
       LED rojo, corriente pulsada y limites normales del puerto PIC; no usar
       el maximo absoluto de 25 mA como corriente de diseno.
-      Punto de partida adoptado: 10 mA de pico por segmento, Vf = 1,9 V y
-      anodo en ~3,3 V. Con esos datos R9..R16 quedan en 150 ohm aproximados.
-      El valor se cierra midiendo Vf y la tension real del anodo, porque el
-      seguidor de emisor baja el anodo cuando se encienden mas segmentos.
+      Valor provisional adoptado: R9..R16 = 150 ohm, con 10 mA de pico por
+      segmento, Vf = 1,9 V, VOH = 4,3 V y R17 = 330 ohm. Con esos datos la
+      corriente por segmento va de 9,7 mA (8 segmentos encendidos) a 10,9 mA
+      (2 segmentos), porque el seguidor de emisor sube el anodo cuando la
+      carga es menor. Se confirma midiendo Vf y la tension real del anodo.
       A 10 mA por segmento, el peor caso de un digito son 8 segmentos: 80 mA
       repartidos en 8 pines de RDx (10 mA por pin), dentro de los 25 mA por
       pin y de los 200 mA combinados de los puertos.
@@ -724,12 +724,18 @@
 
      Tolerancia 5 % y 1/4 W en las seis resistencias.
 
+     R9-R16 (segmentos) = 150 ohm provisionales. Con R17 = 330 ohm y
+     Vf = 1,9 V la corriente por segmento queda entre 9,7 y 10,9 mA segun
+     cuantos segmentos enciende el digito. Disipacion maxima ~18 mW. El valor
+     se confirma midiendo Vf y el anodo real (nota 6.5).
+
 
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
 ================================================================================
- - Valor de R9..R16 (segmentos): depende de la corriente por segmento y de la
-   tension real del anodo. Punto de partida 150 ohm para 10 mA (nota 6.5).
+ - Confirmar en banco R9..R16 = 150 ohm provisionales (segmentos): depende de
+   la corriente por segmento y de la tension real del anodo (notas 6.5 y
+   6.14).
  - Confirmar en banco los valores calculados de R17..R19 (330 ohm),
    R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
