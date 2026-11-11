@@ -10,11 +10,9 @@ resistencias todavía no tienen valor: no comprarlas por suposición.
 |---:|---|---|
 | 1 | PIC16F887, PDIP-40 | Control, ADC, displays, alarmas y EUSART. |
 | 1 | Zócalo DIP-40 | Montaje del PIC. |
-| 1 | Módulo LilyPad ADXL335 | Ejes X, Y y Z. Solo 3,3 V: no tiene regulador propio. |
+| 1 | Módulo acelerómetro MMA7361, 3 ejes | Ejes X, Y y Z con salidas analógicas directas al ADC. Verificar alimentación y patillaje del módulo. |
 | 1 | LM35 | Temperatura. Salida a AN0. Alimentación 4–30 V; en este circuito, 5 V. |
-| 2 | MCP6002, DIP-8 | Acondicionamiento de X, Y y Z, más referencia. |
-| 3 | Capacitores de filtrado, 100 nF | Uno por eje. |
-| — | Resistencias de ganancia y referencia | Valores pendientes. |
+| 3 | Capacitores de filtrado, 100 nF | Uno por eje, de la entrada a GND. |
 | 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |
 | 3 | Transistores NPN BC337 | Selectores propuestos como seguidores de emisor para los ánodos comunes. Verificar margen de tensión, corriente y patillaje. |
 | 1 | Módulo buzzer activo 3,3–5 V, 3 terminales (VCC, GND, I/O) | Alarma acústica. El I/O va directo a RC3; el módulo incluye el driver. |
@@ -33,7 +31,6 @@ Protoboard, cables Dupont y multímetro.
 ## Agregar al armar, aunque no estén en la lista inicial
 
 - Resistencia de pull-up en `MCLR`, si el reset externo queda habilitado.
-- Capacitor de 100 nF entre alimentación y GND de cada MCP6002.
 - Capacitor de 100 nF entre +3V3 y GND, junto al módulo acelerómetro.
 - Capacitor de 100 nF entre `+VS` y GND del LM35.
 

@@ -39,20 +39,24 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 - `ADCON0 = (canal << 2) | 0x81`: `ADCS<1:0> = 10` (`FOSC/32`, `TAD = 4 µs`
   a 8 MHz) y `ADON = 1`.
 - La adquisición se espera con un lazo de 14 iteraciones (~23 µs), suficiente
-  para fuentes de hasta 10 kΩ como las salidas de los MCP6002.
-- `leer_adc` recibe el número de canal en `W` (0 = AN0/LM35, 1 = AN1/X) y deja
-  el resultado de 10 bits en `ADC_H:ADC_L`, justificado a la derecha.
+  para fuentes de hasta 10 kΩ. La salida del MMA7361 va directa: verificar su
+  impedancia de salida antes de reducir el margen.
+- `leer_adc` recibe el número de canal en `W` (0 = AN0/LM35, 1 = AN1/X,
+  5 = AN5/Y, 6 = AN6/Z) y deja el resultado de 10 bits en `ADC_H:ADC_L`,
+  justificado a la derecha.
 - Temperatura: `TEMP_C = cuentas × 125 / 256`, redondeado y saturado a 99 °C.
   Para 40 °C se esperan 82 cuentas; `TEMP_C = 40`.
-- Eje X: `DELTA = (cuentas − 547) × 73 / 8` mg, con signo en complemento a dos
-  de 16 bits. Equivale a 9,125 mg/cuenta (9,13 mg/cuenta nominal, error 0,09 %).
-  El offset de 547 cuentas y la sensibilidad son nominales: se ajustan por
-  calibración con la placa real.
-- El bucle principal adquiere AN0 y AN1 en forma continua. Los resultados
-  quedan en `TEMP_C` y `DELTA_H:DELTA_L`.
-- Estado de la Etapa 2: **escrita y compilada**, no probada en hardware. La referencia real es
-  el riel de 5 V de PS1; si no es exactamente 5,000 V, la conversión en °C y mg
-  escala en proporción.
+- Eje X del MMA7361 (±1,5 g): `DELTA = (cuentas − 338) × 49 / 8` mg, con signo
+  en complemento a dos de 16 bits. Equivale a 6,125 mg/cuenta (6,10 mg/cuenta
+  nominal). El offset de 338 cuentas supone 0 g = VCC/2 con VCC = 3,3 V; el
+  offset y la sensibilidad son **nominales** y se ajustan por calibración.
+- Y y Z se adquieren y quedan como cuentas crudas en `Y_H:Y_L` y `Z_H:Z_L`.
+- El bucle principal adquiere AN0, AN1, AN5 y AN6 en forma continua. Los
+  resultados quedan en `TEMP_C`, `DELTA_H:DELTA_L`, `Y_H:Y_L` y `Z_H:Z_L`.
+- Estado de la Etapa 2: **escrita y compilada**, no probada en hardware. La
+  referencia real es el riel de 5 V de PS1; si no es exactamente 5,000 V, la
+  conversión en °C y mg escala en proporción. Antes de usar X para gestos hay
+  que medir el offset de 0 g, la sensibilidad y la tensión real del módulo.
 
 ## Etapa 3: alarma térmica
 

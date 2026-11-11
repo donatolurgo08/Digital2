@@ -10,8 +10,8 @@
   .warn { font-size: 15px; font-weight: 700; fill: #9a3412; }
 </style>
 <text class="title" x="40" y="48">HAND MOTION — Alimentación y analógico</text>
-<text class="sub" x="40" y="76">Propuesta de conexión. Resistencias y capacitores de señal sin valor cerrado.</text>
-<text class="warn" x="40" y="108">No aplicar 5 V al chip ADXL335. El GY-61 admite 5 V solo si tiene regulador propio.</text>
+<text class="sub" x="40" y="76" fill="#c62828" font-weight="700">OBSOLETA: muestra MCP6002 y ADXL335. El diseño vigente (Rev E) usa MMA7361 directo al ADC, sin amplificadores.</text>
+<text class="warn" x="40" y="108">Usar conexiones.txt y esquema-cableado.html. Esta hoja no debe emplearse para el montaje.</text>
 <rect x="40" y="132" width="500" height="300" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="164">Fuente de 5 V</text>
 <text class="p" x="60" y="188">+5 V al PIC, patas 11 y 32</text>
 <text class="p" x="60" y="216">GND al PIC, patas 12 y 31</text>

@@ -2,11 +2,12 @@
 
 Trabajo Práctico Integrador de Electrónica Digital II. Proyecto educativo y
 experimental para reconocer movimientos de la mano usando un PIC16F887 y un
-acelerómetro analógico ADXL335 (módulo GY-61).
+acelerómetro analógico MMA7361 de tres ejes.
 
 ## Alcance confirmado
 
-- Reconocimiento inicial basado únicamente en el eje X del ADXL335.
+- Adquisición de los tres ejes del MMA7361, conectados directamente al ADC.
+- Reconocimiento de movimientos a definir con mediciones del sensor real.
 - Lectura del LM35 por AN0, independiente del reconocimiento de movimientos.
 - Visualización de temperatura en tres displays multiplexados.
 - Activación simultánea de LED rojo y buzzer activo cuando la temperatura sea
@@ -15,6 +16,7 @@ acelerómetro analógico ADXL335 (módulo GY-61).
   USB-TTL.
 - Firmware en Assembler para PIC16F887, compatible con `pic-as` (XC8).
 - Tres displays rojos de siete segmentos de ánodo común.
+- Sin amplificadores operacionales en la etapa analógica.
 - Oscilador interno a 8 MHz; configuration bits definidos en el firmware.
 
 Los pines, frecuencia y configuración del PIC, características eléctricas, tiempos,
@@ -38,6 +40,6 @@ documentará junto con el primer firmware compilable.
 
 ## Estado
 
-Especificación en desarrollo. Consultar [el anteproyecto](docs/anteproyecto/README_HAND_MOTION_ACTUALIZADO.md)
+Especificación en desarrollo. Consultar la [lista de pendientes](Tareas/checklist.md)
 y los documentos de cada subsistema. Distinguir siempre entre implementación,
 compilación y prueba en hardware real.

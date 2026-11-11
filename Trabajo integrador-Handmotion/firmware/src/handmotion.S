@@ -8,19 +8,21 @@
 ; @brief      HAND MOTION - Etapas 2-4: ADC, alarma y displays.
 ;
 ; @details    PIC16F887 con oscilador interno a 8 MHz (OSCCON IRCF=111).
-;             Configura el ADC a FOSC/32 (TAD = 4 us), lee LM35 en AN0 y X
-;             en AN1, convierte los datos, controla la alarma termica y
-;             multiplexa tres displays de anodo comun con TIMER1.
+;             Configura el ADC a FOSC/32 (TAD = 4 us), lee el LM35 por AN0 y
+;             los tres ejes del modulo MMA7361 por AN1 (X), AN5 (Y) y AN6 (Z),
+;             sin amplificadores operacionales. Convierte la temperatura y la
+;             aceleracion de X, controla la alarma termica y multiplexa tres
+;             displays de anodo comun con TIMER1.
 ;
-;             Mapa de pines segun la Rev D del esquema:
+;             Mapa de pines segun la Rev E del esquema:
 ;               RA0/AN0  LM35                       entrada analogica
-;               RA1/AN1  X amplificado (MCP6002)    entrada analogica
+;               RA1/AN1  X del MMA7361 (directo)    entrada analogica
 ;               RA2/AN2  LED1                       salida digital
 ;               RA3/AN3  libre                      entrada analogica reservada
 ;               RA4      libre                      entrada open-drain
 ;               RA5/AN4  LED2                       salida digital
-;               RE0/AN5  Y amplificado              entrada analogica
-;               RE1/AN6  Z amplificado              entrada analogica
+;               RE0/AN5  Y del MMA7361 (directo)    entrada analogica
+;               RE1/AN6  Z del MMA7361 (directo)    entrada analogica
 ;               RE2/AN7  libre
 ;               RE3/MCLR reset externo              entrada (MCLRE=ON)
 ;               RC0-RC2  DIG1-DIG3 (bases Q1-Q3)    salidas activas altas
@@ -31,6 +33,10 @@
 ;               RB3/PGM, RB6/PGC, RB7/PGD           reservados a ICSP
 ;
 ;             Etapas 2-4: compiladas. NO probadas en hardware.
+;             Sensor: MMA7361 en rango +-1,5 g, salidas directas al ADC y
+;             referencia VREF = VDD. El offset de 0 g y la sensibilidad de X
+;             son NOMINALES del datasheet; calibrar con la placa real antes
+;             de usar DELTA para reconocimiento.
 ;             Displays rojos de anodo comun: segmentos activos bajos.
 ;             Q1-Q3 BC337 se proyectan como seguidores de emisor del lado
 ;             alto; verificar corriente y brillo antes de conectar todo.
@@ -99,18 +105,20 @@
 ; Conversion de las cuentas ADC
 ;   LM35: 10 mV/C, VREF = 5 V -> 4,8828 mV/cuenta -> 0,48828 C/cuenta
 ;         T = cuentas * 125 / 256 (redondeado)
-;   Eje X: 0 g nominal en 2,673 V -> 547 cuentas
-;         330 mV/g * Av 1,62 = 534,6 mV/g -> 9,13 mg/cuenta
-;         mg = (cuentas - 547) * 73 / 8  (9,125 mg/cuenta, error 0,09 %)
+;   Eje X (MMA7361, rango +-1,5 g, modulo a 3,3 V):
+;         0 g nominal -> VCC/2 = 1,65 V -> 338 cuentas (depende de VCC real)
+;         800 mV/g -> 163,84 cuentas/g -> 6,103 mg/cuenta
+;         mg = (cuentas - 338) * 49 / 8  (6,125 mg/cuenta, error 0,35 %)
+;         Offset y sensibilidad NOMINALES: medir y recalibrar en banco.
         TEMP_MAX        EQU     99
-        X_OFFSET_L      EQU     0x23    ; 547 = 0x0223
-        X_OFFSET_H      EQU     0x02
-        X_MG_NUM        EQU     73
+        X_OFFSET_L      EQU     0x52    ; 338 = 0x0152
+        X_OFFSET_H      EQU     0x01
+        X_MG_NUM        EQU     49
 
 ; Bits analogicos habilitados en ANSEL: AN0 (LM35), AN1 (X), AN5 (Y), AN6 (Z)
         ANSEL_INIT      EQU     0x63
 
-; Direcciones de puerto para la Rev D
+; Direcciones de puerto para la Rev E
         TRISA_INIT      EQU     0xDB    ; RA2/RA5 salidas; RA4 y resto entradas
         TRISB_INIT      EQU     0xFF    ; todo entrada (ICSP incluido)
         TRISC_INIT      EQU     0xB0    ; RC0-RC3 y RC6 salidas
@@ -142,6 +150,14 @@ FLAGS:          DS      1       ; bit 0 = signo X; bits 2:1 = digito activo
 TEMP_C:         DS      1       ; temperatura en grados C (0..99)
 PROD_H:         DS      1       ; reserva del multiplicador en mul16x8
 
+; Muestras crudas de Y y Z. Quedan fuera de la RAM comun porque no hay
+; espacio: todo acceso debe ir precedido de BANKSEL.
+        PSECT   udata_bank0,class=BANK0
+Y_L:            DS      1       ; eje Y, byte bajo del ADC
+Y_H:            DS      1       ; eje Y, bits 9:8
+Z_L:            DS      1       ; eje Z, byte bajo del ADC
+Z_H:            DS      1       ; eje Z, bits 9:8
+
 ;===============================================================================
 ; VECTOR DE RESET
 ;===============================================================================
@@ -165,18 +181,37 @@ main:
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
-; Adquisicion continua de AN0/AN1, alarma termica y servicio del display.
-; TIMER1 se sondea por polling; las interrupciones permanecen deshabilitadas.
-; Resultados: TEMP_C = grados C; DELTA_H:DELTA_L = mg de X con signo.
+; Adquisicion continua de AN0 (LM35), AN1 (X), AN5 (Y) y AN6 (Z), alarma
+; termica y servicio del display. TIMER1 se sondea por polling; las
+; interrupciones permanecen deshabilitadas.
+; Resultados: TEMP_C = grados C; DELTA_H:DELTA_L = mg de X con signo;
+;             Y_H:Y_L y Z_H:Z_L = cuentas crudas de 10 bits.
 loop:
         MOVLW   0               ; AN0 = LM35
         CALL    leer_adc
         CALL    convertir_temp
         CALL    procesar_alarma
 
-        MOVLW   1               ; AN1 = X amplificado
+        MOVLW   1               ; AN1 = X del MMA7361 (directo)
         CALL    leer_adc
         CALL    convertir_x_mg
+
+        MOVLW   5               ; AN5 = Y del MMA7361 (directo)
+        CALL    leer_adc
+        BANKSEL Y_L
+        MOVF    ADC_L,W
+        MOVWF   Y_L
+        MOVF    ADC_H,W
+        MOVWF   Y_H
+
+        MOVLW   6               ; AN6 = Z del MMA7361 (directo)
+        CALL    leer_adc
+        BANKSEL Z_L
+        MOVF    ADC_L,W
+        MOVWF   Z_L
+        MOVF    ADC_H,W
+        MOVWF   Z_H
+
         CALL    display_service
 
         GOTO    loop
@@ -257,7 +292,8 @@ wait_osc:
 ; @details  Bucle de 14 iteraciones. Cada iteracion consume 3 TCY (DECFSZ +
 ;           GOTO) = 1,5 us; con CALL, MOVWF y RETURN el total supera los
 ;           20 us. Es un margen conservador sobre TACQ para fuentes de hasta
-;           10 k, como las salidas de los MCP6002.
+;           10 k. La salida del modulo MMA7361 se conecta directo: verificar
+;           su impedancia de salida antes de reducir este margen.
 ;
 ; @param    W = cantidad de iteraciones (ADC_ACQ_LOOPS)
 ; @return   ninguno
@@ -383,10 +419,11 @@ alarma_off:
 ;*******************************************************************************
 ; @brief    Convierte las cuentas del eje X a miligramos con signo.
 ;
-; @details  Resta el offset nominal de 0 g (547 cuentas), multiplica la
-;           magnitud por 73 y divide por 8. Resultado: 9,125 mg/cuenta.
-;           El offset y la sensibilidad son nominales; se ajustan por
-;           calibracion con la placa real.
+; @details  Resta el offset nominal de 0 g (338 cuentas para VCC = 3,3 V),
+;           multiplica la magnitud por 49 y divide por 8. Resultado:
+;           6,125 mg/cuenta. El offset y la sensibilidad son NOMINALES del
+;           MMA7361 (+-1,5 g, 800 mV/g); se ajustan por calibracion con la
+;           placa real.
 ;
 ; @param    ADC_H:ADC_L = cuentas del eje X
 ; @return   DELTA_H:DELTA_L = aceleracion en mg (complemento a dos, 16 bits)
@@ -486,7 +523,7 @@ mul8_skip:
 ; @brief    Multiplica un valor de 16 bits por otro de 8 bits.
 ;
 ; @details  Separa el multiplicando en dos bytes y reutiliza mul8x8. El mayor
-;           caso de este proyecto es 547 * 73 = 39931, que entra en 16 bits,
+;           caso de este proyecto es 685 * 49 = 33565, que entra en 16 bits,
 ;           pero se devuelve el producto completo de 24 bits.
 ;
 ; @param    DELTA_H:DELTA_L = multiplicando, MUL_B = multiplicador

@@ -17,10 +17,10 @@ en `ADRESH:ADRESL`. El PIC16F887 dispone de los canales AN0–AN13.
 Para HAND MOTION:
 
 - El LM35 se conecta obligatoriamente a **AN0/RA0**.
-- En la Rev D del esquema, el eje X del ADXL335 (amplificado por MCP6002) está en
-  **AN1/RA1**. Y y Z quedan cableados en **AN5/RE0** y **AN6/RE1**.
-- La rutina de adquisición acepta un canal como parámetro, para permitir agregar
-  Y y Z posteriormente sin cambiar el esquema general de lectura.
+- En la Rev E del esquema, los ejes X, Y y Z del módulo MMA7361 se conectan
+  directo, sin amplificadores, a **AN1/RA1**, **AN5/RE0** y **AN6/RE1**.
+- La rutina de adquisición acepta un canal como parámetro, de modo que el
+  firmware lee los tres ejes con la misma subrutina.
 
 ### Registros y bits principales
 
@@ -55,7 +55,7 @@ Mapa de canales disponible en el PIC16F887:
 | AN8–AN13 | RB2, RB3, RB1, RB4, RB0, RB5 — libres |
 
 Los canales AN0, AN1, AN5 y AN6 son las asignaciones confirmadas del proyecto
-(Rev D); el resto son canales disponibles. El pin físico depende del encapsulado
+(Rev E); el resto son canales disponibles. El pin físico depende del encapsulado
 concreto del PIC. Para una entrada analógica, el pin correspondiente
 debe tener el driver de salida deshabilitado (`TRIS=1`) y su bit analógico
 habilitado en `ANSEL` o `ANSELH`. Las entradas configuradas como analógicas se
@@ -151,10 +151,11 @@ interrupciones periféricas/globales.
 
 - Leer el LM35 por AN0 para obtener la temperatura, mostrarla en los displays y
   activar la alarma cuando supere 40 °C.
-- Leer la salida X del ADXL335 por **AN1** y entregar las muestras al
-  reconocimiento de movimientos y a la GUI.
-- Mantener la lectura seleccionable por canal para poder sumar Y (AN5) y Z (AN6)
-  en una ampliación futura.
+- Leer las salidas X, Y y Z del MMA7361 por **AN1**, **AN5** y **AN6**, y
+  entregar las muestras al reconocimiento de movimientos y a la GUI. Las
+  salidas se conectan directo al ADC, sin amplificadores.
+- Verificar que las tensiones del módulo no superen VDD y que su impedancia de
+  salida sea compatible con el tiempo de adquisición configurado.
 
 ### Fuentes consultadas — ADC
 

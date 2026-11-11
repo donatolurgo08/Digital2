@@ -2,21 +2,21 @@
 
 | Periférico | Uso previsto | Datos pendientes |
 |---|---|---|
-| ADC | Leer LM35 en AN0 y eje X del ADXL335 en AN1 (Y = AN5, Z = AN6 cableados, fuera del alcance inicial) | Configurado: FOSC/32, VDD/VSS, ADFM=1 |
+| ADC | Leer LM35 en AN0 y los tres ejes del MMA7361 en AN1 (X), AN5 (Y) y AN6 (Z), directos y sin amplificadores | Configurado: FOSC/32, VDD/VSS, ADFM=1; calibración pendiente |
 | TIMER0 | Base temporal de adquisición | Derivado: 1 ms, 1:8, recarga 6; aún no implementado |
 | TIMER1 | Temporización del multiplexado de tres displays | Etapa 4: 1 ms, 1:1, recarga 0xF830, polling |
 | EUSART | Comunicación bidireccional con la GUI | 9600 Bd confirmado; formato/protocolo pendientes |
 | GPIO | Displays rojos de ánodo común, LED rojo y buzzer | Valores de R9–R19 y R21–R23, validar driver de dígitos |
 | Interrupciones | Eventos temporizados y recepción serie | Fuentes habilitadas y estrategia final |
 
-## Mapa de pines (Rev D)
+## Mapa de pines (Rev E)
 
 | Función | Pin | Red |
 |---|---|---|
 | LM35 | 2 / RA0 / AN0 | AN0 |
-| Eje X amplificado | 3 / RA1 / AN1 | X_AMP |
-| Eje Y amplificado | 8 / RE0 / AN5 | Y_AMP |
-| Eje Z amplificado | 9 / RE1 / AN6 | Z_AMP |
+| Eje X del MMA7361 | 3 / RA1 / AN1 | X_IN (directo) |
+| Eje Y del MMA7361 | 8 / RE0 / AN5 | Y_IN (directo) |
+| Eje Z del MMA7361 | 9 / RE1 / AN6 | Z_IN (directo) |
 | LED1 | 4 / RA2 | LED1 |
 | LED2 | 7 / RA5 / AN4 | LED2 |
 | Dígitos | 15–17 / RC0–RC2 | DIG1–DIG3 (bases Q1–Q3) |
@@ -33,7 +33,9 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
 
 - Verificar registros, bancos y bits en el datasheet oficial del PIC16F887.
 - Configurar como digitales únicamente los pines que corresponda; conservar
-  AN0, AN1, AN5 y AN6 como entradas analógicas.
+  AN0, AN1, AN5 y AN6 como entradas analógicas, con sus TRIS en entrada.
+- Las salidas del MMA7361 tienen que quedar dentro de 0–VDD del PIC. Medir
+  X, Y y Z en reposo y con inclinación antes de conectarlas.
 - El oscilador interno está confirmado como fuente, a **8 MHz** (`OSCCON = 0x70`,
   `FOSC = INTRC_NOCLKOUT`). TCY = 0,5 µs.
 - Calcular tiempos y baud rate con la frecuencia real del oscilador.
@@ -73,5 +75,11 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
   `ADON = 1`.
 - `leer_adc` recibe el canal en `W` y devuelve 10 bits en `ADC_H:ADC_L`.
 - `TEMP_C = cuentas × 125 / 256`, saturado a 99 °C.
-- X: `DELTA = (cuentas − 547) × 73 / 8` mg, con signo.
-- Offset y sensibilidad de X son nominales; calibrar con la placa real.
+- X del MMA7361: `DELTA = (cuentas − 338) × 49 / 8` mg, con signo
+  (6,125 mg/cuenta). Offset de 0 g y sensibilidad de 800 mV/g **nominales**;
+  calibrar con el módulo real y con su VCC medido.
+- Y y Z se guardan como cuentas crudas de 10 bits en `Y_H:Y_L` y `Z_H:Z_L`;
+  todavía no se convierten a mg.
+- Las tres entradas del acelerómetro se conectan directo al ADC, sin
+  amplificadores. Si el módulo tiene regulador propio, su salida máxima ronda
+  3,3 V y solo se usa parte del fondo de escala de 5 V.

@@ -2,8 +2,8 @@
  HAND MOTION - LISTA DE CONEXIONES (NETLIST DESCRIPTIVA)
 ================================================================================
  Proyecto : Hand Motion - reconocimiento de movimiento + temperatura
- Revision : D
- Fecha    : 2026-11-04 (actualizado 2026-11-06)
+ Revision : E
+ Fecha    : 2026-11-04 (actualizado 2026-11-11)
  Cambio   : Rev B: 2 x MCP6002 en lugar de 1 x MCP6004.
             Rev C: sensor LilyPad ADXL335 a 3,3 V.
             Rev D: alimentacion desde modulo de protoboard con bateria de
@@ -17,6 +17,10 @@
              Actualizacion 2026-11-06: displays rojos de anodo comun. La
                    seleccion de digito se adapta a Q1-Q3 BC337 como seguidores
                    de emisor de lado alto; verificar corriente y brillo.
+             Actualizacion 2026-11-11: se reemplaza el ADXL335 por un modulo
+                   MMA7361 y se eliminan los amplificadores MCP6002 y toda la
+                   red de ganancia/referencia (U2, U3, R1-R8, C3, C4). Las
+                   salidas X, Y y Z van directas al ADC; VREF+ = VDD.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -37,11 +41,10 @@
  BT1   Bateria de 9 V
  PS1   Modulo de alimentacion de protoboard (entrada 9 V, salidas 5 V y 3,3 V)
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
- U2    MCP6002 #1, DIP-8   -> canal A = eje X, canal B = eje Y
- U3    MCP6002 #2, DIP-8   -> canal A = eje Z, canal B = buffer de VREF
  U4    LM35, TO-92
- MOD1  Modulo LilyPad ADXL335 (SparkFun DEV-09267 o compatible)
-       3,3 V, 6 pads para soldar o coser
+ MOD1  Modulo acelerometro MMA7361 de 3 ejes, salidas analogicas
+       Verificar en la serigrafia si el modulo incluye regulador de 3,3 V
+       y cuales son sus pines de alimentacion, rango y sleep.
  DS1   Display rojo 7 segmentos, anodo comun - decenas
  DS2   Display rojo 7 segmentos, anodo comun - unidades
  DS3   Display rojo 7 segmentos, anodo comun - C estandar
@@ -53,14 +56,6 @@
  BZ1   Modulo buzzer activo 3,3-5 V (3 terminales: VCC, GND, I/O)
  J1    Modulo conversor USB-TTL (4 terminales: VCC, GND, RXD, TXD)
  J2    Conector ICSP de 6 pines para PICkit
- R1    Resistencia superior del divisor de VREF        (POR DEFINIR)
- R2    Resistencia inferior del divisor de VREF        (POR DEFINIR)
- R3    Rg del canal X                                  (POR DEFINIR)
- R4    Rg del canal Y                                  (POR DEFINIR)
- R5    Rg del canal Z                                  (POR DEFINIR)
- R6    Rf del canal X                                  (POR DEFINIR)
- R7    Rf del canal Y                                  (POR DEFINIR)
- R8    Rf del canal Z                                  (POR DEFINIR)
  R9    Limitadora segmento a                            (POR DEFINIR)
  R10   Limitadora segmento b                            (POR DEFINIR)
  R11   Limitadora segmento c                            (POR DEFINIR)
@@ -77,8 +72,6 @@
  R23   Pull-up de MCLR                                  (POR DEFINIR)
  C1    Desacople VDD del PIC, pata 11                   100 nF
  C2    Desacople VDD del PIC, pata 32                   100 nF
- C3    Desacople de U2                                  100 nF
- C4    Desacople de U3                                  100 nF
  C5    Filtro de la entrada X                           100 nF
  C6    Filtro de la entrada Y                           100 nF
  C7    Filtro de la entrada Z                           100 nF
@@ -95,20 +88,15 @@
 --------------------------------------------------------------------------------
  U1.11     VDD                      alimentacion principal del PIC
  U1.32     VDD                      segunda alimentacion del PIC
- U2.8      VDD                      MCP6002 #1
- U3.8      VDD                      MCP6002 #2
  U4.1      +VS                      LM35
  PS1.+5V   salida de 5 V            modulo de protoboard
  BZ1.VCC   alimentacion del modulo buzzer
  Q1.C      colector de Q1, lado alto del display DS1
  Q2.C      colector de Q2, lado alto del display DS2
  Q3.C      colector de Q3, lado alto del display DS3
- R1.1      extremo superior         divisor de VREF
  R23.1     extremo superior         pull-up de MCLR
  C1.1      placa 1                  desacople PIC
  C2.1      placa 1                  desacople PIC
- C3.1      placa 1                  desacople U2
- C4.1      placa 1                  desacople U3
  C8.1      placa 1                  desacople LM35
  J2.2      pin 2                    VDD del conector ICSP
 
@@ -117,21 +105,14 @@
 --------------------------------------------------------------------------------
  U1.12     VSS                      PIC
  U1.31     VSS                      PIC
- U2.4      VSS                      MCP6002 #1
- U3.4      VSS                      MCP6002 #2
  U4.3      GND                      LM35
+ MOD1.GND  GND                      modulo MMA7361
  PS1.GND   GND                      modulo de protoboard
  BT1.-     terminal negativo        bateria de 9 V (via PS1)
  BZ1.GND   GND del modulo buzzer
  C9.2      placa 2                  desacople de 3,3 V
- R2.2      extremo inferior         divisor de VREF
- R3.2      extremo inferior         Rg de X (ver nota 6.1)
- R4.2      extremo inferior         Rg de Y (ver nota 6.1)
- R5.2      extremo inferior         Rg de Z (ver nota 6.1)
  C1.2      placa 2
  C2.2      placa 2
- C3.2      placa 2
- C4.2      placa 2
  C5.2      placa 2
  C6.2      placa 2
  C7.2      placa 2
@@ -145,12 +126,16 @@
  RED: +3V3   (alimentacion del acelerometro)
 --------------------------------------------------------------------------------
  PS1.+3V3  salida de 3,3 V          modulo de protoboard
- MOD1.VCC  VCC del modulo           LilyPad ADXL335
+ MOD1.VCC  VCC del modulo           modulo MMA7361
  C9.1      placa 1                  desacople de 3,3 V
 
- ATENCION: el modulo LilyPad ADXL335 admite solo 1,8 V a 3,6 V.
- No conectar nunca MOD1.VCC a +5V. Esta red es exclusivamente de 3,3 V.
- Los 3,3 V salen del modulo de protoboard: no hace falta regulador aparte.
+ ATENCION: el documento del proyecto indica que el modulo MMA7361 elegido
+ tiene regulador integrado, pero no confirma su rango de alimentacion. Se
+ conecta a +3V3 porque es seguro para el sensor en cualquier variante. Si
+ el modulo tiene una entrada VCC de 5 V y un pin 3V3 de SALIDA del regulador,
+ no unir ese pin de salida al riel: alimentar por VCC segun la serigrafia.
+ Medir la tension real en VCC y en las salidas X, Y y Z antes de conectar
+ el PIC.
 
 --------------------------------------------------------------------------------
  RED: VIN_9V   (entrada del modulo de alimentacion)
@@ -173,84 +158,43 @@
  U1.2      RA0/AN0                  entrada analogica 0
 
 --------------------------------------------------------------------------------
- RED: X_IN   (salida cruda del eje X)
+ RED: X_IN   (salida X del MMA7361, directa al ADC)
 --------------------------------------------------------------------------------
  MOD1.X    salida X del modulo
  C5.1      placa 1                  filtro a GND
- U2.3      INA+                     entrada no inversora del canal A
-
---------------------------------------------------------------------------------
- RED: X_FB   (nudo de realimentacion del canal X)
---------------------------------------------------------------------------------
- U2.2      INA-                     entrada inversora del canal A
- R3.1      extremo superior         Rg de X
- R6.2      extremo derecho          Rf de X
-
---------------------------------------------------------------------------------
- RED: X_AMP   (salida amplificada del eje X)
---------------------------------------------------------------------------------
- U2.1      OUTA                     salida del canal A
- R6.1      extremo izquierdo        Rf de X
  U1.3      RA1/AN1                  entrada analogica 1
 
+ Nota: no hay amplificador. La salida del modulo debe quedar entre 0 V y
+ VDD; con el modulo a 3,3 V y VREF = 5 V se aprovecha parte del fondo de
+ escala del ADC.
+
 --------------------------------------------------------------------------------
- RED: Y_IN   (salida cruda del eje Y)
+ RED: Y_IN   (salida Y del MMA7361, directa al ADC)
 --------------------------------------------------------------------------------
  MOD1.Y    salida Y del modulo
  C6.1      placa 1                  filtro a GND
- U2.5      INB+                     entrada no inversora del canal B
-
---------------------------------------------------------------------------------
- RED: Y_FB   (nudo de realimentacion del canal Y)
---------------------------------------------------------------------------------
- U2.6      INB-                     entrada inversora del canal B
- R4.1      extremo superior         Rg de Y
- R7.2      extremo derecho          Rf de Y
-
---------------------------------------------------------------------------------
- RED: Y_AMP   (salida amplificada del eje Y)
---------------------------------------------------------------------------------
- U2.7      OUTB                     salida del canal B
- R7.1      extremo izquierdo        Rf de Y
  U1.8      RE0/AN5                  entrada analogica 5
 
 --------------------------------------------------------------------------------
- RED: Z_IN   (salida cruda del eje Z)
+ RED: Z_IN   (salida Z del MMA7361, directa al ADC)
 --------------------------------------------------------------------------------
  MOD1.Z    salida Z del modulo
  C7.1      placa 1                  filtro a GND
- U3.3      INA+                     entrada no inversora del canal A
-
---------------------------------------------------------------------------------
- RED: Z_FB   (nudo de realimentacion del canal Z)
---------------------------------------------------------------------------------
- U3.2      INA-                     entrada inversora del canal A
- R5.1      extremo superior         Rg de Z
- R8.2      extremo derecho          Rf de Z
-
---------------------------------------------------------------------------------
- RED: Z_AMP   (salida amplificada del eje Z)
---------------------------------------------------------------------------------
- U3.1      OUTA                     salida del canal A
- R8.1      extremo izquierdo        Rf de Z
  U1.9      RE1/AN6                  entrada analogica 6
 
 --------------------------------------------------------------------------------
- RED: VREF_DIV   (nudo del divisor de referencia)
+ RED: MOD1 ALIMENTACION Y CONTROL
 --------------------------------------------------------------------------------
- R1.2      extremo inferior         divisor
- R2.1      extremo superior         divisor
- U3.5      INB+                     entrada no inversora del canal B
+ MOD1.VCC  alimentacion            ver red +3V3
+ MOD1.GND  referencia              ver red GND
+ MOD1.ST   self-test               no conectar
+ MOD1.GS   selector de rango       POR VERIFICAR: llevar a GND para +-1,5 g
+                                   si el modulo no trae puente propio
+ MOD1.0G   deteccion de caida libre no conectar
 
---------------------------------------------------------------------------------
- RED: VREF   (referencia tamponada, reservada)
---------------------------------------------------------------------------------
- U3.7      OUTB                     salida del canal B
- U3.6      INB-                     realimentacion unitaria
- (sin carga por ahora: queda como punto de prueba)
-
- Nota: U3B es un seguidor de tension. VREF queda disponible para futuras
- resistencias de offset. Hoy no alimenta ninguna Rg.
+ El documento del proyecto exige confirmar la alimentacion admitida por el
+ modulo y los niveles de X, Y y Z antes de cerrar el diseno. No fijar el
+ rango de +-1,5 g en firmware: es una seleccion por pin o puente del modulo.
 
 --------------------------------------------------------------------------------
  RED: MCLR
@@ -445,7 +389,7 @@
 ================================================================================
  3. PINES NO CONECTADOS (dejar al aire, sin pista)
 ================================================================================
- U1.5      RA3/AN3/VREF+    reservado como VREF+ del ADC
+ U1.5      RA3/AN3/VREF+    libre: el ADC usa VREF+ = VDD
  U1.6      RA4              open-drain, sin uso (LED1 se movio a RA2)
  U1.10     RE2/AN7
  U1.13     RA7/OSC1         oscilador interno, no se usa
@@ -457,7 +401,9 @@
  U1.35     RB2
  U1.37     RB4
  U1.38     RB5
- MOD1.ST   self-test del modulo, si existe
+ MOD1.ST   self-test del modulo     no conectar
+ MOD1.GS   selector de rango        ver red MOD1 ALIMENTACION Y CONTROL
+ MOD1.0G   deteccion de caida libre no conectar
  J1.VCC    se alimenta por USB (ver red USB_VCC)
 
  Los pines 39 y 40 del PIC quedan exclusivos del programador:
@@ -475,13 +421,13 @@
   31  VSS          GND
    1  RE3/MCLR/VPP MCLR
    2  RA0/AN0      AN0
-   3  RA1/AN1      X_AMP
+   3  RA1/AN1      X_IN
    4  RA2/AN2      LED1
    5  RA3/AN3      no conectar
    6  RA4          no conectar
    7  RA5/AN4      LED2
-   8  RE0/AN5      Y_AMP
-   9  RE1/AN6      Z_AMP
+   8  RE0/AN5      Y_IN
+   9  RE1/AN6      Z_IN
   10  RE2/AN7      no conectar
   13  RA7/OSC1     no conectar
   14  RA6/OSC2     no conectar
@@ -510,21 +456,6 @@
   39  RB6/PGC      PGC
   40  RB7/PGD      PGD
 
- U2 y U3 - MCP6002, DIP-8 (los dos iguales)
-   1  OUTA     salida A
-   2  INA-     entrada inversora A
-   3  INA+     entrada no inversora A
-   4  VSS      GND
-   5  INB+     entrada no inversora B
-   6  INB-     entrada inversora B
-   7  OUTB     salida B
-   8  VDD      +5V
-
-   U2A = eje X      (3 = X_IN, 2 = X_FB, 1 = X_AMP)
-   U2B = eje Y      (5 = Y_IN, 6 = Y_FB, 7 = Y_AMP)
-   U3A = eje Z      (3 = Z_IN, 2 = Z_FB, 1 = Z_AMP)
-   U3B = VREF       (5 = VREF_DIV, 6 = VREF, 7 = VREF)
-
  U4 - LM35, TO-92 (cara plana hacia el observador, patas hacia abajo)
    1  +VS      +5V
    2  VOUT     AN0
@@ -542,15 +473,18 @@
    VERIFICAR con multimetro que entregue 5,0 V y 3,3 V reales, y que las
    dos salidas compartan GND, antes de conectar el sensor.
 
- MOD1 - LilyPad ADXL335 (6 pads)
-   VCC   +3V3   (1,8 V a 3,6 V; nunca 5 V)
+ MOD1 - modulo acelerometro MMA7361 (3 ejes, salidas analogicas)
+   VCC   +3V3 (ver aviso de la red +3V3)
    GND   GND
    X     X_IN
    Y     Y_IN
    Z     Z_IN
-   ST    no conectar
-   Los pads son para soldar o coser. Identificarlos por la serigrafia
-   de la placa, no por la posicion: el orden fisico cambia entre clones.
+   ST    no conectar (self-test)
+   GS    selector de rango: verificar si el modulo trae puente; para
+         +-1,5 g debe quedar en nivel bajo
+   0G    no conectar (salida de deteccion de caida libre)
+   El modulo puede incluir regulador de 3,3 V y un pin de salida 3V3.
+   Identificar cada pin por la serigrafia, no por la posicion.
 
   DS1, DS2, DS3 - display rojo de 7 segmentos, anodo comun
     a, b, c, d, e, f, g, dp   terminales de segmento
@@ -597,27 +531,18 @@
 ================================================================================
  5. RESUMEN DE UNA LINEA POR RED (para carga rapida)
 ================================================================================
-  +5V       = PS1.+5V, U1.11, U1.32, U2.8, U3.8, U4.1, BZ1.VCC,
-              Q1.C, Q2.C, Q3.C, R1.1,
-             R23.1, C1.1, C2.1, C3.1, C4.1, C8.1, J2.2
-  GND       = PS1.GND, BT1.-, U1.12, U1.31, U2.4, U3.4, U4.3, R2.2, R3.2,
-             R4.2, R5.2, C1.2, C2.2, C3.2, C4.2, C5.2, C6.2, C7.2, C8.2,
-              C9.2, D1.K, D2.K, J1.GND, J2.3, BZ1.GND
- +3V3      = PS1.+3V3, MOD1.VCC, C9.1      (nunca unir a +5V)
+  +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC,
+              Q1.C, Q2.C, Q3.C, R23.1, C1.1, C2.1, C8.1, J2.2
+  GND       = PS1.GND, BT1.-, U1.12, U1.31, U4.3, C1.2, C2.2,
+              C5.2, C6.2, C7.2, C8.2, C9.2, D1.K, D2.K, J1.GND, J2.3,
+              BZ1.GND, MOD1.GND
+ +3V3      = PS1.+3V3, MOD1.VCC, C9.1      (ver aviso de la red +3V3)
  VIN_9V    = BT1.+, PS1.VIN
  USB_VCC   = J1.VCC                        (no unir a +5V)
  AN0       = U4.2, U1.2
- X_IN      = MOD1.X, C5.1, U2.3
- X_FB      = U2.2, R3.1, R6.2
- X_AMP     = U2.1, R6.1, U1.3
- Y_IN      = MOD1.Y, C6.1, U2.5
- Y_FB      = U2.6, R4.1, R7.2
- Y_AMP     = U2.7, R7.1, U1.8
- Z_IN      = MOD1.Z, C7.1, U3.3
- Z_FB      = U3.2, R5.1, R8.2
- Z_AMP     = U3.1, R8.1, U1.9
- VREF_DIV  = R1.2, R2.1, U3.5
- VREF      = U3.7, U3.6
+ X_IN      = MOD1.X, C5.1, U1.3
+ Y_IN      = MOD1.Y, C6.1, U1.8
+ Z_IN      = MOD1.Z, C7.1, U1.9
  MCLR      = U1.1, R23.2, J2.1
  PGD       = U1.40, J2.4
  PGC       = U1.39, J2.5
@@ -660,19 +585,23 @@
  6. NOTAS DE DISENO
 ================================================================================
 
- 6.1 Rg de los canales
-     R3, R4 y R5 van hoy de la entrada inversora a GND. Si mas adelante se
-     necesita sumar offset, el extremo inferior se mueve de GND a VREF.
-     No cambiar las dos cosas a la vez: cada Rg va a GND o a VREF.
+ 6.1 Conexion directa al ADC
+     Las salidas X, Y y Z del modulo van directo a AN1, AN5 y AN6. No hay
+     amplificadores ni resistencias de ganancia. C5, C6 y C7 filtran cada
+     entrada a GND. Verificar que la impedancia de salida del modulo sea
+     compatible con el tiempo de adquisicion del ADC.
 
- 6.2 Ganancia
-     Cada canal es un amplificador no inversor:
-         Av = 1 + (Rf / Rg)
-     R6/R3 para X, R7/R4 para Y, R8/R5 para Z. Valores POR DEFINIR.
+ 6.2 Sensibilidad y offset del MMA7361
+     En el rango de +-1,5 g la sensibilidad nominal es 800 mV/g y la salida
+     de 0 g es aproximadamente VCC/2. Con VCC = 3,3 V y VREF = 5 V, un LSB
+     son 4,8828 mV: 1 g ~ 163,8 cuentas (6,10 mg/cuenta) y 0 g ~ 338 cuentas.
+     Son valores NOMINALES: medir el offset y la sensibilidad reales antes
+     de usarlos para reconocimiento. Si cambia VCC, cambian ambos.
 
- 6.3 Divisor de VREF
-     R1 de +5V a VREF_DIV, R2 de VREF_DIV a GND.
-     VREF = 5 V * R2 / (R1 + R2). Valores POR DEFINIR.
+ 6.3 Referencia del ADC
+     Se usa VREF+ = VDD y VREF- = VSS (ADCON1 = 0x80). No hay divisor ni
+     buffer de referencia; RA3/AN3 queda libre. El fondo de escala es 5 V,
+     mayor que los 3,3 V maximos de la salida del modulo.
 
   6.4 Multiplexado de displays
       Los displays son de anodo comun. Q1-Q3 BC337 se proponen como seguidores
@@ -691,7 +620,7 @@
 
  6.6 Desacople
      C1 junto a las patas 11-12 del PIC y C2 junto a las 32-31.
-     C3 junto a U2 (patas 8-4) y C4 junto a U3 (patas 8-4).
+     C5, C6 y C7 junto a las entradas X, Y y Z, cerca del modulo o del PIC.
      C8 entre las patas 1 y 3 del LM35.
      C9 entre +3V3 y GND, junto a MOD1.
 
@@ -721,22 +650,24 @@
      Confirmar que el modulo USB-TTL trabaje a 3,3 V o 5 V y que su
      salida TXD sea compatible con la entrada del PIC a 5 V.
 
- 6.11 Sensor LilyPad ADXL335
-     Alimentar solo a 3,3 V. La salida es ratiometrica respecto de su
-     propia alimentacion: en reposo entrega aproximadamente VCC/2 (1,65 V)
-     y la sensibilidad es 300 mV/g a 3,3 V.
-     El fondo de escala es 3,3 V contra un ADC referenciado a 5 V, asi que
-     se pierde parte del rango. La ganancia del MCP6002 lo recupera; los
-     valores de R siguen POR DEFINIR.
-     C5, C6 y C7 = 100 nF es el valor que recomienda el datasheet del
-     ADXL335 para dejar unos 50 Hz de ancho de banda.
-     El modulo no tiene regulador propio: los 3,3 V salen de PS1.
+ 6.11 Sensor MMA7361
+     Acelerometro de tres ejes con salidas analogicas. En el rango de
+     +-1,5 g la sensibilidad nominal es 800 mV/g y la salida de 0 g es
+     aproximadamente VCC/2, ratiometrica con su alimentacion.
+     Las salidas se leen directo con el ADC del PIC, referenciado a 5 V.
+     Como la salida maxima es cercana a 3,3 V, solo se usa parte del fondo
+     de escala; no se agrega ganancia analogica.
+     C5, C6 y C7 = 100 nF filtran cada eje a GND. Confirmar con mediciones
+     que el filtro no degrade los movimientos que se quieren detectar.
+     Antes de conectar el PIC: medir VCC y las tensiones de X, Y y Z en
+     reposo e inclinando el sensor. Verificar que nunca superen VDD.
+     El modulo puede incluir regulador de 3,3 V; identificar su pinout.
 
  6.12 Montaje del modulo
-     La placa es circular, de unos 20 mm, con pads para soldar o coser.
-     Para protoboard, soldar cables finos a cada pad. Fijarla a la mano
-     con el eje Z perpendicular a la palma, para que la gravedad quede
-     sobre un solo eje en reposo.
+     Fijar el modulo a la mano con el eje Z perpendicular a la palma, para
+     que la gravedad quede sobre un solo eje en reposo. Soldar cables finos
+     o usar un zocalo segun el tipo de placa. Evitar tension mecanica sobre
+     los pads.
 
  6.13 Alimentacion
      BT1 (9 V) entra a PS1.VIN. PS1 entrega +5V y +3V3, con GND comun.
@@ -749,12 +680,15 @@
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
 ================================================================================
- - Valor de R1, R2 (divisor de VREF).
- - Valor de R3..R8 (ganancia de X, Y, Z).
  - Valor de R9..R16 (segmentos).
  - Valor de R17..R19 (bases de Q1..Q3).
  - Valor de R21, R22 (LED) y R23 (pull-up de MCLR).
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
+ - Confirmar la alimentacion admitida por el modulo MMA7361 y su patillaje
+   real (VCC, GND, X, Y, Z, GS, ST, 0G).
+ - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
+   que no superen VDD y compatibilizarlas con la referencia del ADC.
+ - Confirmar como se selecciona el rango de +-1,5 g en el modulo (GS).
  - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
  - Patillaje E-B-C de los BC337 comprados.
  - Polaridad y corriente del terminal I/O del modulo buzzer (nota 6.7).

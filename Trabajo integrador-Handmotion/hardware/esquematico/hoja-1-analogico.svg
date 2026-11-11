@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1150" height="1150" viewBox="0 0 1150 1150">
 <rect width="1150" height="1150" fill="#ffffff"/>
 <text x="40" y="46" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#111111">HAND MOTION — Hoja 1: sensores y acondicionamiento</text>
-<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#555555">U2 y U3 son MCP6002. Cada uno aporta dos canales. Valores de R y C pendientes.</text>
+<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#c62828" font-weight="700">OBSOLETA: muestra MCP6002 y ADXL335. El diseño vigente (Rev E) usa MMA7361 directo al ADC, sin amplificadores.</text>
 <rect x="20" y="20" width="1110" height="1110" fill="none" stroke="#111111" stroke-width="1"/>
 <rect x="60" y="150" width="160" height="120" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
 <text x="140.0" y="172" font-family="Segoe UI, Arial" font-size="13" fill="#111111" text-anchor="middle" font-weight="700">U3  LM35</text>
