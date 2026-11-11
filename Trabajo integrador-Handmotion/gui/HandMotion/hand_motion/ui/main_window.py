@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QKeySequence, QPixmap, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QFrame, QScrollArea, QStackedWidget, QPushButton,
@@ -39,6 +39,10 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(960, 640)
 
         self._load_theme()
+        self._fullscreen_shortcut = QShortcut(QKeySequence("F11"), self)
+        self._fullscreen_shortcut.activated.connect(self._toggle_fullscreen)
+        self._escape_shortcut = QShortcut(QKeySequence("Escape"), self)
+        self._escape_shortcut.activated.connect(self._leave_fullscreen)
         self.state = AppState(self)
         self.controller = AppController(self.state, self)
         self._device_mode = False
@@ -119,6 +123,16 @@ class MainWindow(QMainWindow):
     def _toggle_mode(self, device_mode: bool) -> None:
         """Alterna la visualización entre la simulación y las tramas del PIC."""
         self._set_mode(device_mode)
+
+    def _toggle_fullscreen(self) -> None:
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+
+    def _leave_fullscreen(self) -> None:
+        if self.isFullScreen():
+            self.showNormal()
 
     def _set_mode(self, device_mode: bool) -> None:
         self._device_mode = device_mode

@@ -26,7 +26,7 @@ def main() -> int:
         app.setWindowIcon(QIcon(str(logo_path)))
 
     window = MainWindow()
-    window.show()
+    window.showFullScreen()
 
     return app.exec()
 

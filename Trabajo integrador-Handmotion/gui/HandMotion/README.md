@@ -9,6 +9,9 @@ a 9600 Bd, 8N1. Permite PING, START/STOP, consultar estado, fijar el umbral de
 alarma y calibrar el offset de X. La sensibilidad del acelerómetro sigue siendo
 nominal hasta medir el módulo real.
 
+La aplicación abre en pantalla completa. Usá **F11** para alternar entre
+pantalla completa y ventana; **Esc** sale de pantalla completa.
+
 ## Ejecutar
 
 Hacé doble clic en `run_hand_motion.bat`. La primera vez crea `.venv` e instala
