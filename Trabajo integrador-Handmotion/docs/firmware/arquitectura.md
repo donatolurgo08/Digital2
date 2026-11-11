@@ -85,6 +85,9 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   la corriente y el brillo siguen pendientes de validación eléctrica.
   R17–R19 = 330 Ω (base), R21–R22 = 220 Ω (LED) y R23 = 10 kΩ (MCLR); R9–R16
   = 150 Ω provisionales, a confirmar midiendo Vf.
+- El multiplexado toma hasta 80 mA en pulsos de 1 ms sobre el mismo riel que el
+  ADC usa como referencia (`VREF+ = VDD`). C10 de 220 µF sostiene el riel; si la
+  caída supera ~50 mV, la lectura se corre.
 - Estado: **escrita y compilada**, no probada en hardware.
 
 ## Detalle de `pic-as` V4.00 verificado

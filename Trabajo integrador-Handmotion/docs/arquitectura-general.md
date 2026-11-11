@@ -50,6 +50,9 @@ e información de estado. La supervisión térmica no participa en el reconocimi
 - LED rojo y buzzer activo simultáneos cuando T > 40 °C. LED1 en RA2, LED2 en
   RA5. El buzzer es un módulo de 3 terminales (VCC, GND, I/O): VCC a +5 V, GND
   a GND e I/O directo a RC3. No lleva Q4 ni R20.
+- Reserva de carga en los rieles: C10 = 220 µF en +5 V y C11 = 10 µF en +3V3,
+  además de los 100 nF de desacople. El ADC usa `VREF+ = VDD`, así que los
+  pulsos de 80 mA del multiplexado no deben mover el riel.
 - No se usará teclado matricial ni habrá etapa de potencia para actuadores externos.
 
 ## Pendientes de integración

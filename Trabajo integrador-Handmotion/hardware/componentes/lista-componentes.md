@@ -22,6 +22,8 @@ que se confirma midiendo el display.
 | 2 | Resistencias de 220 Ω, 1/4 W | Limitadoras de LED1 y LED2 (R21–R22), ~11 mA. |
 | 1 | Resistencia de 10 kΩ, 1/4 W | Pull-up de MCLR (R23). |
 | 8 | Resistencias de 150 Ω, 1/4 W (provisional) | Segmentos R9–R16; ≈10 mA por segmento. Confirmar midiendo Vf y el ánodo real. |
+| 1 | Capacitor electrolítico 220 µF / 16 V | Reserva del riel de 5 V (C10), junto al PIC y los displays. Respetar polaridad. |
+| 1 | Capacitor 10 µF / 10 V | Reserva del riel de 3,3 V (C11), junto al módulo acelerómetro. |
 | 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
 | 1 | Batería de 9 V | Alimentación del módulo de protoboard. |
 | 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común. |
@@ -36,6 +38,9 @@ Protoboard, cables Dupont y multímetro.
 
 - Capacitor de 100 nF entre +3V3 y GND, junto al módulo acelerómetro.
 - Capacitor de 100 nF entre `+VS` y GND del LM35.
+
+Los capacitores de reserva C10 (220 µF) y C11 (10 µF) no son opcionales: sostienen
+el riel durante los pulsos del multiplexado y evitan que el ADC lea de menos.
 
 No hace falta cristal externo: el PIC usa su oscilador interno a 8 MHz. Los
 configuration bits están definidos en el firmware.

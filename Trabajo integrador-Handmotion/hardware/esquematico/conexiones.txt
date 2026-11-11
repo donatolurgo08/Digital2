@@ -78,6 +78,8 @@
  C7    Filtro de la entrada Z                           100 nF
  C8    Desacople de U4 (LM35)                           100 nF
  C9    Desacople del riel de 3,3 V, junto a MOD1          100 nF
+ C10   Reserva del riel de 5 V, junto al PIC/display      220 uF / 16 V
+ C11   Reserva del riel de 3,3 V, junto a MOD1            10 uF / 10 V
 
 
 ================================================================================
@@ -99,6 +101,7 @@
  C1.1      placa 1                  desacople PIC
  C2.1      placa 1                  desacople PIC
  C8.1      placa 1                  desacople LM35
+ C10.1     placa 1 (+)              reserva de 5 V (electrolitico)
  J2.2      pin 2                    VDD del conector ICSP
 
 --------------------------------------------------------------------------------
@@ -112,6 +115,8 @@
  BT1.-     terminal negativo        bateria de 9 V (via PS1)
  BZ1.GND   GND del modulo buzzer
  C9.2      placa 2                  desacople de 3,3 V
+ C10.2     placa 2 (-)              reserva de 5 V
+ C11.2     placa 2                  reserva de 3,3 V
  C1.2      placa 2
  C2.2      placa 2
  C5.2      placa 2
@@ -129,6 +134,7 @@
  PS1.+3V3  salida de 3,3 V          modulo de protoboard
  MOD1.VCC  VCC del modulo           modulo MMA7361
  C9.1      placa 1                  desacople de 3,3 V
+ C11.1     placa 1 (+)              reserva de 3,3 V
 
  ATENCION: el documento del proyecto indica que el modulo MMA7361 elegido
  tiene regulador integrado, pero no confirma su rango de alimentacion. Se
@@ -533,11 +539,11 @@
  5. RESUMEN DE UNA LINEA POR RED (para carga rapida)
 ================================================================================
   +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC,
-              Q1.C, Q2.C, Q3.C, R23.1, C1.1, C2.1, C8.1, J2.2
+              Q1.C, Q2.C, Q3.C, R23.1, C1.1, C2.1, C8.1, C10.1, J2.2
   GND       = PS1.GND, BT1.-, U1.12, U1.31, U4.3, C1.2, C2.2,
-              C5.2, C6.2, C7.2, C8.2, C9.2, D1.K, D2.K, J1.GND, J2.3,
-              BZ1.GND, MOD1.GND
- +3V3      = PS1.+3V3, MOD1.VCC, C9.1      (ver aviso de la red +3V3)
+              C5.2, C6.2, C7.2, C8.2, C9.2, C10.2, C11.2, D1.K, D2.K,
+              J1.GND, J2.3, BZ1.GND, MOD1.GND
+ +3V3      = PS1.+3V3, MOD1.VCC, C9.1, C11.1   (ver aviso de la red +3V3)
  VIN_9V    = BT1.+, PS1.VIN
  USB_VCC   = J1.VCC                        (no unir a +5V)
  AN0       = U4.2, U1.2
@@ -636,6 +642,12 @@
      C5, C6 y C7 junto a las entradas X, Y y Z, cerca del modulo o del PIC.
      C8 entre las patas 1 y 3 del LM35.
      C9 entre +3V3 y GND, junto a MOD1.
+     C10 = 220 uF / 16 V electrolitico entre +5V y GND, junto al PIC y los
+     displays. Es la reserva de carga para los pulsos del multiplexado.
+     Respetar la polaridad: positivo a +5V, negativo a GND.
+     C11 = 10 uF / 10 V entre +3V3 y GND, junto a MOD1.
+     Los 100 nF no reemplazan a C10 ni a C11: filtran alta frecuencia, no
+     entregan carga durante un pulso de 1 ms.
 
  6.7 Buzzer
      Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
@@ -729,6 +741,19 @@
      cuantos segmentos enciende el digito. Disipacion maxima ~18 mW. El valor
      se confirma midiendo Vf y el anodo real (nota 6.5).
 
+ 6.15 Reserva de carga en los rieles
+     El multiplexado enciende hasta 8 segmentos a la vez: 80 mA durante 1 ms,
+     con un promedio de ~27 mA sobre el ciclo de 3 ms. Como el ADC usa
+     VREF+ = VDD, una caida del riel se traduce en error de medicion:
+     50 mV son 1 % del fondo de escala, ~0,5 C o ~30 mg.
+     C10 = 220 uF cubre el escalon hasta que responde el regulador de PS1:
+     C = (80 mA - 27 mA) x 100 us / 50 mV = ~106 uF. Se adopta el doble para
+     tolerar un regulador mas lento. C11 = 10 uF cumple la misma funcion en
+     +3V3, donde el modulo consume pocos mA.
+     En banco: medir el riel de 5 V con los tres displays encendidos y, si hay
+     osciloscopio, mirar el riel durante el refresco. La caida deberia quedar
+     por debajo de ~50 mV.
+
 
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
@@ -738,6 +763,8 @@
    6.14).
  - Confirmar en banco los valores calculados de R17..R19 (330 ohm),
    R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
+ - Medir la caida del riel de 5 V con los tres displays encendidos: deberia
+   quedar por debajo de ~50 mV (nota 6.15).
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
  - Confirmar la alimentacion admitida por el modulo MMA7361 y su patillaje
    real (VCC, GND, X, Y, Z, GS, ST, 0G).

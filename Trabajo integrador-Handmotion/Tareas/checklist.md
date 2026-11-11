@@ -24,8 +24,10 @@ Actualizada: 2026-11-11
 - [ ] Identificar el patillaje de los displays y de los BC337.
 - [ ] Confirmar en banco R9–R16 (150 Ω provisionales): depende de Vf y de la corriente por segmento.
 - [ ] Verificar en banco R17–R19 (330 Ω), R21–R22 (220 Ω) y R23 (10 kΩ), calculadas en la nota 6.14 del netlist.
-- [ ] Verificar RX/TX y los niveles eléctricos del USB–TTL.
+- [ ] Medir la caída del riel de 5 V con los tres displays multiplexando: debería quedar por debajo de ~50 mV. C10 la reduce; sin ella la lectura del ADC (VREF = VDD) se corre.
+- [ ] Verificar la polaridad de C10 antes de energizar: positivo a +5 V.
 - [ ] Medir la corriente y confirmar la polaridad del buzzer; el firmware supone activo-alto. Q4 y R20 fueron eliminados.
+- [ ] Verificar RX/TX y los niveles eléctricos del USB–TTL.
 
 ## Documentación y GUI
 
@@ -34,4 +36,6 @@ Actualizada: 2026-11-11
 
 ## Repositorio
 
-- [ ] Revisar, commitear y pushear los cambios de la Rev E (MMA7361 sin amplificadores) cuando estén validados; conservar las eliminaciones indicadas por el usuario.
+- [x] Rev E (MMA7361 sin amplificadores) commiteada y pusheada: `cf985c3`.
+- [x] Valores de R17–R19, R21–R22 y R23 (`99c2e55`) y R9–R16 (`a8c728c`) commiteados y pusheados.
+- [ ] Commitear y pushear la reserva de carga (C10, C11) y los cambios de esta etapa.
