@@ -2,7 +2,8 @@
 
 Componentes definidos para el prototipo. El conexionado está en
 [`../esquematico/conexiones.txt`](../esquematico/conexiones.txt). Las
-resistencias todavía no tienen valor: no comprarlas por suposición.
+resistencias de segmento siguen pendientes; las de base, LED y MCLR ya están
+calculadas.
 
 ## Circuito
 
@@ -14,10 +15,13 @@ resistencias todavía no tienen valor: no comprarlas por suposición.
 | 1 | LM35 | Temperatura. Salida a AN0. Alimentación 4–30 V; en este circuito, 5 V. |
 | 3 | Capacitores de filtrado, 100 nF | Uno por eje, de la entrada a GND. |
 | 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |
-| 3 | Transistores NPN BC337 | Selectores propuestos como seguidores de emisor para los ánodos comunes. Verificar margen de tensión, corriente y patillaje. |
+| 3 | Transistores NPN BC337 | Selectores como seguidores de emisor para los ánodos comunes. Verificar margen de tensión, corriente y patillaje. |
 | 1 | Módulo buzzer activo 3,3–5 V, 3 terminales (VCC, GND, I/O) | Alarma acústica. El I/O va directo a RC3; el módulo incluye el driver. |
 | 2 | LED rojos | Alarma visual. |
-| — | Resistencias de segmentos, LED y bases | Valores pendientes. |
+| 3 | Resistencias de 330 Ω, 1/4 W | Base de Q1–Q3 (R17–R19), para 10 mA de pico por segmento. |
+| 2 | Resistencias de 220 Ω, 1/4 W | Limitadoras de LED1 y LED2 (R21–R22), ~11 mA. |
+| 1 | Resistencia de 10 kΩ, 1/4 W | Pull-up de MCLR (R23). |
+| 8 | Resistencias de segmento | R9–R16: valor pendiente de medir Vf y la corriente elegida; ≈150 Ω para 10 mA. |
 | 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
 | 1 | Batería de 9 V | Alimentación del módulo de protoboard. |
 | 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común. |
@@ -30,7 +34,6 @@ Protoboard, cables Dupont y multímetro.
 
 ## Agregar al armar, aunque no estén en la lista inicial
 
-- Resistencia de pull-up en `MCLR`, si el reset externo queda habilitado.
 - Capacitor de 100 nF entre +3V3 y GND, junto al módulo acelerómetro.
 - Capacitor de 100 nF entre `+VS` y GND del LM35.
 

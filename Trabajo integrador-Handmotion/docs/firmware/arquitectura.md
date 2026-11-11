@@ -82,7 +82,9 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   rojos de ánodo común, los patrones de RD0–RD7 son activos en bajo y RC0–RC2
   habilitan cada dígito en alto.
 - Q1–Q3 BC337 se plantean como seguidores de emisor de lado alto. La caída VBE,
-  la corriente, el brillo y R9–R19 siguen pendientes de validación eléctrica.
+  la corriente y el brillo siguen pendientes de validación eléctrica.
+  R17–R19 = 330 Ω (base), R21–R22 = 220 Ω (LED) y R23 = 10 kΩ (MCLR); R9–R16
+  quedan pendientes de Vf y de la corriente por segmento.
 - Estado: **escrita y compilada**, no probada en hardware.
 
 ## Detalle de `pic-as` V4.00 verificado
@@ -121,5 +123,5 @@ ISR.
 
 Baud rate y protocolo serie (T-03), período de adquisición, criterios de
 reconocimiento, calibración del offset/sensibilidad de X, referencia real de
-5 V y valores de R9–R19 y R21–R23. Ninguno de estos datos bloquea las etapas 1
-a 4 del firmware.
+5 V y valor de R9–R16. R17–R19, R21–R22 y R23 ya están calculadas. Ninguno de
+estos datos bloquea las etapas 1 a 4 del firmware.

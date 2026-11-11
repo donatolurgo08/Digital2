@@ -6,7 +6,7 @@
 | TIMER0 | Base temporal de adquisición | Derivado: 1 ms, 1:8, recarga 6; aún no implementado |
 | TIMER1 | Temporización del multiplexado de tres displays | Etapa 4: 1 ms, 1:1, recarga 0xF830, polling |
 | EUSART | Comunicación bidireccional con la GUI | 9600 Bd confirmado; formato/protocolo pendientes |
-| GPIO | Displays rojos de ánodo común, LED rojo y buzzer | Valores de R9–R19 y R21–R23, validar driver de dígitos |
+| GPIO | Displays rojos de ánodo común, LED rojo y buzzer | R9–R16 pendientes; R17–R19 (330 Ω), R21–R22 (220 Ω) y R23 (10 kΩ) calculadas; validar driver de dígitos |
 | Interrupciones | Eventos temporizados y recepción serie | Fuentes habilitadas y estrategia final |
 
 ## Mapa de pines (Rev E)
@@ -43,7 +43,8 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
   Q1–Q3 BC337 como seguidores de emisor del lado alto. La pérdida VBE puede
   limitar el margen de tensión y el brillo; validar con un solo dígito primero.
 - Verificar corrientes y compatibilidad eléctrica antes de conectar displays,
-  LED o buzzer. Los valores de R9–R19 y R21–R23 están pendientes.
+  LED o buzzer. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ ya están
+  calculadas; R9–R16 dependen de Vf y de la corriente por segmento.
 - Buzzer: el módulo es de 3 terminales y su I/O va directo a RC3. Confirmar la
   polaridad; el firmware actual supone activo-alto (RC3 = 0 apagado).
 

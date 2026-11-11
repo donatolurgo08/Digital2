@@ -10,7 +10,7 @@
 ;
 ; La salida alta del seguidor de emisor queda aproximadamente un VBE debajo
 ; de VDD. Confirmar corriente y brillo en banco antes de conectar todos los
-; segmentos. No se fijan valores de R9-R19 en este modulo.
+; segmentos. No se fijan valores de R9-R16 en este modulo.
 ;*******************************************************************************
 
 ;-------------------------------------------------------------------------------

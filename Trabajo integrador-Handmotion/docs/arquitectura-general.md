@@ -44,7 +44,9 @@ e información de estado. La supervisión térmica no participa en el reconocimi
   y una `C` estándar. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp), activos
   en bajo; selección en RC0–RC2 mediante Q1–Q3 BC337, activos en alto.
   La propuesta de Q1–Q3 como seguidores de emisor del lado alto tiene una caída
-  aproximada VBE; brillo/corriente y resistencias siguen pendientes de validar.
+  aproximada VBE; el brillo y la corriente siguen pendientes de validar en banco.
+  R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; el cálculo está en la nota
+  6.14 del netlist. R9–R16 siguen pendientes de Vf y de la corriente elegida.
 - LED rojo y buzzer activo simultáneos cuando T > 40 °C. LED1 en RA2, LED2 en
   RA5. El buzzer es un módulo de 3 terminales (VCC, GND, I/O): VCC a +5 V, GND
   a GND e I/O directo a RC3. No lleva Q4 ni R20.
@@ -53,9 +55,9 @@ e información de estado. La supervisión térmica no participa en el reconocimi
 ## Pendientes de integración
 
 Baud rate, protocolo GUI, parámetros, períodos de adquisición y criterios de
-reconocimiento. También quedan pendientes los valores de R9–R19 y R21–R23
-(segmentos, bases de transistores, LED y pull-up de MCLR), la alimentación y el
-patillaje del MMA7361, y la calibración de offset/sensibilidad con el módulo
-real. Ver
+reconocimiento. También quedan pendientes los valores de R9–R16 (segmentos),
+la alimentación y el patillaje del MMA7361, y la calibración de
+offset/sensibilidad con el módulo real. Las resistencias de base (R17–R19),
+LED (R21–R22) y MCLR (R23) ya están calculadas. Ver
 [`firmware/perifericos-pic.md`](firmware/perifericos-pic.md) y
 [`comunicacion/README.md`](comunicacion/README.md).

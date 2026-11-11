@@ -19,7 +19,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 .n{font-size:13px;margin-top:12px}.n li{margin-bottom:4px}
 </style></head><body>
 <h1>Hand Motion – Esquema con cableado (Rev E)</h1>
-<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. Las resistencias siguen POR DEFINIR.</p>
+<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 siguen POR DEFINIR.</p>
 <div class="lg">
 <span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN_9V / USB_VCC</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
 </div>
@@ -76,7 +76,7 @@ var RP=['40 RB7/PGD','39 RB6/PGC','38 RB5','37 RB4','36 RB3/PGM','35 RB2','34 RB
 LP.forEach(function(s,i){T(805,136+i*20,s,'pn')});RP.forEach(function(s,i){T(955,136+i*20,s,'pn','end')});
 [212,232,312,372,392].forEach(function(y){NC(794,y-4+4,1)});[172,192,232,252,272,452,472].forEach(function(y){NC(966,y-4+4,0)});
 /* MCLR / ICSP */
-W('MCLR',[800,132,770,132,770,85,1060,85]);D('MCLR',900,85);W('+5V',[900,85,900,76]);RV(900,64,76,'');T(912,73,'R23','rt');W('+5V',[900,64,900,56]);V(900,56);
+W('MCLR',[800,132,770,132,770,85,1060,85]);D('MCLR',900,85);W('+5V',[900,85,900,76]);RV(900,64,76,'');T(912,73,'R23 10k','rt');W('+5V',[900,64,900,56]);V(900,56);
 P(1060,60,100,190,'J2','ICSP',[['1 MCLR','MCLR',85],['4 PGD','PGD',132],['5 PGC','PGC',152],['6 PGM','PGM',212]],[['2 VDD','+5V',105],['3 GND','GND',125]]);
 W('+5V',[1160,105,1180,105]);V(1180,105);W('GND',[1160,125,1180,125]);G(1180,125);
 W('PGD',[960,132,1060,132]);W('PGC',[960,152,1060,152]);W('PGM',[960,212,1060,212]);
@@ -84,7 +84,7 @@ W('PGD',[960,132,1060,132]);W('PGC',[960,152,1060,152]);W('PGM',[960,212,1060,21
 W('+5V',[800,332,770,332]);V(770,332);CV(770,332,352,'C1');W('GND',[800,352,770,352]);G(770,352);
 W('+5V',[960,292,985,292]);V(985,292);CV(985,292,312,'C2');W('GND',[960,312,985,312]);G(985,312);
 /* LEDs */
-[[192,'LED1','R21','D1'],[252,'LED2','R22','D2']].forEach(function(a){var y=a[0];W(a[1],[800,y,785,y]);RH(745,785,y,a[2]);W('D'+a[1].slice(-1)+'_A',[745,y,735,y]);$('<path d="M735 '+(y-6)+'L735 '+(y+6)+'L721 '+y+'Z M721 '+(y-6)+'V'+(y+6)+'" class="cp" style="stroke:var(--dg)"/>');W('GND',[721,y,700,y]);G(700,y);T(694,y+3,a[3],'pn','end')});
+[[192,'LED1','R21 220','D1'],[252,'LED2','R22 220','D2']].forEach(function(a){var y=a[0];W(a[1],[800,y,785,y]);RH(745,785,y,a[2]);W('D'+a[1].slice(-1)+'_A',[745,y,735,y]);$('<path d="M735 '+(y-6)+'L735 '+(y+6)+'L721 '+y+'Z M721 '+(y-6)+'V'+(y+6)+'" class="cp" style="stroke:var(--dg)"/>');W('GND',[721,y,700,y]);G(700,y);T(694,y+3,a[3],'pn','end')});
 /* UART */
 P(1100,401,100,84,'J1','USB-TTL',[['TXD','RX_TTL',412],['RXD','TX_TTL',432]],[['VCC','USB_VCC',412],['GND','GND',432]],true);
 W('RX_TTL',[960,412,1100,412]);W('TX_TTL',[960,432,1100,432]);W('USB_VCC',[1200,412,1225,412]);T(1230,416,'USB_VCC aislado (no a +5V)','nt','start',c('USB_VCC'));W('GND',[1200,432,1225,432]);G(1225,432);
@@ -97,7 +97,7 @@ P(1450,305,130,295,'DS1–DS3','en paralelo',sg.map(function(s){return[s[3],'',s
 T(1515,590,'ánodos comunes','pn','middle');
 /* digitos */
 W('DIG1',[800,412,715,412,715,730,1000,730]);W('DIG2',[800,432,725,432,725,710,1000,710]);W('DIG3',[800,452,735,452,735,690,1000,690]);
-[[730,'R17','Q1_B'],[710,'R18','Q2_B'],[690,'R19','Q3_B']].forEach(function(a){RH(1000,1050,a[0],a[1]);W(a[2],[1050,a[0],1250,a[0]])});
+[[730,'R17 330','Q1_B'],[710,'R18 330','Q2_B'],[690,'R19 330','Q3_B']].forEach(function(a){RH(1000,1050,a[0],a[1]);W(a[2],[1050,a[0],1250,a[0]])});
 lb(1060,726,'DIG1');lb(1060,706,'DIG2');lb(1060,686,'DIG3');
 P(1250,600,130,170,'Q1–Q3','BC337 seguidor',[['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q3.E','',690],['Q2.E','',710],['Q1.E','',730]]);
 T(1315,764,'C (Q1–Q3) a +5V','pn','middle');

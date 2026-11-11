@@ -40,7 +40,9 @@
 ;             Displays rojos de anodo comun: segmentos activos bajos.
 ;             Q1-Q3 BC337 se proyectan como seguidores de emisor del lado
 ;             alto; verificar corriente y brillo antes de conectar todo.
-;             Pendiente de hardware: valores de R9-R19 y R21-R23. LED1 se movio
+;             Pendiente de hardware: valor de R9-R16. R17-R19 = 330 ohm,
+;             R21-R22 = 220 ohm y R23 = 10 kohm ya estan calculadas (nota
+;             6.14 del netlist). LED1 se movio
 ;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.
 ;             Pendiente de firmware: protocolo serie (T-03).
 ;             Pendiente de banco: polaridad electrica del terminal I/O del

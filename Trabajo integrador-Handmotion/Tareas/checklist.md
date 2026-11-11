@@ -22,7 +22,8 @@ Actualizada: 2026-11-11
 - [ ] Medir X, Y y Z en reposo y con inclinación; comprobar que no superen VDD y que la impedancia de salida sea apta para el ADC.
 - [ ] Confirmar cómo se selecciona el rango de ±1,5 g en el módulo (pin GS o puente).
 - [ ] Identificar el patillaje de los displays y de los BC337.
-- [ ] Calcular y verificar R9–R19 para segmentos y bases, y R21–R23 para LED y MCLR. No asignar valores por suposición.
+- [ ] Calcular y verificar R9–R16 (segmentos): depende de Vf y de la corriente por segmento; punto de partida 150 Ω para 10 mA de pico.
+- [ ] Verificar en banco R17–R19 (330 Ω), R21–R22 (220 Ω) y R23 (10 kΩ), calculadas en la nota 6.14 del netlist.
 - [ ] Verificar RX/TX y los niveles eléctricos del USB–TTL.
 - [ ] Medir la corriente y confirmar la polaridad del buzzer; el firmware supone activo-alto. Q4 y R20 fueron eliminados.
 

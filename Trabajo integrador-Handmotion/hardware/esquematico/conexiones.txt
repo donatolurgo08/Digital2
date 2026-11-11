@@ -29,7 +29,9 @@
  Si el componente no tiene numeracion fija, se usa REF.NOMBRE
  (ej. Q1.C = colector de Q1, DS1.a = segmento a del display 1).
 
- Las resistencias siguen sin valor definido. Donde dice "POR DEFINIR" no se
+ Las resistencias de segmento (R9-R16) siguen sin valor definitivo: dependen
+ de la corriente por segmento y de la tension real del anodo. R17-R19, R21,
+ R22 y R23 ya estan calculadas (nota 6.14). Donde dice "POR DEFINIR" no se
  debe inventar un valor. Los capacitores de desacople y los filtros de los
  ejes ya tienen valor.
 ================================================================================
@@ -64,12 +66,12 @@
  R14   Limitadora segmento f                            (POR DEFINIR)
  R15   Limitadora segmento g                            (POR DEFINIR)
  R16   Limitadora segmento dp                           (POR DEFINIR)
- R17   Base de Q1                                       (POR DEFINIR)
- R18   Base de Q2                                       (POR DEFINIR)
- R19   Base de Q3                                       (POR DEFINIR)
- R21   Limitadora de D1                                 (POR DEFINIR)
- R22   Limitadora de D2                                 (POR DEFINIR)
- R23   Pull-up de MCLR                                  (POR DEFINIR)
+ R17   Base de Q1                                       330 ohm, 1/4 W
+ R18   Base de Q2                                       330 ohm, 1/4 W
+ R19   Base de Q3                                       330 ohm, 1/4 W
+ R21   Limitadora de D1                                 220 ohm, 1/4 W
+ R22   Limitadora de D2                                 220 ohm, 1/4 W
+ R23   Pull-up de MCLR                                  10 kohm, 1/4 W
  C1    Desacople VDD del PIC, pata 11                   100 nF
  C2    Desacople VDD del PIC, pata 32                   100 nF
  C5    Filtro de la entrada X                           100 nF
@@ -604,12 +606,16 @@
      mayor que los 3,3 V maximos de la salida del modulo.
 
   6.4 Multiplexado de displays
-      Los displays son de anodo comun. Q1-Q3 BC337 se proponen como seguidores
-      de emisor: colector a +5 V, emisor al anodo comun y base desde RC0-RC2
-      mediante R17-R19. Nivel alto en RCx selecciona el digito.
+      Los displays son de anodo comun. Q1-Q3 BC337 se usan como seguidores de
+      emisor: colector a +5 V, emisor al anodo comun y base desde RC0-RC2
+      mediante R17-R19 = 330 ohm, 1/4 W. Nivel alto en RCx selecciona el
+      digito.
       La caida VBE reduce la tension disponible para los segmentos; comprobar
-      con un segmento y un digito antes de montar el conjunto. No asignar los
-      valores de R17-R19 sin calcular la corriente de base.
+      con un segmento y un digito antes de montar el conjunto.
+      Con 8 segmentos a 10 mA la corriente de emisor es 80 mA y la de base
+      ~0,8 mA. Con 330 ohm la caida en la base es 0,26 V y el anodo queda en
+      ~3,34 V. Si se sube la corriente por segmento hay que bajar R17-R19
+      (tabla de la nota 6.14).
 
   6.5 Corriente de segmentos
       Con anodo comun, la corriente va desde +5 V por Qx y el LED hacia
@@ -617,6 +623,13 @@
       activos bajos. Elegir cada resistor considerando VBE del BC337, Vf del
       LED rojo, corriente pulsada y limites normales del puerto PIC; no usar
       el maximo absoluto de 25 mA como corriente de diseno.
+      Punto de partida adoptado: 10 mA de pico por segmento, Vf = 1,9 V y
+      anodo en ~3,3 V. Con esos datos R9..R16 quedan en 150 ohm aproximados.
+      El valor se cierra midiendo Vf y la tension real del anodo, porque el
+      seguidor de emisor baja el anodo cuando se encienden mas segmentos.
+      A 10 mA por segmento, el peor caso de un digito son 8 segmentos: 80 mA
+      repartidos en 8 pines de RDx (10 mA por pin), dentro de los 25 mA por
+      pin y de los 200 mA combinados de los puertos.
 
  6.6 Desacople
      C1 junto a las patas 11-12 del PIC y C2 junto a las 32-31.
@@ -644,7 +657,8 @@
      El PIC usa oscilador interno a 8 MHz (OSCCON = 0x70). No hay cristal ni
      capacitores de oscilacion. Configuration bits definidos en el firmware
      (FOSC = INTRC_NOCLKOUT).
-     El pull-up R23 hace falta si el reset externo queda habilitado.
+     El reset externo esta habilitado (MCLRE = ON): R23 = 10 kohm mantiene
+     MCLR en alto cuando el PICkit no esta conectado.
 
  6.10 Niveles logicos
      Confirmar que el modulo USB-TTL trabaje a 3,3 V o 5 V y que su
@@ -676,13 +690,48 @@
      La bateria de 9 V alcanza para el prototipo. Si la autonomia no
      alcanza, usar una fuente de 9 V enchufable en lugar de la bateria.
 
+ 6.14 Calculo de R17-R19, R21-R22 y R23
+     Datos de partida: VDD = 5,0 V; VOH del PIC >= VDD - 0,7 V = 4,3 V con
+     3 mA; VBE del BC337 = 0,7 V; hFE minimo = 100 a 100 mA; Vf del LED rojo
+     = 1,9 V (tipico, medir). Corriente por segmento adoptada: 10 mA de pico.
+     Son valores de diseno, no datos de datasheet: recalcular si cambian.
+
+     Base de Q1-Q3 (R17-R19 = 330 ohm):
+       Ie = 8 x 10 mA = 80 mA; Ib = Ie / (hFE + 1) = 0,8 mA.
+       Caida en R17: 0,26 V. Anodo: 4,3 - 0,26 - 0,7 = ~3,34 V.
+       Margen para el segmento: 3,34 - 1,9 = 1,44 V.
+       Con la base a 0 V (falla) el pin entrega (4,3 - 0,7) / 330 = 10,9 mA,
+       por debajo de los 25 mA del pin.
+       Disipacion de Qx: (5 - 3,34) x 0,08 = 133 mW de pico; el TO-92 admite
+       625 mW. Con multiplexado 1/3 el promedio es ~44 mW.
+       Si cambia la corriente por segmento:
+           5 mA -> 40 mA de emisor -> 680 ohm
+          10 mA -> 80 mA             -> 330 ohm
+          15 mA -> 120 mA            -> 270 ohm
+          20 mA -> 160 mA            -> 220 ohm
+       No conviene pasar de 1 kohm: la caida en la base baja el anodo y el
+       brillo queda muy dependiente del digito encendido.
+
+     LED D1 y D2 (R21-R22 = 220 ohm):
+       I = (4,3 - 1,9) / 220 = 10,9 mA tipicos (9,5 a 12 mA segun Vf y VOH).
+       Disipacion 26 mW. Dentro de los 25 mA del pin y de los 200 mA
+       combinados de los puertos.
+
+     MCLR (R23 = 10 kohm):
+       La fuga del pin es del orden de microamperes, asi que la caida es
+       despreciable. Con 13 V de VPP la corriente hacia el riel de +5 V es
+       (13 - 5) / 10 k = 0,8 mA, tolerable por el programador.
+
+     Tolerancia 5 % y 1/4 W en las seis resistencias.
+
 
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
 ================================================================================
- - Valor de R9..R16 (segmentos).
- - Valor de R17..R19 (bases de Q1..Q3).
- - Valor de R21, R22 (LED) y R23 (pull-up de MCLR).
+ - Valor de R9..R16 (segmentos): depende de la corriente por segmento y de la
+   tension real del anodo. Punto de partida 150 ohm para 10 mA (nota 6.5).
+ - Confirmar en banco los valores calculados de R17..R19 (330 ohm),
+   R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
  - Confirmar la alimentacion admitida por el modulo MMA7361 y su patillaje
    real (VCC, GND, X, Y, Z, GS, ST, 0G).
