@@ -110,7 +110,7 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 - Y y Z siguen cableados y su adquisición previa se conserva, pero **no se
   transmiten en esta versión**; se incorporarán después sin alterar DATA v1.
 - Especificación: [`../comunicacion/protocolo.md`](../comunicacion/protocolo.md).
-- Estado: **escrita y compilada**, no probada en hardware; GUI no modificada.
+- Estado: **escrita y compilada**, GUI integrada; falta probar en hardware.
 
 ## Detalle de `pic-as` V4.00 verificado
 

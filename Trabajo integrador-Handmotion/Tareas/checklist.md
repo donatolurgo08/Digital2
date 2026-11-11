@@ -12,7 +12,8 @@ Actualizada: 2026-11-11
 - [ ] **Etapa 5:** implementar el muestreo periódico de X, Y y Z con TIMER0. Definir el período de muestreo con mediciones reales.
 - [ ] Calibrar offset y sensibilidad de cada eje y definir filtros, umbrales y gestos reconocibles.
 - [x] **Etapa 6 — especificación y firmware:** protocolo binario v1 y EUSART 9600 Bd implementados y compilados; falta probar RX/TX en banco.
-- [ ] Integrar la GUI con el protocolo v1 (sin modificarla hasta autorización) y probar comandos/respuestas.
+- [x] Integrar la GUI con el protocolo v1: codec CRC-8, RX serial y controles de comandos.
+- [ ] Probar comandos/respuestas de la GUI con el PIC y el USB-TTL reales.
 - [ ] **Etapa 7:** integrar y probar adquisición, alarma, displays, reconocimiento y comunicación.
 - [ ] Separar ADC y alarma en módulos si se completa la modularización; por ahora, el módulo separado es el del display.
 
@@ -33,7 +34,7 @@ Actualizada: 2026-11-11
 
 ## Documentación y GUI
 
-- [ ] Actualizar la GUI, que todavía menciona el ADXL335, cuando se autorice modificar la aplicación. El firmware ya usa MMA7361.
+- [x] Actualizar la GUI a MMA7361 y protocolo v1; solo presenta X por ahora.
 - [x] Definir el protocolo v1 para temperatura, eje X y alarma. Y/Z quedan para una etapa posterior.
 
 ## Repositorio
@@ -41,4 +42,5 @@ Actualizada: 2026-11-11
 - [x] Rev E (MMA7361 sin amplificadores) commiteada y pusheada: `cf985c3`.
 - [x] Valores de R17–R19, R21–R22 y R23 (`99c2e55`) y R9–R16 (`a8c728c`) commiteados y pusheados.
 - [x] Reserva de carga C10/C11 pusheada: `c6b8f61`.
-- [ ] Commitear y pushear el protocolo serie y el firmware de Etapa 6.
+- [x] Protocolo serie y firmware de Etapa 6 pusheados: `0cc73bb`.
+- [x] Integración de la GUI con el protocolo v1 publicada en esta etapa.

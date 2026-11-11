@@ -94,7 +94,7 @@ y se deshabilita al vaciar el buffer.
 - Protocolo v1 documentado en `docs/comunicacion/protocolo.md`: trama binaria
   con CRC-8, comandos de configuración y datos de temperatura/X.
 - Pendiente: probar RX/TX, niveles lógicos del conversor USB-TTL, CRC y
-  recuperación ante errores en hardware; integrar la GUI cuando se autorice.
+  recuperación ante errores con hardware real. La GUI ya implementa el codec.
 - `FOSC` está confirmado en 8 MHz; el encapsulado eléctrico sigue siendo
   PDIP-40 según el esquema.
 

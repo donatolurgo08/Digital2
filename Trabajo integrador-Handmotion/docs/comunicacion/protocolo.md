@@ -2,9 +2,9 @@
 
 ## Estado y alcance
 
-La especificación está implementada en el firmware Assembly y compilada, pero
-aún no está probada en hardware. La GUI no se modificó: su integración con este
-protocolo queda pendiente de autorización.
+La especificación está implementada en el firmware Assembly y en la GUI. El
+firmware compila, pero el enlace todavía no está probado con el PIC y el
+adaptador USB-TTL reales.
 
 Esta versión transmite temperatura y **solo el eje X**. Y y Z permanecen
 cableados y la adquisición existente del PIC se conserva, pero no forman parte
@@ -108,4 +108,5 @@ de comandos conocidos reciben ACK con `RESULT = 1`.
   la definición de DATA v1; si se requiere un formato ampliado, se publicará
   una versión/tipo nuevo.
 - Pruebas de banco pendientes: RX/TX, formato real del adaptador USB-TTL,
-  recepción de comandos, CRC y cadencia efectiva. La GUI tampoco está integrada.
+  recepción de comandos, CRC y cadencia efectiva. La GUI fue verificada con
+  pruebas locales, no con el hardware real.

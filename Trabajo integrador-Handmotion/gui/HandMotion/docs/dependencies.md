@@ -31,5 +31,6 @@ py -m pip install -r requirements.txt
 
 - PySide6 provee `pyside6-uic` y herramientas de diseño, no requeridas
   para el esqueleto.
-- La comunicación serial real se implementará cuando se defina el protocolo
-  (T-03); hasta entonces `pyserial` se mantiene como dependencia preparada.
+- `pyserial` abre el enlace 9600-8N1 y la GUI sondea RX con un `QTimer` de 5 ms;
+  el protocolo CRC-8 v1 está implementado en `communication/protocol.py`.
+- `pytest` se necesita para ejecutar las pruebas unitarias del codec y parser.

@@ -2,11 +2,9 @@
 
 ## 1. Objetivo
 
-Definir la estructura modular de la aplicación de escritorio (Python + PySide6)
-que se comunicará con un PIC16F887. La arquitectura separa interfaz,
-comunicación, sensores, procesamiento y lógica, y permite incorporar en el
-futuro comunicación serial real, lecturas del LM35, lecturas del acelerómetro,
-gráficos en tiempo real y sistema de alarmas.
+Aplicación de escritorio (Python + PySide6) conectada a un PIC16F887. La GUI
+recibe temperatura y eje X mediante el protocolo serie v1; la interpretación de
+Y/Z y el reconocimiento de gestos se dejan para etapas posteriores.
 
 ## 2. Estructura de directorios
 
@@ -33,11 +31,11 @@ HandMotion/
 | Módulo | Responsabilidad | Dependencias permitidas |
 |---|---|---|
 | `ui/` | Mostrar datos, capturar acciones, gráficos. Sin lógica de negocio. | `core` (vía señales) |
-| `core/controller.py` | Orquestar comunicación, sensores, lógica y estado. | communication, sensors, processing, logic, state |
-| `core/state.py` | Fuente única de verdad; emite señales Qt. | solo Qt |
-| `communication/serial_port.py` | Abrir/cerrar puerto, leer/escribir bytes, señales. | pyserial, Qt |
-| `communication/protocol.py` | Codificar/decodificar tramas (funciones puras). | ninguna |
-| `sensors/` | Convertir valores crudos a unidades físicas. | ninguna |
+| `core/controller.py` | Enviar comandos y aplicar paquetes al estado. | communication, sensors, state |
+| `core/state.py` | Fuente única de verdad; emite señales Qt. | Qt, modelos de protocolo |
+| `communication/serial_port.py` | Abrir/cerrar 9600-8N1 y sondear RX cada 5 ms. | pyserial, Qt |
+| `communication/protocol.py` | Codec binario, CRC-8 y parser incremental puro. | ninguna |
+| `sensors/` | Convertir X de mg a g; sensibilidad viene del firmware. | ninguna |
 | `processing/` | Filtrado, suavizado, features. | NumPy |
 | `logic/` | Alarmas, gestos, calibración. | sensors, processing |
 | `config.py` | Constantes y defaults. | ninguna |
@@ -46,10 +44,8 @@ HandMotion/
 
 Adquisición (PIC → GUI):
 
-    PIC → USB-TTL → serial_port (bytes, hilo secundario)
-      → protocol.decode (trama) → sensors (°C, g)
-      → processing (filtrado) → logic (alarmas/gestos)
-      → AppState (actualización) → señales Qt → ui
+    PIC → USB-TTL → serial_port (sondeo no bloqueante)
+      → FrameParser / CRC → controller → AppState → señales Qt → UI
 
 Configuración (GUI → PIC):
 
@@ -59,11 +55,10 @@ Configuración (GUI → PIC):
 ## 5. Principios
 
 - La UI no accede directamente al serial ni a los sensores.
-- Los módulos inferiores (`sensors`, `processing`, `logic`, `protocol`) son
-  puros (sin Qt ni I/O), testeables.
+- El codec y parser (`communication/protocol.py`) y las conversiones de unidad
+  (`sensors/`) son puros y testeables.
 - El acoplamiento se hace con señales/slots de Qt o callbacks.
-- Los ejes Y/Z se incorporarán agregando campos a `accelerometer.py` y
-  `state.py` sin tocar el resto.
+- Y/Z permanecen como campos reservados; el protocolo v1 transmite X, no Y/Z.
 
 ## 6. Dependencias
 
@@ -71,6 +66,17 @@ Ver `docs/dependencies.md`.
 
 ## 7. Estado de implementación
 
-Esqueleto creado. Comunicación serial, lectura de sensores, gráficos y
-reconocimiento de gestos se implementarán en tareas posteriores. El protocolo
-definitivo está pendiente (T-03).
+La conexión serial, el codec v1, el parser incremental con CRC-8, los comandos y
+la visualización en vivo de temperatura/X están implementados. La GUI ofrece
+PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. Pendientes: validar
+con el PIC físico, confirmar niveles del adaptador, calibrar sensibilidad de X
+y completar Y/Z y reconocimiento de gestos.
+
+## 8. Protocolo PIC v1
+
+La especificación compartida está en
+[`../../../docs/comunicacion/protocolo.md`](../../../docs/comunicacion/protocolo.md).
+La GUI recibe `DATA` (secuencia, °C, X en mg con signo, alarma), `STATUS` y
+`ACK`; transmite PING, START, STOP, SET_THRESHOLD, GET_STATUS y SET_OFFSET.
+El enlace es 9600-8N1. Las tramas se parsean con CRC-8 y pueden llegar divididas
+en varios bloques del puerto serie.

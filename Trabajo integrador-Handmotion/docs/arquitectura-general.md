@@ -23,8 +23,8 @@ LM35 ── AN0 ────────────── ADC ── temperatur
 ```
 
 El protocolo serie v1 define comandos de configuración y transmite temperatura,
-eje X y alarma; la integración de la GUI sigue pendiente. Y/Z y los gestos se
-incorporarán después. La supervisión térmica no participa en el reconocimiento.
+eje X y alarma; la GUI está integrada. Y/Z y los gestos se incorporarán después.
+La supervisión térmica no participa en el reconocimiento.
 
 ## Decisiones confirmadas
 
@@ -58,9 +58,9 @@ incorporarán después. La supervisión térmica no participa en el reconocimien
 
 ## Pendientes de integración
 
-La integración de la GUI con el protocolo ya definido, parámetros y períodos de
-adquisición, y criterios de reconocimiento. También quedan pendientes la
-verificación de R9–R16 (150 Ω provisionales), la alimentación y el patillaje
+Probar la comunicación de la GUI con el PIC real, definir períodos de
+adquisición de gestos y criterios de reconocimiento. También quedan pendientes
+la verificación de R9–R16 (150 Ω provisionales), la alimentación y el patillaje
 del MMA7361, y la calibración de offset/sensibilidad con el módulo real. Las
 resistencias de base (R17–R19), LED (R21–R22) y MCLR (R23) ya están calculadas. Ver
 [`firmware/perifericos-pic.md`](firmware/perifericos-pic.md) y

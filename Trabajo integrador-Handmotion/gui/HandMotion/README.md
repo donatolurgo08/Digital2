@@ -1,7 +1,13 @@
 # HAND MOTION
 
-Aplicación de escritorio para supervisar temperatura (LM35) y reconocer
-movimientos (ADXL335) comunicándose con un PIC16F887 vía EUSART/USB-TTL.
+Aplicación de escritorio para recibir temperatura y eje X de un MMA7361 desde
+un PIC16F887 vía EUSART/USB-TTL. El reconocimiento de gestos y la comunicación
+de Y/Z quedan pendientes; no se muestran ejes que el protocolo v1 no transmite.
+
+La GUI implementa el protocolo binario v1 `AA 55 / LEN / TIPO / DATOS / CRC-8`
+a 9600 Bd, 8N1. Permite PING, START/STOP, consultar estado, fijar el umbral de
+alarma y calibrar el offset de X. La sensibilidad del acelerómetro sigue siendo
+nominal hasta medir el módulo real.
 
 ## Ejecutar
 

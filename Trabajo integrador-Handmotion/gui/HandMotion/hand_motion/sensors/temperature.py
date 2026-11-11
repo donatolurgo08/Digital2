@@ -1,13 +1,13 @@
-"""Sensor de temperatura LM35 (conectado a AN0).
+"""Conversión auxiliar del LM35 para datos ADC crudos.
 
-Conversión preliminar: el LM35 entrega 10 mV/°C. El escalado final
-dependerá de la referencia ADC del PIC (pendiente D-01).
+La telemetría real del protocolo ya llega en °C, convertida por el PIC usando
+su referencia VDD; esta función queda para análisis offline de cuentas ADC.
 """
 
 from __future__ import annotations
 
 
 def raw_to_celsius(raw: int, vref: float = 5.0, resolution: int = 1024) -> float:
-    """Convierte un valor ADC crudo a grados Celsius (placeholder)."""
+    """Convierte cuentas ADC a °C suponiendo LM35 a 10 mV/°C."""
     voltage = raw * vref / resolution
     return voltage / 0.01  # 10 mV/°C

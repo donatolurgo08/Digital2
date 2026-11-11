@@ -1,7 +1,7 @@
 """Pruebas de funciones puras de sensores."""
 
 from hand_motion.sensors.temperature import raw_to_celsius
-from hand_motion.sensors.accelerometer import raw_to_g
+from hand_motion.sensors.accelerometer import mg_to_g
 from hand_motion.processing.signal_processor import moving_average
 import numpy as np
 
@@ -12,8 +12,10 @@ def test_raw_to_celsius() -> None:
     assert raw_to_celsius(1023) > 499
 
 
-def test_raw_to_g_zero() -> None:
-    assert abs(raw_to_g(512) - 0.0) < 1e-9
+def test_mg_to_g() -> None:
+    assert mg_to_g(0) == 0.0
+    assert mg_to_g(1000) == 1.0
+    assert mg_to_g(-125) == -0.125
 
 
 def test_moving_average() -> None:

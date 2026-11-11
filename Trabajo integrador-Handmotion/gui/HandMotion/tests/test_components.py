@@ -2,6 +2,8 @@
 
 from PySide6.QtWidgets import QApplication
 
+from hand_motion.core.controller import AppController
+from hand_motion.core.state import AppState
 from hand_motion.ui.widgets.sensor_card import SensorCard
 from hand_motion.ui.widgets.connection_indicator import ConnectionIndicator
 from hand_motion.ui.widgets.temperature_indicator import TemperatureIndicator
@@ -15,6 +17,7 @@ from hand_motion.ui.main_window import MainWindow
 
 def test_components_instantiate() -> None:
     app = QApplication([])
+    controller = AppController(AppState())
     widgets = [
         SensorCard("T", "1", "u", "ok"),
         ConnectionIndicator(),
@@ -22,9 +25,10 @@ def test_components_instantiate() -> None:
         AccelerometerPanel(),
         AccelerometerGraph(),
         AlarmPanel(),
-        SerialMonitor(),
+        SerialMonitor(controller),
         StatusBar(),
         MainWindow(),
     ]
     assert all(w is not None for w in widgets)
+    controller.close()
     app.quit()

@@ -1,4 +1,4 @@
-"""Área de reconocimiento de movimientos (datos simulados)."""
+"""Área reservada al reconocimiento de gestos aún no definido."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ class GesturePanel(QWidget):
         card = Card("Reconocimiento de movimientos")
         layout = card.content_layout()
 
-        self.result_label = QLabel("Gesto: NEUTRO")
+        self.result_label = QLabel("Gesto: --")
         self.result_label.setObjectName("CardValue")
         self.result_label.setStyleSheet(f"font-size: 22px; color: {ACCENT_CYAN};")
         self.result_label.setAlignment(Qt.AlignCenter)
@@ -23,9 +23,9 @@ class GesturePanel(QWidget):
 
         self.log = QTextEdit()
         self.log.setReadOnly(True)
-        self.log.setPlaceholderText("Eventos de gestos (simulados)...")
+        self.log.setPlaceholderText("El reconocimiento de gestos aún no está implementado.")
         # Estilos centralizados en theme.qss
-        self.log.append("[SIM] Inicio de monitoreo (sin datos reales)")
+        self.log.append("Pendiente: definir gestos y calibrar el MMA7361.")
         layout.addWidget(self.log)
 
         outer = QVBoxLayout(self)
