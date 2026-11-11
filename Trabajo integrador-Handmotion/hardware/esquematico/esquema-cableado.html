@@ -21,7 +21,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 <h1>Hand Motion – Esquema con cableado (Rev E)</h1>
 <p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 = 150 Ω (provisional).</p>
 <div class="lg">
-<span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN_9V / USB_VCC</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
+<span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN / USB_VCC</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
 </div>
 <div class="w"><svg id="d" viewBox="0 0 1740 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Esquema con cableado Hand Motion"></svg></div>
 <ul class="n">
@@ -30,14 +30,14 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 <li><b>Cruces:</b> los cables RD0 y RD1 pasan por debajo del PIC (están en el lado izquierdo del chip) y los de DIG1–3 y BZ_CTRL también.</li>
  <li><b>Displays rojos de ánodo común:</b> RD0–RD7 activos en bajo. Q1–Q3 BC337 se proponen como seguidores de emisor del lado alto; colectores a +5 V y emisores a los ánodos comunes. VBE reduce el margen de tensión; probar un segmento antes del montaje completo.</li>
  <li><b>Sin amplificadores:</b> X, Y y Z van directas a AN1, AN5 y AN6, con C5–C7 de 100 nF a GND. La referencia del ADC es VDD; RA3 queda libre.</li>
- <li><b>Verificar antes de soldar:</b> 5,0 V y 3,3 V reales en PS1, tensión de alimentación y salidas de MOD1, patillaje E-B-C de Q1–Q3, pines de los displays, RXD/TXD del USB-TTL, polaridad y corriente del terminal I/O del módulo buzzer.</li>
+ <li><b>Verificar antes de soldar:</b> 5,0 V y 3,3 V reales y corriente disponible en PS1, rango de entrada del alimentador externo, tensión de alimentación y salidas de MOD1, patillaje E-B-C de Q1–Q3, pines de los displays, RXD/TXD del USB-TTL, polaridad y corriente del terminal I/O del módulo buzzer.</li>
 <li><b>LED1 en RA2 (pin 4):</b> RA4 es open-drain y no puede entregar corriente al LED. RA4 queda sin conectar.</li>
 <li><b>Calibración pendiente:</b> el offset de 0 g (≈VCC/2) y los 800 mV/g son nominales; medir el módulo real antes de usar los valores para reconocimiento.</li>
 <li><b>Reserva de carga:</b> C10 = 220 µF entre +5 V y GND junto al PIC/display, y C11 = 10 µF en +3V3 junto al módulo. Sostienen el riel durante los pulsos de 80 mA del multiplexado; sin ellos el ADC, que usa VREF = VDD, lee de menos. C10 es electrolítico: positivo a +5 V.</li>
 </ul>
 <script>
 var S='',$=function(s){S+=s};
-function c(n){if(n=='GND')return'var(--gnd)';if(n=='+5V')return'var(--p5)';if(n=='+3V3')return'var(--p3)';if(/VIN_9V|USB_VCC/.test(n))return'var(--pv)';if(n=='NC')return'var(--nc)';if(/SEG|CA$|DIG|Q\d_B|BZ|LED|D\d_A/.test(n))return'var(--dg)';if(/PG|MCLR|TTL/.test(n))return'var(--pr)';return'var(--an)'}
+function c(n){if(n=='GND')return'var(--gnd)';if(n=='+5V')return'var(--p5)';if(n=='+3V3')return'var(--p3)';if(/^VIN$|USB_VCC/.test(n))return'var(--pv)';if(n=='NC')return'var(--nc)';if(/SEG|CA$|DIG|Q\d_B|BZ|LED|D\d_A/.test(n))return'var(--dg)';if(/PG|MCLR|TTL/.test(n))return'var(--pr)';return'var(--an)'}
 function T(x,y,s,k,a,f){$('<text x="'+x+'" y="'+y+'" class="'+(k||'')+'" text-anchor="'+(a||'start')+'"'+(f?' fill="'+f+'"':'')+'>'+s+'</text>')}
 function W(n,p){var s='M'+p[0]+' '+p[1];for(var i=2;i<p.length;i+=2)s+='L'+p[i]+' '+p[i+1];$('<path d="'+s+'" fill="none" stroke="'+c(n)+'" stroke-width="1.8" stroke-linejoin="round"/>')}
 function D(n,x,y){$('<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+c(n)+'"/>')}
@@ -59,13 +59,13 @@ W('AN0',[130,66,680,66,680,152,800,152]);lb(400,62,'AN0');
 P(50,150,100,395,'MOD1','MMA7361',[['VCC','+3V3',215],['GND','GND',250],['ST/GS','NC',285]],[['X','X_IN',190],['Y','Y_IN',348],['Z','Z_IN',518]]);
 W('+3V3',[50,215,10,215]);D('+3V3',24,215);CV(24,215,250,'C9');W('GND',[50,250,24,250]);D('GND',24,250);G(24,250);NC(78,285+0,0);
 W('+3V3',[60,620,10,620,10,215]);lb(14,420,'+3V3');
-/* PS1 / BT1 */
-P(60,580,110,110,'PS1','9V→5V/3V3',[['+3V3','+3V3',620]],[['+5V','+5V',615],['GND','GND',650]]);
+/* PS1 / FUENTE */
+P(60,580,110,110,'PS1','VIN→5V/3V3',[['+3V3','+3V3',620]],[['+5V','+5V',615],['GND','GND',650]]);
 W('+5V',[170,615,190,615]);V(190,615);W('GND',[170,650,190,650]);G(190,650);
 /* reserva de carga de los rieles */
 W('+5V',[190,615,240,615]);D('+5V',240,615);CV(240,615,650,'C10 220 µF');T(246,624,'+','sm');G(240,650);
 W('+3V3',[10,540,40,540]);D('+3V3',10,540);CV(40,540,575,'C11 10 µF');G(40,575);
-W('VIN_9V',[115,690,115,735]);lb(122,715,'VIN_9V');P(60,735,110,50,'BT1','9 V',[],[]);T(70,775,'−','sm');T(70,755,'+','sm');G(115,785);
+W('VIN',[115,690,115,735]);lb(122,715,'VIN');P(60,735,110,50,'FUENTE','externo',[],[]);G(115,785);
 /* conexion directa de los ejes al ADC, sin amplificadores */
 W('X_IN',[150,190,250,190]);D('X_IN',250,190);CV(250,190,232,'C5');G(250,232);
 W('X_IN',[250,190,400,190,400,172,800,172]);lb(300,186,'X_IN');

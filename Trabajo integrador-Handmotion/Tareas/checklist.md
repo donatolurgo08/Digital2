@@ -17,7 +17,8 @@ Actualizada: 2026-11-11
 
 ## Hardware
 
-- [ ] Medir las salidas de 5 V y 3,3 V de PS1 y verificar GND común.
+- [ ] Verificar el rango de entrada admitido por PS1 y la polaridad del conector del alimentador externo.
+- [ ] Medir las salidas de 5 V y 3,3 V de PS1, la corriente disponible en 5 V y verificar GND común.
 - [ ] Confirmar la alimentación admitida por el módulo MMA7361 y su patillaje real (VCC, GND, X, Y, Z, GS, ST, 0G). No unir un pin de salida 3V3 al riel.
 - [ ] Medir X, Y y Z en reposo y con inclinación; comprobar que no superen VDD y que la impedancia de salida sea apta para el ADC.
 - [ ] Confirmar cómo se selecciona el rango de ±1,5 g en el módulo (pin GS o puente).

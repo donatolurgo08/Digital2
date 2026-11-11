@@ -21,6 +21,9 @@
                    MMA7361 y se eliminan los amplificadores MCP6002 y toda la
                    red de ganancia/referencia (U2, U3, R1-R8, C3, C4). Las
                    salidas X, Y y Z van directas al ADC; VREF+ = VDD.
+             Actualizacion 2026-11-11: la alimentacion pasa a un alimentador
+                   externo enchufado en PS1. Se elimina BT1. PS1 sigue
+                   entregando +5V y +3V3, con GND comun.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -39,8 +42,10 @@
 ================================================================================
  1. DESIGNACIONES (REFDES)
 ================================================================================
- BT1   Bateria de 9 V
- PS1   Modulo de alimentacion de protoboard (entrada 9 V, salidas 5 V y 3,3 V)
+ FUENTE Alimentador externo enchufado en PS1. Verificar en el modulo el
+        rango de tension de entrada admitido y no superarlo.
+ PS1   Modulo de alimentacion de protoboard (entrada desde FUENTE, salidas
+       5 V y 3,3 V)
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
  U4    LM35, TO-92
  MOD1  Modulo acelerometro MMA7361 de 3 ejes, salidas analogicas
@@ -112,7 +117,7 @@
  U4.3      GND                      LM35
  MOD1.GND  GND                      modulo MMA7361
  PS1.GND   GND                      modulo de protoboard
- BT1.-     terminal negativo        bateria de 9 V (via PS1)
+ FUENTE.-  terminal negativo        alimentador externo
  BZ1.GND   GND del modulo buzzer
  C9.2      placa 2                  desacople de 3,3 V
  C10.2     placa 2 (-)              reserva de 5 V
@@ -145,9 +150,9 @@
  el PIC.
 
 --------------------------------------------------------------------------------
- RED: VIN_9V   (entrada del modulo de alimentacion)
+ RED: VIN   (entrada del modulo de alimentacion)
 --------------------------------------------------------------------------------
- BT1.+     terminal positivo        bateria de 9 V
+ FUENTE.+  terminal positivo        alimentador externo
  PS1.VIN   entrada                  modulo de protoboard
 
 --------------------------------------------------------------------------------
@@ -468,12 +473,14 @@
    2  VOUT     AN0
    3  GND      GND
 
- BT1 - bateria de 9 V
+ FUENTE - alimentador externo
    +   terminal positivo, a PS1.VIN
-   -   terminal negativo, a GND (entrada de PS1)
+   -   terminal negativo, a GND
+   Consultar en el modulo el rango de tension de entrada admitido y no
+   superarlo. Verificar la polaridad del conector antes de enchufarlo.
 
  PS1 - modulo de alimentacion de protoboard
-   VIN   entrada, desde BT1.+
+   VIN   entrada, desde FUENTE.+
    GND   GND comun
    +5V   salida de 5 V
    +3V3  salida de 3,3 V
@@ -540,11 +547,11 @@
 ================================================================================
   +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC,
               Q1.C, Q2.C, Q3.C, R23.1, C1.1, C2.1, C8.1, C10.1, J2.2
-  GND       = PS1.GND, BT1.-, U1.12, U1.31, U4.3, C1.2, C2.2,
+  GND       = PS1.GND, FUENTE.-, U1.12, U1.31, U4.3, C1.2, C2.2,
               C5.2, C6.2, C7.2, C8.2, C9.2, C10.2, C11.2, D1.K, D2.K,
               J1.GND, J2.3, BZ1.GND, MOD1.GND
  +3V3      = PS1.+3V3, MOD1.VCC, C9.1, C11.1   (ver aviso de la red +3V3)
- VIN_9V    = BT1.+, PS1.VIN
+ VIN       = FUENTE.+, PS1.VIN
  USB_VCC   = J1.VCC                        (no unir a +5V)
  AN0       = U4.2, U1.2
  X_IN      = MOD1.X, C5.1, U1.3
@@ -696,11 +703,17 @@
      los pads.
 
  6.13 Alimentacion
-     BT1 (9 V) entra a PS1.VIN. PS1 entrega +5V y +3V3, con GND comun.
-     El regulador de 5 V del modulo disipa (9 - 5) V multiplicado por la
+     FUENTE (alimentador externo) entra a PS1.VIN. PS1 entrega +5V y +3V3,
+     con GND comun. Ya no hay bateria: el encendido es el interruptor del
+     modulo si lo tiene, o desenchufando el alimentador.
+     Consultar en el modulo el rango de tension de entrada admitido y no
+     superarlo. Verificar la polaridad del conector antes de enchufarlo.
+     El regulador de 5 V del modulo disipa (VIN - 5) V multiplicado por la
      corriente del circuito: con cargas altas puede calentar. No taparlo.
-     La bateria de 9 V alcanza para el prototipo. Si la autonomia no
-     alcanza, usar una fuente de 9 V enchufable en lugar de la bateria.
+     La corriente disponible en 5 V no esta medida: comprobarla antes de
+     conectar los tres displays. El pico del multiplexado es 80 mA.
+     Con alimentador externo desaparece el problema de autonomia; a cambio,
+     el circuito queda atado al tomacorriente.
 
  6.14 Calculo de R17-R19, R21-R22 y R23
      Datos de partida: VDD = 5,0 V; VOH del PIC >= VDD - 0,7 V = 4,3 V con
@@ -765,7 +778,10 @@
    R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
  - Medir la caida del riel de 5 V con los tres displays encendidos: deberia
    quedar por debajo de ~50 mV (nota 6.15).
- - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun.
+ - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun, y medir la
+   corriente disponible en 5 V.
+ - Verificar el rango de entrada admitido por PS1 y la polaridad del conector
+   del alimentador externo.
  - Confirmar la alimentacion admitida por el modulo MMA7361 y su patillaje
    real (VCC, GND, X, Y, Z, GS, ST, 0G).
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar

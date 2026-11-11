@@ -25,8 +25,8 @@ que se confirma midiendo el display.
 | 1 | Capacitor electrolítico 220 µF / 16 V | Reserva del riel de 5 V (C10), junto al PIC y los displays. Respetar polaridad. |
 | 1 | Capacitor 10 µF / 10 V | Reserva del riel de 3,3 V (C11), junto al módulo acelerómetro. |
 | 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
-| 1 | Batería de 9 V | Alimentación del módulo de protoboard. |
-| 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común. |
+| 1 | Alimentador externo para el módulo de protoboard | Reemplaza a la batería de 9 V de la Rev D. Verificar el rango de entrada admitido y la polaridad del conector. |
+| 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común, desde el alimentador externo. |
 | 1 | Conversor USB–TTL | Enlace con la PC. No es RS-232 y su VCC no se une al riel. |
 | 1 | Programador PICkit | Carga del firmware por ICSP. |
 
