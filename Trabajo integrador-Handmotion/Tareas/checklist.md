@@ -11,7 +11,8 @@ Actualizada: 2026-11-11
 - [ ] **Validar el driver BC337:** probar primero un dígito y un segmento. La conexión propuesta como seguidor de emisor pierde tensión; si no funciona bien, decidir otro driver antes de completar el montaje.
 - [ ] **Etapa 5:** implementar el muestreo periódico de X, Y y Z con TIMER0. Definir el período de muestreo con mediciones reales.
 - [ ] Calibrar offset y sensibilidad de cada eje y definir filtros, umbrales y gestos reconocibles.
-- [ ] **Etapa 6:** definir el protocolo de la GUI e implementar recepción y transmisión EUSART. El baud rate de 9600 está confirmado.
+- [x] **Etapa 6 — especificación y firmware:** protocolo binario v1 y EUSART 9600 Bd implementados y compilados; falta probar RX/TX en banco.
+- [ ] Integrar la GUI con el protocolo v1 (sin modificarla hasta autorización) y probar comandos/respuestas.
 - [ ] **Etapa 7:** integrar y probar adquisición, alarma, displays, reconocimiento y comunicación.
 - [ ] Separar ADC y alarma en módulos si se completa la modularización; por ahora, el módulo separado es el del display.
 
@@ -33,10 +34,11 @@ Actualizada: 2026-11-11
 ## Documentación y GUI
 
 - [ ] Actualizar la GUI, que todavía menciona el ADXL335, cuando se autorice modificar la aplicación. El firmware ya usa MMA7361.
-- [ ] Revisar que el protocolo serie incluya los tres ejes y no solo X.
+- [x] Definir el protocolo v1 para temperatura, eje X y alarma. Y/Z quedan para una etapa posterior.
 
 ## Repositorio
 
 - [x] Rev E (MMA7361 sin amplificadores) commiteada y pusheada: `cf985c3`.
 - [x] Valores de R17–R19, R21–R22 y R23 (`99c2e55`) y R9–R16 (`a8c728c`) commiteados y pusheados.
-- [ ] Commitear y pushear la reserva de carga (C10, C11) y los cambios de esta etapa.
+- [x] Reserva de carga C10/C11 pusheada: `c6b8f61`.
+- [ ] Commitear y pushear el protocolo serie y el firmware de Etapa 6.

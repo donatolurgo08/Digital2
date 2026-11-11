@@ -1,18 +1,19 @@
 # D-01 — Investigación de EUSART del PIC16F887
 
 **Responsable:** Donato Lurgo  
-**Estado:** En investigación  
+**Estado:** Investigación cerrada para la configuración y el protocolo v1; pruebas de banco pendientes
 **Uso previsto:** comunicación asíncrona bidireccional con la GUI mediante USB-TTL.
 
 ## Funcionamiento
 
 En modo asíncrono, el EUSART transmite y recibe en full-duplex, sin una línea de
 reloj compartida. El formato habitual es reposo alto, bit de inicio bajo, datos
-LSB primero y bit(s) de parada alto(s). Puede manejar caracteres de 8 o 9 bits;
-el protocolo y formato definitivos todavía están pendientes.
+LSB primero y bit(s) de parada alto(s). HAND MOTION usa caracteres de 8 bits,
+un bit de parada y sin paridad (8N1).
 
-En HAND MOTION, la PC enviará comandos/parámetros acordados y el PIC devolverá
-temperatura, mediciones, gestos reconocidos e información de estado.
+En la versión 1, la PC envía comandos de control/configuración y el PIC devuelve
+temperatura, eje X, estado de alarma y configuración. Los ejes Y/Z y los gestos
+se incorporarán en etapas posteriores.
 
 ## Registros principales
 
@@ -28,8 +29,7 @@ temperatura, mediciones, gestos reconocidos e información de estado.
 | `INTCON` | 0 / `0x0B` | `PEIE` y `GIE` habilitan las interrupciones periféricas y globales. |
 
 Al activar `SPEN`, el módulo toma control de las funciones serie de RC6/TX y
-RC7/RX. La asignación física de pines depende del encapsulado; confirmar el
-encapsulado real antes de documentar números de pata. El enlace requiere TX del
+RC7/RX. El circuito usa PIC16F887 PDIP-40. El enlace requiere TX del
 conversor conectado a RX del PIC, RX del conversor a TX del PIC y GND común.
 Verificar niveles lógicos compatibles; USB-TTL no es una interfaz RS-232.
 
@@ -44,15 +44,13 @@ Para asíncrono, con `n = SPBRGH:SPBRG` (o solo `SPBRG` en modo de 8 bits):
 | 1 | 0 | `FOSC / (16 × (n+1))` |
 | 1 | 1 | `FOSC / (4 × (n+1))` |
 
-Se despeja `n` para el baud rate requerido y se calcula el baud rate real/error
-con el divisor entero elegido. No se pueden fijar `SPBRG`, `SPBRGH`, `BRGH` ni
-`BRG16` hasta confirmar `FOSC` y el baud rate acordado con la GUI.
+Con `FOSC = 8 MHz`, 9600 Bd, `BRGH = 1` y `BRG16 = 0`, se fija `SPBRG = 51`.
+El baud calculado es 9615,4 Bd, con error aproximado de +0,16 %.
 
 ## Flujo de uso
 
-**Inicialización:** configurar el generador con `FOSC` y baud rate confirmados;
-seleccionar `SYNC=0`; habilitar `SPEN`; activar `TXEN` para transmitir y `CREN`
-para recepción continua. Los detalles del divisor quedan pendientes.
+**Inicialización:** `TXSTA = 0x24`, `RCSTA = 0x90`, `BRG16 = 0`, `SPBRG = 51`;
+`SYNC=0`, `SPEN=1`, `TXEN=1`, `CREN=1`. El firmware v1 atiende TX y RX por polling.
 
 **Transmisión:** escribir el byte en `TXREG` cuando `TXIF=1`. `TXIF` indica que
 `TXREG` está vacío y preparado; `TRMT` indica que el registro de desplazamiento
@@ -93,10 +91,12 @@ y se deshabilita al vaciar el buffer.
 
 - Implementar enlace PIC↔GUI para comandos/configuración y para transmitir
   temperatura, muestras, gestos y estado.
-- Definir baud rate, formato de carácter, protocolo, delimitadores, comandos,
-  validación y estrategia de errores junto con Ana.
-- Confirmar `FOSC`, encapsulado y tensión lógica del conversor USB-TTL antes de
-  cerrar la configuración eléctrica y de baud rate.
+- Protocolo v1 documentado en `docs/comunicacion/protocolo.md`: trama binaria
+  con CRC-8, comandos de configuración y datos de temperatura/X.
+- Pendiente: probar RX/TX, niveles lógicos del conversor USB-TTL, CRC y
+  recuperación ante errores en hardware; integrar la GUI cuando se autorice.
+- `FOSC` está confirmado en 8 MHz; el encapsulado eléctrico sigue siendo
+  PDIP-40 según el esquema.
 
 ## Fuente
 

@@ -19,9 +19,10 @@ acelerómetro analógico MMA7361 de tres ejes.
 - Sin amplificadores operacionales en la etapa analógica.
 - Oscilador interno a 8 MHz; configuration bits definidos en el firmware.
 
-Los pines, frecuencia y configuración del PIC, características eléctricas, tiempos,
-umbrales de gestos y protocolo serie que no estén confirmados se mantienen como
-pendientes; no deben suponerse.
+Los pines, frecuencia y configuración del PIC están documentados. El protocolo
+serie v1 está especificado e implementado en firmware (9600 Bd, trama binaria
+con CRC-8; temperatura y eje X). La integración con la GUI, la calibración del
+sensor y los criterios de gestos siguen pendientes; no deben suponerse.
 
 ## Organización
 

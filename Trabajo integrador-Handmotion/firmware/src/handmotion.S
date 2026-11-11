@@ -5,14 +5,15 @@
 ;
 ; @date       06/11/2026
 ;
-; @brief      HAND MOTION - Etapas 2-4: ADC, alarma y displays.
+; @brief      HAND MOTION - Etapas 2-4 y 6: ADC, alarma, displays y EUSART.
 ;
 ; @details    PIC16F887 con oscilador interno a 8 MHz (OSCCON IRCF=111).
 ;             Configura el ADC a FOSC/32 (TAD = 4 us), lee el LM35 por AN0 y
 ;             los tres ejes del modulo MMA7361 por AN1 (X), AN5 (Y) y AN6 (Z),
 ;             sin amplificadores operacionales. Convierte la temperatura y la
-;             aceleracion de X, controla la alarma termica y multiplexa tres
-;             displays de anodo comun con TIMER1.
+;             aceleracion de X, controla la alarma termica, multiplexa tres
+;             displays con TIMER1 y comunica temperatura/X por EUSART con
+;             protocolo binario CRC-8.
 ;
 ;             Mapa de pines segun la Rev E del esquema:
 ;               RA0/AN0  LM35                       entrada analogica
@@ -32,7 +33,7 @@
 ;               RD0-RD7  segmentos a,b,c,d,e,f,g,dp salidas
 ;               RB3/PGM, RB6/PGC, RB7/PGD           reservados a ICSP
 ;
-;             Etapas 2-4: compiladas. NO probadas en hardware.
+;             Etapas 2-6: compiladas. NO probadas en hardware.
 ;             Sensor: MMA7361 en rango +-1,5 g, salidas directas al ADC y
 ;             referencia VREF = VDD. El offset de 0 g y la sensibilidad de X
 ;             son NOMINALES del datasheet; calibrar con la placa real antes
@@ -44,7 +45,10 @@
 ;             R21-R22 = 220 ohm y R23 = 10 kohm ya estan calculadas (nota
 ;             6.14 del netlist). LED1 se movio
 ;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.
-;             Pendiente de firmware: protocolo serie (T-03).
+;             Etapa 6: EUSART a 9600 Bd con protocolo binario AA 55 / LEN /
+;             TIPO / DATOS / CRC8. Transmite temperatura, X y alarma; Y y Z
+;             quedan muestreados pero fuera de la trama por ahora. El modulo
+;             esta en modules/uart.inc.
 ;             Pendiente de banco: polaridad electrica del terminal I/O del
 ;             buzzer; si es activo-bajo hay que invertir el nivel de RC3.
 ;===============================================================================
@@ -81,12 +85,43 @@
 ;   FOSC = 8 MHz            -> TCY = 4 / FOSC = 0,5 us
 ;   OSCCON = 0111 0000b     -> IRCF<2:0> = 111 (8 MHz), SCS = 00 (INTOSC)
 ;
-; Referencias para las etapas siguientes (todavia NO usadas en este archivo):
-;   TIMER0  1:8 + recarga 6       -> 1 ms
-;   EUSART  9600 Bd, BRGH=1       -> SPBRG = 51
+; Referencias de las etapas siguientes:
+;   TIMER0  1:8 + recarga 6       -> 1 ms (todavia no usado)
+;   EUSART  9600 Bd, BRGH=1       -> SPBRG = 51 (Etapa 6, en uso)
         FOSC_KHZ        EQU     8000
         TCY_NS          EQU     500
         OSCCON_8MHZ     EQU     0x70
+
+; EUSART: 8 MHz / (16 * (51 + 1)) = 9615 Bd, error +0,16 % sobre 9600.
+;   TXSTA = 0010 0100b -> TXEN = 1, BRGH = 1, SYNC = 0
+;   RCSTA = 1001 0000b -> SPEN = 1, CREN = 1
+        EUSART_SPBRG    EQU     51
+        EUSART_TXSTA    EQU     0x24
+        EUSART_RCSTA    EQU     0x90
+
+; Protocolo serie: ver modules/uart.inc y docs/comunicacion/protocolo.md
+        PROTO_SYNC1     EQU     0xAA
+        PROTO_SYNC2     EQU     0x55
+        PROTO_VERSION   EQU     1
+        PROTO_CRC_POLY  EQU     0x07
+        PROTO_PERIOD    EQU     50      ; 50 ms = 20 Hz por defecto
+        PROTO_PERIOD_MIN EQU    20      ; 50 Hz
+        PROTO_PERIOD_MAX EQU    250     ; 4 Hz
+
+        T_DATA          EQU     0x01
+        T_STATUS        EQU     0x02
+        T_ACK           EQU     0x03
+
+        CMD_PING        EQU     0x81
+        CMD_START       EQU     0x82
+        CMD_STOP        EQU     0x83
+        CMD_SET_THRESH  EQU     0x84
+        CMD_GET_STATUS  EQU     0x85
+        CMD_SET_OFFSET  EQU     0x86
+
+        RES_OK          EQU     0
+        RES_BAD_PARAM   EQU     1
+        RES_UNKNOWN     EQU     2
 
 ; ADC: FOSC/32 -> TAD = 4 us (valido para VREF = VDD = 5 V)
 ;   ADCON0 = 10 0000 01b -> ADCS = 10 (FOSC/32), CHS = 0000 (AN0), ADON = 1
@@ -160,6 +195,32 @@ Y_H:            DS      1       ; eje Y, bits 9:8
 Z_L:            DS      1       ; eje Z, byte bajo del ADC
 Z_H:            DS      1       ; eje Z, bits 9:8
 
+; EUSART y protocolo (Etapa 6). Todo en banco 0; el codigo hace BANKSEL.
+TX_BUF:         DS      32      ; buffer circular de transmision
+TX_HEAD:        DS      1       ; indice de escritura
+TX_TAIL:        DS      1       ; indice de lectura
+TX_CNT:         DS      1       ; bytes pendientes
+RX_TYPE:        DS      1       ; tipo de la trama recibida
+RX_D0:          DS      1       ; primer byte de datos
+RX_D1:          DS      1       ; segundo byte de datos
+RX_STATE:       DS      1       ; 0..4, sincronismo y recepcion
+RX_LEN:         DS      1       ; LEN de la trama en curso
+RX_IDX:         DS      1       ; indice dentro de la trama
+CRC_REG:        DS      1       ; CRC8 parcial
+CRC_CNT:        DS      1       ; contador de bits del CRC
+TMP2:           DS      1       ; auxiliar del modulo
+PERIOD_MS:      DS      1       ; periodo de DATA en ms
+PERIOD_CNT:     DS      1       ; cuenta regresiva en ms
+ALARM_TEMP:     DS      1       ; umbral de alarma en grados C
+X_OFF_L:        DS      1       ; offset de X, byte bajo
+X_OFF_H:        DS      1       ; offset de X, bits 9:8
+MODO:           DS      1       ; bit 0 = streaming habilitado
+SEQ:            DS      1       ; numero de trama DATA
+TICK_FLAG:      DS      1       ; bandera de 1 ms puesta por el display
+ALARM_STATE:    DS      1       ; bit 0 = alarma termica activa
+ACK_CMD:        DS      1       ; comando respondido
+ACK_RES:        DS      1       ; resultado de la respuesta
+
 ;===============================================================================
 ; VECTOR DE RESET
 ;===============================================================================
@@ -179,15 +240,18 @@ resetVec:
 main:
         CALL    init
         CALL    display_init
+        CALL    uart_init
 
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
 ; Adquisicion continua de AN0 (LM35), AN1 (X), AN5 (Y) y AN6 (Z), alarma
-; termica y servicio del display. TIMER1 se sondea por polling; las
-; interrupciones permanecen deshabilitadas.
+; termica, servicio del display y del EUSART. TIMER1 se sondea por polling;
+; las interrupciones permanecen deshabilitadas.
 ; Resultados: TEMP_C = grados C; DELTA_H:DELTA_L = mg de X con signo;
 ;             Y_H:Y_L y Z_H:Z_L = cuentas crudas de 10 bits.
+; El EUSART transmite temperatura, X y alarma cada PERIOD_MS (20 Hz por
+; defecto) y atiende los comandos de la GUI sin bloquear el multiplexado.
 loop:
         MOVLW   0               ; AN0 = LM35
         CALL    leer_adc
@@ -215,6 +279,7 @@ loop:
         MOVWF   Z_H
 
         CALL    display_service
+        CALL    uart_service
 
         GOTO    loop
 
@@ -387,22 +452,26 @@ temp_sat:
 ;*******************************************************************************
 ; @brief    Actualiza las salidas de alarma segun la temperatura.
 ;
-; @details  Si TEMP_C > TEMP_ALARM, activa LED1 (RA2), LED2 (RA5) y el
-;           terminal de control del modulo buzzer (RC3). Con TEMP_C <= 40 C,
-;           las tres salidas quedan en bajo. Se asume provisionalmente que
-;           el modulo es activo-alto; confirmar en la prueba de banco.
+; @details  Si TEMP_C > ALARM_TEMP (40 C por defecto, configurable por
+;           SET_THRESHOLD), activa LED1 (RA2), LED2 (RA5) y el terminal de
+;           control del modulo buzzer (RC3). Con TEMP_C <= umbral, las tres
+;           salidas quedan en bajo. ALARM_STATE<0> refleja el estado y viaja
+;           en la trama DATA. Se asume provisionalmente que el modulo es
+;           activo-alto; confirmar en la prueba de banco.
 ;
 ; @param    TEMP_C = temperatura en grados C
 ; @return   ninguno
-; @modifica PORTA<5,2>, PORTC<3>, W
+; @modifica PORTA<5,2>, PORTC<3>, ALARM_STATE<0>, W
 ;*******************************************************************************
 procesar_alarma:
+        BANKSEL ALARM_TEMP
         MOVF    TEMP_C,W
-        SUBLW   TEMP_ALARM     ; W = 40 - TEMP_C; C=1 si TEMP_C <= 40
+        SUBWF   ALARM_TEMP,W    ; W = umbral - TEMP_C; C=1 si TEMP_C <= umbral
         BTFSC   STATUS,0
         GOTO    alarma_off
 
 alarma_on:
+        BSF     ALARM_STATE,0
         BANKSEL PORTA
         BSF     PORTA,2        ; LED1, pin 4 / RA2
         BSF     PORTA,5        ; LED2, pin 7 / RA5
@@ -411,6 +480,7 @@ alarma_on:
         RETURN
 
 alarma_off:
+        BCF     ALARM_STATE,0
         BANKSEL PORTA
         BCF     PORTA,2
         BCF     PORTA,5
@@ -421,11 +491,11 @@ alarma_off:
 ;*******************************************************************************
 ; @brief    Convierte las cuentas del eje X a miligramos con signo.
 ;
-; @details  Resta el offset nominal de 0 g (338 cuentas para VCC = 3,3 V),
-;           multiplica la magnitud por 49 y divide por 8. Resultado:
-;           6,125 mg/cuenta. El offset y la sensibilidad son NOMINALES del
-;           MMA7361 (+-1,5 g, 800 mV/g); se ajustan por calibracion con la
-;           placa real.
+; @details  Resta el offset de 0 g guardado en X_OFF_H:X_OFF_L (338 cuentas
+;           nominales para VCC = 3,3 V, ajustable por SET_OFFSET), multiplica
+;           la magnitud por 49 y divide por 8. Resultado: 6,125 mg/cuenta.
+;           La sensibilidad es NOMINAL del MMA7361 (+-1,5 g, 800 mV/g); se
+;           ajusta por calibracion con la placa real.
 ;
 ; @param    ADC_H:ADC_L = cuentas del eje X
 ; @return   DELTA_H:DELTA_L = aceleracion en mg (complemento a dos, 16 bits)
@@ -433,13 +503,14 @@ alarma_off:
 ;           MC_L, MC_H, COUNT, TMP, PROD_H
 ;*******************************************************************************
 convertir_x_mg:
+        BANKSEL X_OFF_L
         MOVF    ADC_L,W
         MOVWF   DELTA_L
         MOVF    ADC_H,W
         MOVWF   DELTA_H
-        MOVLW   X_OFFSET_L
+        MOVF    X_OFF_L,W
         SUBWF   DELTA_L,F
-        MOVLW   X_OFFSET_H
+        MOVF    X_OFF_H,W
         BTFSS   STATUS,0
         ADDLW   1
         SUBWF   DELTA_H,F
@@ -559,6 +630,10 @@ mul16x8:
 ;===============================================================================
 ; Modulo separado: multiplexado de los displays (Etapa 4).
         #include "modules/display.inc"
+
+;===============================================================================
+; Modulo separado: EUSART y protocolo (Etapa 6).
+        #include "modules/uart.inc"
 
 ;===============================================================================
         END     resetVec

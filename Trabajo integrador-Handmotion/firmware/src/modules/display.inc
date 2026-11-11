@@ -44,6 +44,7 @@ display_service:
         BTFSS   PIR1,0          ; TMR1IF=1 si vencio el milisegundo
         RETURN
         BCF     PIR1,0
+        BSF     TICK_FLAG,0     ; base de 1 ms para el protocolo serie
 
         BANKSEL TMR1H
         MOVLW   TMR1_RELOAD_H

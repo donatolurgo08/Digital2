@@ -30,7 +30,8 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   `FCMEN = OFF`, `LVP = OFF`, `DEBUG = OFF`, `BOR4V = BOR40V`, `WRT = OFF`.
 - Valores derivados para las etapas siguientes: ADC `FOSC/32` (`TAD = 4 µs`),
   TIMER0 1:8 con recarga 6 (1 ms), TIMER1 1:1 con recarga `0xF830` (1 ms por
-  dígito), EUSART 9600 Bd con `BRGH = 1` y `SPBRG = 51`.
+  dígito), EUSART 9600 Bd con `BRGH = 1` y `SPBRG = 51` (9615 Bd, error
+  aproximado +0,16 %).
 
 ## Etapa 2: ADC
 
@@ -90,6 +91,27 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   caída supera ~50 mV, la lectura se corre.
 - Estado: **escrita y compilada**, no probada en hardware.
 
+## Etapa 6: EUSART y protocolo serie
+
+- EUSART asíncrono 9600 Bd, 8N1, sin control de flujo: `TXSTA = 0x24`,
+  `RCSTA = 0x90`, `BRG16 = 0`, `SPBRG = 51`.
+- Protocolo binario `AA 55 | LEN | TIPO | DATOS | CRC8`; CRC-8/ATM con
+  polinomio `0x07`, inicial `0x00`, sin reflexión ni XOR final. `LEN` incluye
+  tipo y datos, CRC cubre `LEN` hasta el último dato.
+- PIC→PC transmite `DATA` con secuencia, temperatura, X en mg con signo y
+  bandera de alarma; `STATUS` informa versión, período, umbral, offset de X y
+  modo; `ACK` confirma comandos.
+- PC→PIC admite PING, START, STOP, SET_THRESHOLD, GET_STATUS y SET_OFFSET.
+  Streaming inicia activo a 20 Hz; START permite períodos de 20–250 ms y 0
+  conserva el período actual.
+- RX y TX se atienden por polling en `modules/uart.inc`, usando buffer TX de
+  32 bytes y sin bloquear la actualización de displays con esperas por byte.
+  Se descartan CRC/framing inválidos y se recupera el receptor ante overrun.
+- Y y Z siguen cableados y su adquisición previa se conserva, pero **no se
+  transmiten en esta versión**; se incorporarán después sin alterar DATA v1.
+- Especificación: [`../comunicacion/protocolo.md`](../comunicacion/protocolo.md).
+- Estado: **escrita y compilada**, no probada en hardware; GUI no modificada.
+
 ## Detalle de `pic-as` V4.00 verificado
 
 - El compilador empaqueta los PSECT de código desde el final de la página 0 hacia
@@ -124,7 +146,8 @@ ISR.
 
 ## Dependencias pendientes
 
-Baud rate y protocolo serie (T-03), período de adquisición, criterios de
-reconocimiento, calibración del offset/sensibilidad de X, referencia real de
-5 V y valor de R9–R16. R17–R19, R21–R22 y R23 ya están calculadas. Ninguno de
-estos datos bloquea las etapas 1 a 4 del firmware.
+Integración del protocolo con la GUI, período de adquisición de gestos,
+criterios de reconocimiento, calibración de la sensibilidad de X, referencia
+real de 5 V y validación de R9–R16. El offset de X puede configurarse por serie,
+pero requiere medición. R17–R19, R21–R22 y R23 ya están calculadas. La Etapa 6
+está escrita y compilada; falta probarla en hardware.
