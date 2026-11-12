@@ -15,7 +15,7 @@ acelerómetro analógico MMA7361 de tres ejes.
 - Comunicación bidireccional con una GUI de PC mediante EUSART y un conversor
   USB-TTL.
 - Firmware en Assembler para PIC16F887, compatible con `pic-as` (XC8).
-- Tres displays rojos de siete segmentos de ánodo común.
+- Tres displays rojos de siete segmentos de cátodo común (decisión del 2026-11-12).
 - Sin amplificadores operacionales en la etapa analógica.
 - Oscilador interno a 8 MHz; configuration bits definidos en el firmware.
 

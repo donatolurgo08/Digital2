@@ -14,9 +14,8 @@
                    buzzer comprado es un modulo activo de 3,3-5 V con tres
                    terminales (VCC, GND, señal); la señal va directo a RC3,
                    y se eliminan Q4 y R20. Q1-Q3 confirmados como BC337.
-             Actualizacion 2026-11-06: displays rojos de anodo comun. La
-                   seleccion de digito se adapta a Q1-Q3 BC337 como seguidores
-                   de emisor de lado alto; verificar corriente y brillo.
+              Actualizacion 2026-11-06: displays rojos de anodo comun con
+                    Q1-Q3 seguidores de emisor (topologia reemplazada en 2026-11-12).
              Actualizacion 2026-11-11: se reemplaza el ADXL335 por un modulo
                    MMA7361 y se eliminan los amplificadores MCP6002 y toda la
                    red de ganancia/referencia (U2, U3, R1-R8, C3, C4). Las
@@ -28,9 +27,12 @@
                      con MMA7361L. Se agregan sus rangos/niveles de control del
                      datasheet; el orden fisico del header y puentes del carrier
                      siguen pendientes de confirmar por serigrafia.
-               Actualizacion 2026-11-12: fotos de PS1, BC337, USB-TTL y buzzer.
-                     Se documentan selectores de riel, pinout C-B-E, cinco pines
-                     rotulados del TTL y disparo bajo indicado en el buzzer.
+              Actualizacion 2026-11-12: fotos de PS1, BC337, USB-TTL y buzzer.
+                    Se documentan selectores de riel, pinout C-B-E, cinco pines
+                    rotulados del TTL y disparo bajo indicado en el buzzer.
+              Actualizacion 2026-11-12: DS1-DS3 pasan a catodo comun por decision
+                    del usuario; Q1-Q3 BC337 pasan a selectores de lado bajo.
+                    Recalcular R9-R16 para la topologia nueva.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -39,10 +41,11 @@
  Si el componente no tiene numeracion fija, se usa REF.NOMBRE
  (ej. Q1.C = colector de Q1, DS1.a = segmento a del display 1).
 
- Las resistencias de segmento (R9-R16) tienen un valor provisional de 150 ohm:
- dependen de la corriente por segmento y de la tension real del anodo, asi que
- se confirman midiendo. R17-R19, R21, R22 y R23 ya estan calculadas (nota
- 6.14). Los capacitores de desacople y los filtros de los ejes ya tienen valor.
+ R9-R16 = 150 ohm era un valor provisional calculado para la antigua topologia
+ de anodo comun y queda invalidado por la decision de catodo comun. Recalcular
+ antes de comprar/armar; candidato 220 ohm para 10 mA bajo las hipotesis de la
+ nota 6.5. R17-R19=330 ohm se revisan para el uso como interruptores de lado
+ bajo; R21, R22 y R23 no cambian.
 ================================================================================
 
 
@@ -59,25 +62,25 @@
  MOD1  Modulo Candy-Ho basado en MMA7361L, 3 ejes, salidas analogicas.
         La publicacion del modulo indica VCC de 3-5 V; verificar la serigrafia,
         el orden del conector y los puentes/control SLP/GS de esta placa.
- DS1   Display rojo 7 segmentos, anodo comun - decenas
- DS2   Display rojo 7 segmentos, anodo comun - unidades
- DS3   Display rojo 7 segmentos, anodo comun - C estandar
- Q1    NPN BC337 - seguidor de emisor, anodo de DS1
- Q2    NPN BC337 - seguidor de emisor, anodo de DS2
- Q3    NPN BC337 - seguidor de emisor, anodo de DS3
+  DS1   Display rojo 7 segmentos, catodo comun - decenas
+  DS2   Display rojo 7 segmentos, catodo comun - unidades
+  DS3   Display rojo 7 segmentos, catodo comun - C estandar
+  Q1    NPN BC337 - selector de catodo a GND, DS1
+  Q2    NPN BC337 - selector de catodo a GND, DS2
+  Q3    NPN BC337 - selector de catodo a GND, DS3
  D1    LED rojo - alarma 1
  D2    LED rojo - alarma 2
- BZ1   Modulo buzzer activo 3,3-5 V (3 terminales: VCC, GND, I/O)
+ BZ1   Modulo buzzer activo MDU1095, 3,5-5,5 V (3 terminales: VCC, GND, I/O)
   J1    Conversor USB-TTL (5 terminales rotulados: 3V3, TXD, RXD, GND, +5V)
  J2    Conector ICSP de 6 pines para PICkit
- R9    Limitadora segmento a                            150 ohm, 1/4 W (provisional)
- R10   Limitadora segmento b                            150 ohm, 1/4 W (provisional)
- R11   Limitadora segmento c                            150 ohm, 1/4 W (provisional)
- R12   Limitadora segmento d                            150 ohm, 1/4 W (provisional)
- R13   Limitadora segmento e                            150 ohm, 1/4 W (provisional)
- R14   Limitadora segmento f                            150 ohm, 1/4 W (provisional)
- R15   Limitadora segmento g                            150 ohm, 1/4 W (provisional)
- R16   Limitadora segmento dp                           150 ohm, 1/4 W (provisional)
+ R9    Limitadora segmento a                            220 ohm candidato (CC)
+ R10   Limitadora segmento b                            220 ohm candidato (CC)
+ R11   Limitadora segmento c                            220 ohm candidato (CC)
+ R12   Limitadora segmento d                            220 ohm candidato (CC)
+ R13   Limitadora segmento e                            220 ohm candidato (CC)
+ R14   Limitadora segmento f                            220 ohm candidato (CC)
+ R15   Limitadora segmento g                            220 ohm candidato (CC)
+ R16   Limitadora segmento dp                           220 ohm candidato (CC)
  R17   Base de Q1                                       330 ohm, 1/4 W
  R18   Base de Q2                                       330 ohm, 1/4 W
  R19   Base de Q3                                       330 ohm, 1/4 W
@@ -86,9 +89,9 @@
  R23   Pull-up de MCLR                                  10 kohm, 1/4 W
  C1    Desacople VDD del PIC, pata 11                   100 nF
  C2    Desacople VDD del PIC, pata 32                   100 nF
- C5    Filtro de la entrada X                           100 nF
- C6    Filtro de la entrada Y                           100 nF
- C7    Filtro de la entrada Z                           100 nF
+ C5    Filtro de la entrada X                           3,3 nF
+ C6    Filtro de la entrada Y                           3,3 nF
+ C7    Filtro de la entrada Z                           3,3 nF
  C8    Desacople de U4 (LM35)                           100 nF
  C9    Desacople del riel de 3,3 V, junto a MOD1          100 nF
  C10   Reserva del riel de 5 V, junto al PIC/display      220 uF / 16 V
@@ -107,10 +110,7 @@
  U4.1      +VS                      LM35
  PS1.+5V   salida de 5 V            modulo de protoboard
  BZ1.VCC   alimentacion del modulo buzzer
- Q1.C      colector de Q1, lado alto del display DS1
- Q2.C      colector de Q2, lado alto del display DS2
- Q3.C      colector de Q3, lado alto del display DS3
- R23.1     extremo superior         pull-up de MCLR
+  R23.1     extremo superior         pull-up de MCLR
  C1.1      placa 1                  desacople PIC
  C2.1      placa 1                  desacople PIC
  C8.1      placa 1                  desacople LM35
@@ -136,8 +136,11 @@
  C6.2      placa 2
  C7.2      placa 2
  C8.2      placa 2
- D1.K      catodo
- D2.K      catodo
+  D1.K      catodo
+  D2.K      catodo
+  Q1.E      emisor de Q1, selector de catodo lado bajo DS1
+  Q2.E      emisor de Q2, selector de catodo lado bajo DS2
+  Q3.E      emisor de Q3, selector de catodo lado bajo DS3
  J1.GND    GND del modulo USB-TTL
  J2.3      pin 3                    GND del conector ICSP
 
@@ -378,17 +381,17 @@
  R19.2     extremo derecho
  Q3.B      base
 
- RED: DS1_CA   (anodo comun del display 1)
- DS1.AN    anodo comun (unir todas las patas de anodo comun)
- Q1.E      emisor del seguidor de emisor
+  RED: DS1_CC   (catodo comun del display 1)
+  DS1.CC    catodo comun (unir las patas comunes de catodo)
+  Q1.C      colector del selector de catodo
 
- RED: DS2_CA   (anodo comun del display 2)
- DS2.AN    anodo comun
- Q2.E      emisor del seguidor de emisor
+  RED: DS2_CC   (catodo comun del display 2)
+  DS2.CC    catodo comun
+  Q2.C      colector del selector de catodo
 
- RED: DS3_CA   (anodo comun del display 3)
- DS3.AN    anodo comun
- Q3.E      emisor del seguidor de emisor
+  RED: DS3_CC   (catodo comun del display 3)
+  DS3.CC    catodo comun
+  Q3.C      colector del selector de catodo
 
 --------------------------------------------------------------------------------
  REDES DE ALARMA VISUAL
@@ -495,15 +498,16 @@
     de PS1 (la foto muestra DC-IN y conectores USB; no asumir la funcion de
     cada USB). Confirmar tension admitida y polaridad; no conectar dos fuentes.
 
-  PS1 - modulo de alimentacion de protoboard (foto suministrada)
-    VIN   entrada, desde FUENTE.+
+  PS1 - modulo de alimentacion de protoboard HW-131 / HW-130
+    VIN   entrada USB tipo A de 5 V (decision provisional). La entrada DC-IN
+          existe pero NO se usa hasta confirmar tension y polaridad del jack.
     GND   GND comun
     +5V   salida de 5 V
     +3V3  salida de 3,3 V
     Dos jumpers de seleccion independientes, uno por riel: seleccionar +5V
     en un lado y +3V3 en el otro segun la serigrafia. La orientacion
     izquierda/derecha se fijara al hacer el dibujo. Verificar ambos rieles
-    simultaneos y GND comun con multimetro.
+    simultaneos y GND comun con multimetro. No usar USB y DC-IN a la vez.
 
   MOD1 - modulo Candy-Ho con MMA7361L (salidas analogicas)
     VCC   +3V3 (dentro del rango 3-5 V declarado para el modulo)
@@ -511,25 +515,24 @@
     X     X_IN
     Y     Y_IN
     Z     Z_IN
-    GS    nivel bajo = +-1,5 g; confirmar puente/pad del carrier
-    ST    nivel bajo = funcionamiento normal; confirmar pull/strap del carrier
-    SLP   activo-bajo; nivel alto mantiene el sensor despierto. Confirmar si
-          el carrier lo fija o lo expone antes de decidir la conexion.
+    GS    nivel bajo o sin conectar = +-1,5 g
+    ST    nivel bajo = funcionamiento normal
+    SLP   nivel alto = sensor despierto (activo-bajo)
     0G    salida de deteccion de caida libre; sin uso
     El CI MMA7361L desnudo admite 2,2-3,6 V (datasheet NXP). La publicacion
     del modulo declara VCC de 3-5 V; el netlist usa +3V3. Orden fisico de los
     pines y puentes del carrier: seguir la serigrafia, no la posicion del dibujo.
+    Confirmar si SLP/ST/GS estan expuestos o puenteados a bordo antes de cablear.
 
-  DS1, DS2, DS3 - display rojo de 7 segmentos, anodo comun
+  DS1, DS2, DS3 - display rojo de 7 segmentos, catodo comun
     a, b, c, d, e, f, g, dp   terminales de segmento
-    AN                         anodo comun (unir todas las patas comunes)
+    CC                         catodo comun (unir las patas comunes)
 
-  Q1, Q2, Q3 - NPN BC337, seguidores de emisor propuestos
+  Q1, Q2, Q3 - NPN BC337, selectores de catodo lado bajo
     B   base
-    C   colector, a +5 V
-    E   emisor, al anodo comun del display correspondiente
-    RCx alto activa el transistor. La salida de emisor queda aproximadamente
-    VBE por debajo de +5 V; verificar margen, corriente y brillo en banco.
+    C   colector, al catodo comun del display correspondiente
+    E   emisor, a GND
+    RCx alto activa el transistor. Confirmar saturacion/corriente en banco.
     Segun la imagen de patillaje entregada: cara plana al observador, patas
     hacia abajo = 1 Colector, 2 Base, 3 Emisor (C-B-E).
 
@@ -537,14 +540,15 @@
    A   anodo
    K   catodo
 
-  BZ1 - modulo buzzer activo 3,3-5 V (3 terminales rotulados)
+  BZ1 - modulo buzzer activo MDU1095 (3,5-5,5 V, 3 terminales rotulados)
    VCC   +5V
    GND   GND
    I/O   RC3 (BZ_CTRL), entrada de control
-     El modulo ya incluye el driver: no lleva Q4 ni R20. La serigrafia de la
-     imagen indica disparo de nivel bajo (activo-bajo). El firmware pone RC3
-     alto en reposo y bajo durante la alarma. Medir la corriente de I/O y
-     validar la polaridad efectiva en banco.
+     El modulo ya incluye el driver: no lleva Q4 ni R20. La datasheet indica
+     30 mA de consumo del modulo, 2500 Hz y disparo de nivel bajo. El firmware
+     pone RC3 alto en reposo y bajo durante la alarma. Medir la corriente de
+     la entrada I/O (no confundirla con los 30 mA del modulo) y validar el
+     modelo y la polaridad efectiva en banco.
 
   J1 - modulo USB-TTL (5 pines rotulados en la foto)
     3V3   salida de 3,3 V del adaptador; no unir a +3V3
@@ -568,10 +572,10 @@
  5. RESUMEN DE UNA LINEA POR RED (para carga rapida)
 ================================================================================
   +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC,
-              Q1.C, Q2.C, Q3.C, R23.1, C1.1, C2.1, C8.1, C10.1, J2.2
+              R23.1, C1.1, C2.1, C8.1, C10.1, J2.2
   GND       = PS1.GND, FUENTE.-, U1.12, U1.31, U4.3, C1.2, C2.2,
               C5.2, C6.2, C7.2, C8.2, C9.2, C10.2, C11.2, D1.K, D2.K,
-              J1.GND, J2.3, BZ1.GND, MOD1.GND
+              Q1.E, Q2.E, Q3.E, J1.GND, J2.3, BZ1.GND, MOD1.GND
  +3V3      = PS1.+3V3, MOD1.VCC, C9.1, C11.1   (ver aviso de la red +3V3)
  VIN       = FUENTE.+, PS1.VIN
   USB_TTL_5V   = J1.5V                      (salida aislada)
@@ -608,9 +612,9 @@
  Q1_B      = R17.2, Q1.B
  Q2_B      = R18.2, Q2.B
  Q3_B      = R19.2, Q3.B
-  DS1_CA    = DS1.AN, Q1.E
-  DS2_CA    = DS2.AN, Q2.E
-  DS3_CA    = DS3.AN, Q3.E
+   DS1_CC    = DS1.CC, Q1.C
+   DS2_CC    = DS2.CC, Q2.C
+   DS3_CC    = DS3.CC, Q3.C
  LED1      = U1.4, R21.1
  LED2      = U1.7, R22.1
  D1_A      = R21.2, D1.A
@@ -624,8 +628,8 @@
 
  6.1 Conexion directa al ADC
      Las salidas X, Y y Z del modulo van directo a AN1, AN5 y AN6. No hay
-     amplificadores ni resistencias de ganancia. C5, C6 y C7 filtran cada
-     entrada a GND. Verificar que la impedancia de salida del modulo sea
+     amplificadores ni resistencias de ganancia. C5, C6 y C7 (3,3 nF) filtran
+     cada entrada a GND. Verificar que la impedancia de salida del modulo sea
      compatible con el tiempo de adquisicion del ADC.
 
  6.2 Sensibilidad y offset del MMA7361
@@ -641,37 +645,34 @@
      mayor que los 3,3 V maximos de la salida del modulo.
 
   6.4 Multiplexado de displays
-      Los displays son de anodo comun. Q1-Q3 BC337 se usan como seguidores de
-      emisor: colector a +5 V, emisor al anodo comun y base desde RC0-RC2
-      mediante R17-R19 = 330 ohm, 1/4 W. Nivel alto en RCx selecciona el
-      digito.
-      La caida VBE reduce la tension disponible para los segmentos; comprobar
-      con un segmento y un digito antes de montar el conjunto.
-      Con 8 segmentos a 10 mA la corriente de emisor es 80 mA y la de base
-      ~0,8 mA. Con 330 ohm la caida en la base es 0,26 V y el anodo queda en
-      ~3,34 V. Si se sube la corriente por segmento hay que bajar R17-R19
-      (tabla de la nota 6.14).
+      Decision actual: displays de catodo comun. Q1-Q3 BC337 son interruptores
+      NPN de lado bajo: colector al catodo comun, emisor a GND y base desde
+      RC0-RC2 mediante R17-R19 = 330 ohm, 1/4 W. RCx alto selecciona el digito.
+      RD0-RD7 entregan corriente a los anodos de segmento; los patrones son
+      activos altos. Verificar saturacion de Qx, brillo y corriente con un
+      segmento/digito antes de armar el conjunto.
 
   6.5 Corriente de segmentos
-      Con anodo comun, la corriente va desde +5 V por Qx y el LED hacia
-      R9..R16 y las salidas RDx, que hunden corriente. Los patrones son
-      activos bajos. Elegir cada resistor considerando VBE del BC337, Vf del
-      LED rojo, corriente pulsada y limites normales del puerto PIC; no usar
-      el maximo absoluto de 25 mA como corriente de diseno.
-      Valor provisional adoptado: R9..R16 = 150 ohm, con 10 mA de pico por
-      segmento, Vf = 1,9 V, VOH = 4,3 V y R17 = 330 ohm. Con esos datos la
-      corriente por segmento va de 9,7 mA (8 segmentos encendidos) a 10,9 mA
-      (2 segmentos), porque el seguidor de emisor sube el anodo cuando la
-      carga es menor. Se confirma midiendo Vf y la tension real del anodo.
-      A 10 mA por segmento, el peor caso de un digito son 8 segmentos: 80 mA
-      repartidos en 8 pines de RDx (10 mA por pin), dentro de los 25 mA por
-      pin y de los 200 mA combinados de los puertos.
+      Con catodo comun, la corriente va desde RDx del PIC por R9..R16 y el LED,
+      y retorna por el catodo comun y Qx a GND. El objetivo de diseno anterior
+      sigue siendo 10 mA de pico por segmento; no usar 25 mA como corriente de
+      diseno.
+      El valor previo de 150 ohm correspondia a la topologia de anodo comun y
+      queda invalidado. Como candidato para catodo comun:
+        R = (VOH - Vf - VCEsat) / I = (4,3 - 1,9 - 0,2) / 10 mA = 220 ohm.
+      Los valores 4,3 V, Vf=1,9 V y VCEsat=0,2 V son hipotesis de calculo; la
+      VOH del PIC a 10 mA y Vf real deben verificarse. No comprar hasta medir.
+      Con 8 segmentos a 10 mA, Qx hunde 80 mA; R17=330 ohm da ~10,9 mA de base
+      si VOH=4,3 V y VBE=0,7 V, suficiente como sobreexcitacion. Verificar la
+      corriente y saturacion de Qx en banco.
 
  6.6 Desacople
      C1 junto a las patas 11-12 del PIC y C2 junto a las 32-31.
-     C5, C6 y C7 junto a las entradas X, Y y Z, cerca del modulo o del PIC.
+     C5, C6 y C7 = 3,3 nF, uno por salida X/Y/Z, a GND y cerca del modulo.
+     Es el valor recomendado por la datasheet del MMA7361L para el filtro de
+     salida; no usar 100 nF en estas entradas.
      C8 entre las patas 1 y 3 del LM35.
-     C9 entre +3V3 y GND, junto a MOD1.
+     C9 = 100 nF entre +3V3 y GND, junto a MOD1.
      C10 = 220 uF / 16 V electrolitico entre +5V y GND, junto al PIC y los
      displays. Es la reserva de carga para los pulsos del multiplexado.
      Respetar la polaridad: positivo a +5V, negativo a GND.
@@ -680,13 +681,14 @@
      entregan carga durante un pulso de 1 ms.
 
   6.7 Buzzer
-      Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
+      Modulo activo MDU1095 de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
       GND e I/O a RC3. El modulo ya incluye el driver, por lo que se eliminan
-      Q4 y R20.
-       La serigrafia de la foto indica disparo de nivel bajo (activo-bajo). El
-       firmware pone RC3 alto en reposo y bajo en alarma. Confirmar polaridad y
-       corriente del I/O en banco; si exige corriente de carga, reevaluar un
-       driver externo. No agregar diodo sin identificar el circuito del modulo.
+      Q4 y R20. La datasheet declara 3,5-5,5 V, 30 mA de consumo del modulo,
+      2500 +-300 Hz y disparo de nivel bajo (activo-bajo). El firmware pone RC3
+      alto en reposo y bajo en alarma. Medir la corriente de la entrada I/O en
+      banco: los 30 mA son del modulo, no necesariamente lo que debe entregar
+      el PIC. Si el I/O exige corriente de carga, reevaluar un driver externo.
+      No agregar diodo sin identificar el circuito del modulo.
 
  6.8 Zocalo DIP-40
      El zocalo no agrega conexiones: cada pata coincide con la del PIC.
@@ -709,8 +711,9 @@
      Las salidas se leen directo con el ADC del PIC, referenciado a 5 V.
      Como la salida maxima es cercana a 3,3 V, solo se usa parte del fondo
      de escala; no se agrega ganancia analogica.
-     C5, C6 y C7 = 100 nF filtran cada eje a GND. Confirmar con mediciones
-     que el filtro no degrade los movimientos que se quieren detectar.
+     C5, C6 y C7 = 3,3 nF filtran cada eje a GND, valor recomendado por la
+     datasheet del MMA7361L. Confirmar con mediciones que el filtro no degrade
+     los movimientos que se quieren detectar.
      Antes de conectar el PIC: medir VCC y las tensiones de X, Y y Z en
      reposo e inclinando el sensor. Verificar que nunca superen VDD.
       La publicacion del Candy-Ho declara entrada de 3-5 V; este netlist elige
@@ -736,27 +739,24 @@
      conectar los tres displays. El pico del multiplexado es 80 mA.
      La autonomia y portabilidad dependen de la fuente/cable que se conecte a PS1.
 
- 6.14 Calculo de R17-R19, R21-R22 y R23
-     Datos de partida: VDD = 5,0 V; VOH del PIC >= VDD - 0,7 V = 4,3 V con
-     3 mA; VBE del BC337 = 0,7 V; hFE minimo = 100 a 100 mA; Vf del LED rojo
-     = 1,9 V (tipico, medir). Corriente por segmento adoptada: 10 mA de pico.
-     Son valores de diseno, no datos de datasheet: recalcular si cambian.
+  6.14 Calculo de resistencias de displays, alarma y MCLR
+      Datos de partida: VDD=5,0 V; VOH de calculo=4,3 V (datasheet lo garantiza
+      a 3 mA, no a 10 mA); Vf rojo=1,9 V tipico (medir); VCEsat BC337=0,2 V
+      estimado; objetivo=10 mA de pico por segmento. Recalcular con mediciones.
 
-     Base de Q1-Q3 (R17-R19 = 330 ohm):
-       Ie = 8 x 10 mA = 80 mA; Ib = Ie / (hFE + 1) = 0,8 mA.
-       Caida en R17: 0,26 V. Anodo: 4,3 - 0,26 - 0,7 = ~3,34 V.
-       Margen para el segmento: 3,34 - 1,9 = 1,44 V.
-       Con la base a 0 V (falla) el pin entrega (4,3 - 0,7) / 330 = 10,9 mA,
-       por debajo de los 25 mA del pin.
-       Disipacion de Qx: (5 - 3,34) x 0,08 = 133 mW de pico; el TO-92 admite
-       625 mW. Con multiplexado 1/3 el promedio es ~44 mW.
-       Si cambia la corriente por segmento:
-           5 mA -> 40 mA de emisor -> 680 ohm
-          10 mA -> 80 mA             -> 330 ohm
-          15 mA -> 120 mA            -> 270 ohm
-          20 mA -> 160 mA            -> 220 ohm
-       No conviene pasar de 1 kohm: la caida en la base baja el anodo y el
-       brillo queda muy dependiente del digito encendido.
+      Displays de catodo comun, R9-R16 (valor candidato 220 ohm):
+        Iseg=(VOH-Vf-VCEsat)/R=(4,3-1,9-0,2)/220=10 mA nominales.
+        El valor anterior de 150 ohm correspondia al circuito de anodo comun;
+        con esta topologia daria ~14,7 mA bajo las mismas hipotesis y queda
+        invalidado. 220 ohm es candidato, no comprar hasta confirmar Vf y VOH.
+        Ocho segmentos a 10 mA suman 80 mA por digito (10 mA por pin RDx).
+        La potencia estimada de Qx con VCEsat=0,2 V es ~16 mW.
+
+      Selectores Q1-Q3 de lado bajo, R17-R19=330 ohm existentes:
+        Con ocho segmentos, Ic~80 mA. Ib calculada=(4,3-0,7)/330=10,9 mA;
+        beta forzada ~7,3, con margen de saturacion. La corriente RCx queda
+        bajo 25 mA por pin, pero VOH y brillo se verifican con un digito real.
+        R17-R19 disipan ~39 mW cada una en el peor caso de base.
 
      LED D1 y D2 (R21-R22 = 220 ohm):
        I = (4,3 - 1,9) / 220 = 10,9 mA tipicos (9,5 a 12 mA segun Vf y VOH).
@@ -770,10 +770,8 @@
 
      Tolerancia 5 % y 1/4 W en las seis resistencias.
 
-     R9-R16 (segmentos) = 150 ohm provisionales. Con R17 = 330 ohm y
-     Vf = 1,9 V la corriente por segmento queda entre 9,7 y 10,9 mA segun
-     cuantos segmentos enciende el digito. Disipacion maxima ~18 mW. El valor
-     se confirma midiendo Vf y el anodo real (nota 6.5).
+      R9-R16 candidate 220 ohm no final; el valor de 150 ohm de la antigua
+      topologia de anodo comun queda invalidado. Confirmar tras medir Vf y VOH.
 
   6.15 Reserva de carga en los rieles
      El multiplexado enciende hasta 8 segmentos a la vez: 80 mA durante 1 ms,
@@ -806,27 +804,32 @@
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
 ================================================================================
- - Confirmar en banco R9..R16 = 150 ohm provisionales (segmentos): depende de
-   la corriente por segmento y de la tension real del anodo (notas 6.5 y
-   6.14).
+ - Aprobar en banco R9..R16 = 220 ohm candidatos (segmentos de catodo comun):
+   depende de Vf, VOH y la corriente por segmento (notas 6.5 y 6.14).
  - Confirmar en banco los valores calculados de R17..R19 (330 ohm),
    R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
  - Medir la caida del riel de 5 V con los tres displays encendidos: deberia
    quedar por debajo de ~50 mV (nota 6.15).
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun, y medir la
    corriente disponible en 5 V.
-  - Confirmar cual entrada de PS1 se usara (USB/DC-IN), su tension/polaridad y
-    los jumpers para +5V y +3V3 simultaneos.
+  - PS1: la decision provisional es usar la entrada USB de 5 V; no usar DC-IN
+    hasta confirmar tension y polaridad del jack. Confirmar los jumpers para
+    +5V y +3V3 simultaneos.
   - Confirmar en la serigrafia el orden del header Candy-Ho y si SLP/ST/GS
     estan expuestos o tienen pullup/puentes integrados.
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
    que no superen VDD y compatibilizarlas con la referencia del ADC.
   - Confirmar que el carrier mantiene GS bajo para +-1,5 g (nota 6.16).
+  - DECISION DE PINES Y/Z: el documento de respuestas propone YOUT->AN2 (pin 4)
+    y ZOUT->AN3 (pin 5), pero la Rev E usa AN5 (pin 8) y AN6 (pin 9) porque
+    RA2/AN2 es LED1 y RA3/AN3 se dejo libre. Confirmar con el usuario antes de
+    cablear; no cambiar firmware ni netlist sin esa decision.
   - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
   - Confirmar que los BC337 comprados coinciden con C-B-E de la imagen de
     patillaje antes de soldar.
-  - Medir corriente del buzzer I/O; la serigrafia indica activo-bajo. Invertir
-    RC3 en firmware antes de conectar al PIC (nota 6.7).
+  - Medir la corriente de la entrada I/O del buzzer MDU1095; el firmware ya usa
+    activo-bajo (RC3 alto en reposo, bajo en alarma). Confirmar el modelo y no
+    confundir los 30 mA del modulo con la corriente de control (nota 6.7).
   - Confirmar nivel logico de TXD del USB-TTL; las etiquetas RXD/TXD y pines
     3V3/+5V se ven en la imagen, pero las salidas de power quedan aisladas.
 

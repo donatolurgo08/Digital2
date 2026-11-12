@@ -19,7 +19,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 .n{font-size:13px;margin-top:12px}.n li{margin-bottom:4px}
 </style></head><body>
 <h1>Hand Motion – Esquema con cableado (Rev E)</h1>
-<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 = 150 Ω (provisional).</p>
+<p class="s">Cada señal está dibujada como cable; un punto marca una unión y dos cables que se cruzan sin punto no se tocan. +5V, +3V3 y GND se muestran con símbolos de alimentación. Las salidas del MMA7361 van directas al ADC, sin amplificadores. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; R9–R16 = 220 Ω candidato para cátodo común, pendiente de medir (*).</p>
 <div class="lg">
 <span><b style="background:var(--p5)"></b>+5V</span><span><b style="background:var(--p3)"></b>+3V3</span><span><b style="background:var(--pv)"></b>VIN / potencia USB-TTL aislada</span><span><b style="background:var(--gnd)"></b>GND</span><span><b style="background:var(--an)"></b>analógico</span><span><b style="background:var(--dg)"></b>displays / alarmas</span><span><b style="background:var(--pr)"></b>programación / UART</span>
 </div>
@@ -28,18 +28,19 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 <li><b>MOD1.VCC va a +3V3</b> (cable que sube por el borde izquierdo desde PS1). La publicación Candy-Ho declara 3–5 V en el módulo y el CI MMA7361L admite 2,2–3,6 V. Se conserva +3V3; verificar la serigrafía y los puentes SLP/ST/GS del carrier.</li>
 <li><b>USB-TTL:</b> se usan GND, TXD y RXD cruzados. Sus pines 3V3 y +5V son salidas del adaptador y quedan aisladas de los rieles del circuito; confirmar el nivel lógico de TXD.</li>
 <li><b>Cruces:</b> los cables RD0 y RD1 pasan por debajo del PIC (están en el lado izquierdo del chip) y los de DIG1–3 y BZ_CTRL también.</li>
- <li><b>Displays rojos de ánodo común:</b> RD0–RD7 activos en bajo. Q1–Q3 BC337 se proponen como seguidores de emisor del lado alto; colectores a +5 V y emisores a los ánodos comunes. VBE reduce el margen de tensión; probar un segmento antes del montaje completo.</li>
- <li><b>Sin amplificadores:</b> X, Y y Z van directas a AN1, AN5 y AN6, con C5–C7 de 100 nF a GND. La referencia del ADC es VDD; RA3 queda libre.</li>
+ <li><b>Displays rojos de cátodo común:</b> RD0–RD7 activos en alto con resistencias de segmento; Q1–Q3 BC337 seleccionan cada cátodo desde el lado bajo (colector al común, emisor a GND). Probar un segmento/dígito antes del montaje completo.</li>
+ <li><b>Sin amplificadores:</b> X, Y y Z van directas a AN1, AN5 y AN6, con C5–C7 de 3,3 nF a GND (valor recomendado por la datasheet del MMA7361L). La referencia del ADC es VDD; RA3 queda libre.</li>
  <li><b>Verificar antes de soldar:</b> entrada y jumpers de PS1, corriente disponible, header/controles SLP/ST/GS de MOD1, pinout físico de los displays, nivel lógico de TXD del USB-TTL y corriente del buzzer.</li>
+ <li><b>PS1:</b> módulo HW-131/HW-130. Entrada USB de 5 V como decisión provisional; la entrada DC-IN no se usa hasta confirmar tensión y polaridad del jack. No conectar USB y DC-IN a la vez.</li>
  <li><b>BC337:</b> la imagen recibida indica C-B-E mirando la cara plana con patas hacia abajo.</li>
- <li><b>Buzzer:</b> la serigrafía indica disparo activo-bajo. El firmware pone RC3 alto para apagarlo y bajo para activarlo; confirmar corriente en banco.</li>
+ <li><b>Buzzer:</b> módulo MDU1095 (3,5–5,5 V, 30 mA de consumo del módulo, 2500 Hz) con disparo activo-bajo. El firmware pone RC3 alto para apagarlo y bajo para activarlo; confirmar modelo y corriente de la entrada I/O en banco.</li>
 <li><b>LED1 en RA2 (pin 4):</b> RA4 es open-drain y no puede entregar corriente al LED. RA4 queda sin conectar.</li>
 <li><b>Calibración pendiente:</b> el offset de 0 g (≈VCC/2) y los 800 mV/g son nominales; medir el módulo real antes de usar los valores para reconocimiento.</li>
 <li><b>Reserva de carga:</b> C10 = 220 µF entre +5 V y GND junto al PIC/display, y C11 = 10 µF en +3V3 junto al módulo. Sostienen el riel durante los pulsos de 80 mA del multiplexado; sin ellos el ADC, que usa VREF = VDD, lee de menos. C10 es electrolítico: positivo a +5 V.</li>
 </ul>
 <script>
 var S='',$=function(s){S+=s};
-function c(n){if(n=='GND')return'var(--gnd)';if(n=='+5V')return'var(--p5)';if(n=='+3V3')return'var(--p3)';if(/^VIN$|USB_TTL/.test(n))return'var(--pv)';if(n=='NC')return'var(--nc)';if(/SEG|CA$|DIG|Q\d_B|BZ|LED|D\d_A/.test(n))return'var(--dg)';if(/PG|MCLR|TTL/.test(n))return'var(--pr)';return'var(--an)'}
+function c(n){if(n=='GND')return'var(--gnd)';if(n=='+5V')return'var(--p5)';if(n=='+3V3')return'var(--p3)';if(/^VIN$|USB_TTL/.test(n))return'var(--pv)';if(n=='NC')return'var(--nc)';if(/SEG|C[CA]$|DIG|Q\d_B|BZ|LED|D\d_A/.test(n))return'var(--dg)';if(/PG|MCLR|TTL/.test(n))return'var(--pr)';return'var(--an)'}
 function T(x,y,s,k,a,f){$('<text x="'+x+'" y="'+y+'" class="'+(k||'')+'" text-anchor="'+(a||'start')+'"'+(f?' fill="'+f+'"':'')+'>'+s+'</text>')}
 function W(n,p){var s='M'+p[0]+' '+p[1];for(var i=2;i<p.length;i+=2)s+='L'+p[i]+' '+p[i+1];$('<path d="'+s+'" fill="none" stroke="'+c(n)+'" stroke-width="1.8" stroke-linejoin="round"/>')}
 function D(n,x,y){$('<circle cx="'+x+'" cy="'+y+'" r="3" fill="'+c(n)+'"/>')}
@@ -95,20 +96,20 @@ W('+5V',[960,292,985,292]);V(985,292);CV(985,292,312,'C2');W('GND',[960,312,985,
 P(1100,395,110,100,'J1','USB-TTL',[['TXD','RX_TTL',412],['RXD','TX_TTL',432]],[['3V3','USB_TTL_3V3',412],['GND','GND',432],['+5V','USB_TTL_5V',452]],true);
 W('RX_TTL',[960,412,1100,412]);W('TX_TTL',[960,432,1100,432]);W('USB_TTL_3V3',[1210,412,1230,412]);T(1235,416,'3V3 aislada','nt','start',c('USB_TTL_3V3'));W('GND',[1210,432,1230,432]);G(1230,432);W('USB_TTL_5V',[1210,452,1230,452]);T(1235,456,'+5V aislada','nt','start',c('USB_TTL_5V'));
 /* segmentos */
-var sg=[[332,'RD7','R16 150','dp'],[352,'RD6','R15 150','g'],[372,'RD5','R14 150','f'],[392,'RD4','R13 150','e'],[492,'RD3','R12 150','d'],[512,'RD2','R11 150','c'],[560,'RD1','R10 150','b'],[580,'RD0','R9 150','a']];
+var sg=[[332,'RD7','R16 220*','dp'],[352,'RD6','R15 220*','g'],[372,'RD5','R14 220*','f'],[392,'RD4','R13 220*','e'],[492,'RD3','R12 220*','d'],[512,'RD2','R11 220*','c'],[560,'RD1','R10 220*','b'],[580,'RD0','R9 220*','a']];
 sg.forEach(function(s){var n=s[1]+'_SEG',m='SEG_'+s[3].toUpperCase();RH(1000,1050,s[0],s[2]);W(m,[1050,s[0],1450,s[0]]);lb(1070,s[0]-4,m)});
 [332,352,372,392,492,512].forEach(function(y){W('RD_SEG',[960,y,1000,y])});
 W('RD_SEG',[800,512,780,512,780,560,1000,560]);W('RD_SEG',[800,492,770,492,770,580,1000,580]);
-P(1450,305,130,295,'DS1–DS3','en paralelo',sg.map(function(s){return[s[3],'',s[0]]}),[]);
-T(1515,590,'ánodos comunes','pn','middle');
+ P(1450,305,130,295,'DS1–DS3','en paralelo',sg.map(function(s){return[s[3],'',s[0]]}),[]);
+ T(1515,590,'cátodos comunes','pn','middle');
 /* digitos */
 W('DIG1',[800,412,715,412,715,730,1000,730]);W('DIG2',[800,432,725,432,725,710,1000,710]);W('DIG3',[800,452,735,452,735,690,1000,690]);
 [[730,'R17 330','Q1_B'],[710,'R18 330','Q2_B'],[690,'R19 330','Q3_B']].forEach(function(a){RH(1000,1050,a[0],a[1]);W(a[2],[1050,a[0],1250,a[0]])});
 lb(1060,726,'DIG1');lb(1060,706,'DIG2');lb(1060,686,'DIG3');
-P(1250,600,130,170,'Q1–Q3','BC337 seguidor',[['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q3.E','',690],['Q2.E','',710],['Q1.E','',730]]);
-T(1315,764,'C (Q1–Q3) a +5V','pn','middle');
-P(1450,660,130,90,'DS1–DS3','ánodos',[['DS3 AN','',690],['DS2 AN','',710],['DS1 AN','',730]],[]);
-W('DS3_CA',[1380,690,1450,690]);W('DS2_CA',[1380,710,1450,710]);W('DS1_CA',[1380,730,1450,730]);
+ P(1250,600,130,170,'Q1–Q3','BC337 lado bajo',[['Q3.B','',690],['Q2.B','',710],['Q1.B','',730]],[['Q3.C','',690],['Q2.C','',710],['Q1.C','',730]]);
+ W('GND',[1315,770,1315,800]);G(1315,800);T(1330,792,'E (Q1–Q3) a GND','pn','start');
+ P(1450,660,130,90,'DS1–DS3','cátodos',[['DS3 CC','',690],['DS2 CC','',710],['DS1 CC','',730]],[]);
+ W('DS3_CC',[1380,690,1450,690]);W('DS2_CC',[1380,710,1450,710]);W('DS1_CC',[1380,730,1450,730]);
 /* buzzer */
 W('BZ_CTRL',[800,472,745,472,745,800,1612,800,1612,690,1620,690]);
 P(1620,600,90,100,'BZ1','módulo buzzer',[['VCC','',630],['GND','',660],['I/O','',690]],[]);

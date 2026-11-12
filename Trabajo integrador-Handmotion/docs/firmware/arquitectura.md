@@ -65,10 +65,10 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 - Después de convertir la lectura de AN0, `procesar_alarma` compara `TEMP_C`
   con 40 °C. La alarma se activa estrictamente si `TEMP_C > 40`; con 40 °C o
   menos, todas las salidas quedan apagadas.
-- LED1: RA2 (pin 4); LED2: RA5 (pin 7); señal del módulo buzzer: RC3 (pin 18).
-  Los dos LED y el buzzer cambian juntos.
-- La foto del buzzer indica disparo activo-bajo. El firmware pone RC3 alto para
-  apagarlo y bajo para activarlo; validar corriente y polaridad efectiva en banco.
+- LED1: RA2 (pin 4); LED2: RA5 (pin 7); señal del módulo buzzer MDU1095:
+  RC3 (pin 18). Los dos LED y el buzzer cambian juntos.
+- El buzzer MDU1095 (3,5–5,5 V) se activa con nivel bajo. El firmware pone RC3
+  alto para apagarlo y bajo para activarlo; validar corriente y modelo en banco.
 - Estado: **escrita y compilada**, no probada en hardware.
 
 ## Etapa 4: displays multiplexados
@@ -77,13 +77,13 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   y se incorpora a `handmotion.S` durante el ensamblado.
 - TIMER1 usa reloj interno `FOSC/4`, prescaler 1:1 y recarga `0xF830` para un
   periodo nominal de 1 ms; el programa sondea `TMR1IF` sin ISR.
-- Muestra decenas, unidades y `C` estándar (`a`, `d`, `e`, `f`). En displays
-  rojos de ánodo común, los patrones de RD0–RD7 son activos en bajo y RC0–RC2
-  habilitan cada dígito en alto.
-- Q1–Q3 BC337 se plantean como seguidores de emisor de lado alto. La caída VBE,
-  la corriente y el brillo siguen pendientes de validación eléctrica.
+- Muestra decenas, unidades y `C` estándar (`a`, `d`, `e`, `f`). Los displays
+  rojos son de cátodo común; RD0–RD7 son activos en alto y RC0–RC2 seleccionan
+  el dígito en alto.
+- Q1–Q3 BC337 son selectores de cátodo de lado bajo (colector al común, emisor
+  a GND). Validar saturación, corriente y brillo en banco.
   R17–R19 = 330 Ω (base), R21–R22 = 220 Ω (LED) y R23 = 10 kΩ (MCLR); R9–R16
-  = 150 Ω provisionales, a confirmar midiendo Vf.
+  = 220 Ω son candidatos para 10 mA, pendientes de confirmar Vf y VOH.
 - El multiplexado toma hasta 80 mA en pulsos de 1 ms sobre el mismo riel que el
   ADC usa como referencia (`VREF+ = VDD`). C10 de 220 µF sostiene el riel; si la
   caída supera ~50 mV, la lectura se corre.

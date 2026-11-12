@@ -41,16 +41,15 @@ La supervisión térmica no participa en el reconocimiento.
   reconocimiento y los gestos se definen con mediciones reales. La conversión
   de X a mg usa offset y sensibilidad nominales hasta calibrar.
 - LM35 obligatoriamente en AN0.
-- Tres displays rojos de **ánodo común** multiplexados: dos dígitos de temperatura
+- Tres displays rojos de **cátodo común** multiplexados: dos dígitos de temperatura
   y una `C` estándar. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp), activos
-  en bajo; selección en RC0–RC2 mediante Q1–Q3 BC337, activos en alto.
-  La propuesta de Q1–Q3 como seguidores de emisor del lado alto tiene una caída
-  aproximada VBE; el brillo y la corriente siguen pendientes de validar en banco.
-  R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ; el cálculo está en la nota
-  6.14 del netlist. R9–R16 = 150 Ω es provisional y se confirma midiendo Vf.
+  en alto; RC0–RC2 activan Q1–Q3 BC337 como selectores de cátodo lado bajo.
+  R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ. R9–R16 tienen 220 Ω como
+  candidato para cátodo común; confirmar con Vf/VOH y corriente en banco.
 - LED rojo y buzzer activo simultáneos cuando T > 40 °C. LED1 en RA2, LED2 en
-  RA5. El buzzer es un módulo de 3 terminales (VCC, GND, I/O): VCC a +5 V, GND
-  a GND e I/O directo a RC3. No lleva Q4 ni R20.
+  RA5. El buzzer es un módulo MDU1095 de 3 terminales (VCC, GND, I/O): VCC a
+  +5 V, GND a GND e I/O directo a RC3. No lleva Q4 ni R20. Se activa en bajo:
+  RC3 alto en reposo y bajo durante la alarma.
 - Reserva de carga en los rieles: C10 = 220 µF en +5 V y C11 = 10 µF en +3V3,
   además de los 100 nF de desacople. El ADC usa `VREF+ = VDD`, así que los
   pulsos de 80 mA del multiplexado no deben mover el riel.

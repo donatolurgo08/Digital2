@@ -1,16 +1,15 @@
 ;*******************************************************************************
 ; MODULO DE DISPLAY - Etapa 4
 ;
-; Tres displays de 7 segmentos, anodo comun. Los segmentos RD0-RD7 son
-; activos en bajo. RC0-RC2 seleccionan el digito; nivel alto habilita el
-; BC337 conectado como seguidor de emisor en el lado alto.
+; Tres displays de 7 segmentos, catodo comun. Los segmentos RD0-RD7 son
+; activos en alto. RC0-RC2 seleccionan el digito; nivel alto activa el
+; BC337 como interruptor NPN de lado bajo para el catodo comun.
 ;
 ; TIMER1 usa reloj interno FOSC/4, prescaler 1:1 y recarga 0xF830 para un
 ; periodo nominal de 1 ms. El principal sondea TMR1IF; no hay ISR.
 ;
-; La salida alta del seguidor de emisor queda aproximadamente un VBE debajo
-; de VDD. Confirmar corriente y brillo en banco antes de conectar todos los
-; segmentos. No se fijan valores de R9-R16 en este modulo.
+; Los patrones son activos altos. Confirmar resistencias, corriente y brillo
+; con un segmento antes de conectar el conjunto de displays.
 ;*******************************************************************************
 
 ;-------------------------------------------------------------------------------
@@ -120,7 +119,7 @@ display_split_loop:
         GOTO    display_split_loop
 
 ;-------------------------------------------------------------------------------
-; @brief Convierte un indice 0-9 o 10 (C) a segmentos activos en bajo.
+; @brief Convierte un indice 0-9 o 10 (C) a segmentos activos en alto.
 ; @return W = patron para PORTD (RD0=a ... RD6=g, RD7=dp).
 ;-------------------------------------------------------------------------------
 display_pattern:
@@ -167,39 +166,39 @@ display_pattern:
         XORLW   10
         BTFSC   STATUS,2
         GOTO    display_pattern_C
-        MOVLW   0xFF            ; valor fuera de rango: display en blanco
+        MOVLW   0x00            ; valor fuera de rango: display en blanco
         RETURN
 
 display_pattern_0:
-        MOVLW   0xC0
+        MOVLW   0x3F
         RETURN
 display_pattern_1:
-        MOVLW   0xF9
+        MOVLW   0x06
         RETURN
 display_pattern_2:
-        MOVLW   0xA4
+        MOVLW   0x5B
         RETURN
 display_pattern_3:
-        MOVLW   0xB0
+        MOVLW   0x4F
         RETURN
 display_pattern_4:
-        MOVLW   0x99
+        MOVLW   0x66
         RETURN
 display_pattern_5:
-        MOVLW   0x92
+        MOVLW   0x6D
         RETURN
 display_pattern_6:
-        MOVLW   0x82
+        MOVLW   0x7D
         RETURN
 display_pattern_7:
-        MOVLW   0xF8
+        MOVLW   0x07
         RETURN
 display_pattern_8:
-        MOVLW   0x80
+        MOVLW   0x7F
         RETURN
 display_pattern_9:
-        MOVLW   0x90
+        MOVLW   0x6F
         RETURN
 display_pattern_C:
-        MOVLW   0xC6
+        MOVLW   0x39
         RETURN

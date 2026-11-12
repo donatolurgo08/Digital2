@@ -29,7 +29,7 @@
 ;               RC3      BZ_CTRL (I/O del modulo)   salida
 ;               RC6/TX   TX_TTL                     salida EUSART
 ;               RC7/RX   RX_TTL                     entrada EUSART
-;               RD0-RD7  segmentos a,b,c,d,e,f,g,dp salidas
+;               RD0-RD7  segmentos a,b,c,d,e,f,g,dp salidas activas altas
 ;               RB3/PGM, RB6/PGC, RB7/PGD           reservados a ICSP
 ;
 ;             Etapas 2-6: compiladas. NO probadas en hardware.
@@ -37,12 +37,11 @@
 ;             referencia VREF = VDD. El offset de 0 g y la sensibilidad de X
 ;             son NOMINALES del datasheet; calibrar con la placa real antes
 ;             de usar DELTA para reconocimiento.
-;             Displays rojos de anodo comun: segmentos activos bajos.
-;             Q1-Q3 BC337 se proyectan como seguidores de emisor del lado
-;             alto; verificar corriente y brillo antes de conectar todo.
-;             R9-R16 = 150 ohm provisionales; R17-R19 = 330 ohm,
-;             R21-R22 = 220 ohm y R23 = 10 kohm ya estan calculadas (nota
-;             6.14 del netlist). LED1 se movio
+;             Displays rojos de catodo comun (decision 2026-11-12): segmentos
+;             activos altos; Q1-Q3 BC337 como selectores de catodo lado bajo.
+;             R9-R16=220 ohm es candidato para 10 mA (confirmar Vf/VOH);
+;             R17-R19=330 ohm quedan como valores existentes a validar.
+;             R21-R22=220 ohm y R23=10 kohm siguen calculadas. LED1 se movio
 ;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.
 ;             Etapa 6: EUSART a 9600 Bd con protocolo binario AA 55 / LEN /
 ;             TIPO / DATOS / CRC8. Transmite temperatura, X y alarma; Y y Z
@@ -50,8 +49,9 @@
 ;             esta en modules/uart.inc.
 ;             Etapa 5: TIMER0 FOSC/4, prescaler 1:8, precarga 6 (1 ms nominal);
 ;             cada 20 ticks inicia una muestra X en foreground.
-;             El modulo buzzer indica trigger activo-bajo: RC3 alto lo apaga,
-;             RC3 bajo lo activa. Confirmar corriente de I/O en banco.
+;             El modulo buzzer MDU1095 (3,5-5,5 V) tiene trigger activo-bajo:
+;             RC3 alto lo apaga, RC3 bajo lo activa. Confirmar corriente de
+;             la entrada I/O en banco (los 30 mA son del modulo).
 ;===============================================================================
 
 ;===============================================================================
@@ -344,7 +344,7 @@ loop:
 ;             - LED1 (RA2) y LED2 (RA5) apagados: nivel bajo.
 ;             - DIG1-DIG3 (RC0-RC2) en bajo: ningun display habilitado.
 ;             - BZ_CTRL (RC3) en alto: buzzer activo-bajo apagado.
-;             - Segmentos (RD0-RD7) en alto: apagados (anodo comun).
+;             - Segmentos (RD0-RD7) en bajo: apagados (catodo comun).
 ;
 ; @param    ninguno
 ; @return   ninguno
@@ -366,8 +366,7 @@ wait_osc:
         CLRF    PORTA           ; LED1/LED2 apagados
         CLRF    PORTC           ; digitos apagados; fijar BZ_CTRL en inactivo
         BSF     PORTC,3         ; BZ_CTRL activo-bajo: alto = apagado
-        MOVLW   0xFF
-        MOVWF   PORTD           ; segmentos activos bajos: todos apagados
+        CLRF    PORTD           ; segmentos activos altos: todos apagados
         CLRF    FLAGS           ; signo X y estado del display iniciales
 
         ;----- Direcciones de los puertos -----

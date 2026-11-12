@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1250" viewBox="0 0 1650 1250">
 <rect width="1650" height="1250" fill="#ffffff"/>
 <text x="40" y="46" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#111111">HAND MOTION — Hoja 2: PIC, displays, alarmas y enlace</text>
-<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#c62828">PRELIMINAR: no usar el driver dibujado aquí. Ver esquema-cableado.html y conexiones.txt para ánodo común + BC337.</text>
+<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#c62828">PRELIMINAR: no usar el driver dibujado aquí. Ver esquema-cableado.html y conexiones.txt para cátodo común + BC337 de lado bajo.</text>
 <rect x="20" y="20" width="1610" height="1210" fill="none" stroke="#111111" stroke-width="1"/>
 <rect x="200" y="150" width="300" height="800" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
 <text x="350.0" y="186" font-family="Segoe UI, Arial" font-size="17" fill="#111111" text-anchor="middle" font-weight="700">U1  PIC16F887</text>

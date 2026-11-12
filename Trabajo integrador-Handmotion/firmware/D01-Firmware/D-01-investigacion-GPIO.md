@@ -38,9 +38,9 @@ esquema y programación antes de asignar números de pata o señales.
 
 ## Aplicación en HAND MOTION
 
-- GPIO para líneas de segmentos y selección de tres displays rojos de ánodo
-  común. Los segmentos son activos en bajo. Se propone usar los BC337 como
-  seguidores de emisor de lado alto para seleccionar los ánodos.
+- GPIO para líneas de segmentos y selección de tres displays rojos de cátodo
+  común (decisión 2026-11-12). Los segmentos son activos en alto; Q1–Q3 BC337
+  son interruptores NPN de lado bajo para seleccionar los cátodos.
 - GPIO de control para LED rojo y buzzer activo.
 - Mantener separados los pines ADC del LM35 (AN0) y del acelerómetro X, y las
   líneas EUSART (RC6/TX, RC7/RX).
@@ -55,9 +55,9 @@ esquema y programación antes de asignar números de pata o señales.
 - La hoja de datos da límites absolutos de 25 mA por I/O y 200 mA combinados por
   grupos de puertos. **No son corrientes de diseño recomendadas**; respetar las
   especificaciones normales `VOH`/`VOL` y márgenes eléctricos.
-- El tipo ánodo común y los BC337 NPN están confirmados. La solución de seguidor
-  de emisor pierde aproximadamente VBE; verificar margen, corriente y brillo.
-  Valores de resistencias y patillaje físico siguen pendientes.
+- El tipo cátodo común y los BC337 NPN están confirmados. El pinout aportado es
+  C-B-E mirando la cara plana; verificar el lote físico, corriente y brillo.
+  R9–R16 = 220 Ω es candidato para esta topología y aún debe validarse.
 
 ## Fuente
 

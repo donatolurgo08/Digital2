@@ -11,6 +11,7 @@
 </style>
 <text class="title" x="40" y="48">HAND MOTION — PIC, displays, alarmas y enlace</text>
 <text class="sub" x="40" y="76">Propuesta de patas. Los displays se cablean por letra, no por un numero supuesto.</text>
+<text class="warn" x="40" y="96">OBSOLETO EN LA PARTE DE DISPLAYS: desde 2026-11-12 son de cátodo común con BC337 de lado bajo. Fuente de verdad: conexiones.txt.</text>
 <rect x="40" y="104" width="1580" height="390" rx="12" fill="#fffdf8" stroke="#1c1917" stroke-width="1.5"/><text class="h" x="60" y="136">PIC16F887 en zócalo DIP-40</text>
 <text class="p" x="64" y="160">1    MCLR      pull-up y PICkit</text>
 <text class="p" x="64" y="184">2    AN0       salida del LM35</text>
