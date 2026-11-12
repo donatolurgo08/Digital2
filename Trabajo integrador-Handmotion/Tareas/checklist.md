@@ -11,7 +11,8 @@ Actualizada: 2026-11-12
 - [ ] **Validar el driver BC337:** probar primero un dígito y un segmento. La conexión propuesta como seguidor de emisor pierde tensión; si no funciona bien, decidir otro driver antes de completar el montaje.
 - [x] **Etapa 5:** TIMER0 con tick nominal de 1 ms; AN1/X muestreado cada 20 ms (50 Hz). Firmware compilado.
 - [ ] Medir/verificar el período y jitter de TIMER0 en hardware antes de usar X para gestos. Y/Z quedan para una etapa posterior.
-- [ ] Calibrar offset y sensibilidad de cada eje y definir filtros, umbrales y gestos reconocibles.
+- [x] Prototipo Python de X para datos sintéticos: X negativo/neutro/positivo con umbrales parametrizados; pruebas unitarias.
+- [ ] Definir y calibrar gestos/umbrales reales y portar la lógica aprobada a Assembler para el PIC.
 - [x] **Etapa 6 — especificación y firmware:** protocolo binario v1 y EUSART 9600 Bd implementados y compilados; falta probar RX/TX en banco.
 - [x] Integrar la GUI con el protocolo v1: codec CRC-8, RX serial y controles de comandos.
 - [ ] Probar comandos/respuestas de la GUI con el PIC y el USB-TTL reales.

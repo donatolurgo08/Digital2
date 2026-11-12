@@ -68,9 +68,11 @@ Ver `docs/dependencies.md`.
 
 La conexión serial, el codec v1, el parser incremental con CRC-8, los comandos y
 la visualización en vivo de temperatura/X están implementados. La GUI ofrece
-PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. Pendientes: validar
-con el PIC físico, confirmar niveles del adaptador, calibrar sensibilidad de X
-y completar Y/Z y reconocimiento de gestos.
+PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. Hay un clasificador
+Python de referencia probado con ventanas sintéticas de X; no está integrado a
+la UI ni reemplaza el futuro reconocimiento Assembler del PIC. Pendientes:
+validar con el PIC físico, calibrar sensibilidad de X y completar Y/Z y los
+criterios/implementación de gestos reales.
 
 ## 8. Protocolo PIC v1
 

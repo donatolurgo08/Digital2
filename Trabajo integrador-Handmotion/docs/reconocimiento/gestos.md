@@ -19,3 +19,15 @@ con mediciones del sensor real, sin suponer gestos ni valores.
 
 La implementación deberá ser reproducible y documentar las limitaciones
 observadas durante las pruebas.
+
+## Prototipo sintético de X
+
+La GUI contiene un modelo de referencia Python (`logic/gesture_recognition.py`)
+que clasifica una ventana por su media como `X_NEGATIVE`, `X_NEUTRAL` o
+`X_POSITIVE`. Recibe los umbrales negativo y positivo como argumentos
+obligatorios; no hay umbrales por defecto. Las pruebas usan ventanas y umbrales
+artificiales solo para verificar la lógica, no como calibración ni criterio del
+MMA7361 real. El modelo aún no está conectado a la interfaz ni portado al PIC.
+
+El reconocimiento real queda pendiente de definir gestos/umbrales con
+mediciones y, una vez aprobada la lógica, implementarla en Assembler para el PIC.

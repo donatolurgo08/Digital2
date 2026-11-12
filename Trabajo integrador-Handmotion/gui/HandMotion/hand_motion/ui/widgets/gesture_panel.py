@@ -23,9 +23,9 @@ class GesturePanel(QWidget):
 
         self.log = QTextEdit()
         self.log.setReadOnly(True)
-        self.log.setPlaceholderText("El reconocimiento de gestos aún no está implementado.")
+        self.log.setPlaceholderText("El modelo sintético aún no está conectado al panel.")
         # Estilos centralizados en theme.qss
-        self.log.append("Pendiente: definir gestos y calibrar el MMA7361.")
+        self.log.append("Modelo X sintético disponible; falta definir gestos reales y portarlos al PIC.")
         layout.addWidget(self.log)
 
         outer = QVBoxLayout(self)
