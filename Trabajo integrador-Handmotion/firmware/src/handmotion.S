@@ -50,8 +50,8 @@
 ;             esta en modules/uart.inc.
 ;             Etapa 5: TIMER0 FOSC/4, prescaler 1:8, precarga 6 (1 ms nominal);
 ;             cada 20 ticks inicia una muestra X en foreground.
-;             Pendiente de banco: polaridad electrica del terminal I/O del
-;             buzzer; si es activo-bajo hay que invertir el nivel de RC3.
+;             La serigrafia del buzzer indica disparo activo-bajo; este codigo
+;             aun activa RC3 en alto y debe invertirse antes de conectar BZ1.
 ;===============================================================================
 
 ;===============================================================================
@@ -556,8 +556,8 @@ temp_sat:
 ;           SET_THRESHOLD), activa LED1 (RA2), LED2 (RA5) y el terminal de
 ;           control del modulo buzzer (RC3). Con TEMP_C <= umbral, las tres
 ;           salidas quedan en bajo. ALARM_STATE<0> refleja el estado y viaja
-;           en la trama DATA. Se asume provisionalmente que el modulo es
-;           activo-alto; confirmar en la prueba de banco.
+;           en la trama DATA. RC3 aun esta activo-alto provisionalmente; la
+;           serigrafia del modulo indica activo-bajo, pendiente de invertir.
 ;
 ; @param    TEMP_C = temperatura en grados C
 ; @return   ninguno

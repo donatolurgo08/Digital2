@@ -24,10 +24,13 @@
               Actualizacion 2026-11-11: la alimentacion pasa a un alimentador
                     externo enchufado en PS1. Se elimina BT1. PS1 sigue
                     entregando +5V y +3V3, con GND comun.
-              Actualizacion 2026-11-12: se identifica el modulo como Candy-Ho
-                    con MMA7361L. Se agregan sus rangos/niveles de control del
-                    datasheet; el orden fisico del header y puentes del carrier
-                    siguen pendientes de confirmar por serigrafia.
+               Actualizacion 2026-11-12: se identifica el modulo como Candy-Ho
+                     con MMA7361L. Se agregan sus rangos/niveles de control del
+                     datasheet; el orden fisico del header y puentes del carrier
+                     siguen pendientes de confirmar por serigrafia.
+               Actualizacion 2026-11-12: fotos de PS1, BC337, USB-TTL y buzzer.
+                     Se documentan selectores de riel, pinout C-B-E, cinco pines
+                     rotulados del TTL y disparo bajo indicado en el buzzer.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -46,10 +49,11 @@
 ================================================================================
  1. DESIGNACIONES (REFDES)
 ================================================================================
- FUENTE Alimentador externo enchufado en PS1. Verificar en el modulo el
-        rango de tension de entrada admitido y no superarlo.
- PS1   Modulo de alimentacion de protoboard (entrada desde FUENTE, salidas
-       5 V y 3,3 V)
+  FUENTE Fuente/cable conectado al terminal de entrada identificado en PS1.
+         La foto muestra DC-IN y puertos USB; confirmar cual es entrada,
+         tension admitida y polaridad. No usar un puerto USB de salida como entrada.
+  PS1   Modulo de alimentacion de protoboard con selector independiente en
+        cada riel (+5 V o +3V3) y entrada FUENTE (USB/DC-IN segun serigrafia)
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
  U4    LM35, TO-92
  MOD1  Modulo Candy-Ho basado en MMA7361L, 3 ejes, salidas analogicas.
@@ -64,7 +68,7 @@
  D1    LED rojo - alarma 1
  D2    LED rojo - alarma 2
  BZ1   Modulo buzzer activo 3,3-5 V (3 terminales: VCC, GND, I/O)
- J1    Modulo conversor USB-TTL (4 terminales: VCC, GND, RXD, TXD)
+  J1    Conversor USB-TTL (5 terminales rotulados: 3V3, TXD, RXD, GND, +5V)
  J2    Conector ICSP de 6 pines para PICkit
  R9    Limitadora segmento a                            150 ohm, 1/4 W (provisional)
  R10   Limitadora segmento b                            150 ohm, 1/4 W (provisional)
@@ -120,7 +124,7 @@
  U1.31     VSS                      PIC
  U4.3      GND                      LM35
  MOD1.GND  GND                      modulo MMA7361
- PS1.GND   GND                      modulo de protoboard
+  PS1.GND   GND                      modulo de protoboard
  FUENTE.-  terminal negativo        alimentador externo
  BZ1.GND   GND del modulo buzzer
  C9.2      placa 2                  desacople de 3,3 V
@@ -159,12 +163,18 @@
  PS1.VIN   entrada                  modulo de protoboard
 
 --------------------------------------------------------------------------------
- RED: USB_VCC   (aislada a proposito)
+ RED: USB_TTL_5V   (salida del conversor, aislada)
 --------------------------------------------------------------------------------
- J1.VCC    VCC del modulo USB-TTL
+ J1.5V     pin rotulado +5V del USB-TTL; dejar sin conectar al circuito
 
- ATENCION: no unir esta red a +5V. El conversor se alimenta por el cable
- USB. Solo se comparte GND.
+--------------------------------------------------------------------------------
+ RED: USB_TTL_3V3   (salida del conversor, aislada)
+--------------------------------------------------------------------------------
+ J1.3V3    pin rotulado 3V3 del USB-TTL; dejar sin conectar al circuito
+
+ ATENCION: ambos pines de alimentacion del conversor quedan aislados de
+ +5V/+3V3 del proyecto. Se comparten GND, TXD y RXD. Confirmar el nivel
+ logico real de TXD/RXD antes de conectarlos al PIC.
 
 --------------------------------------------------------------------------------
  RED: AN0   (temperatura)
@@ -423,7 +433,7 @@
  U1.37     RB4
  U1.38     RB5
   MOD1.0G   deteccion de caida libre no conectar
- J1.VCC    se alimenta por USB (ver red USB_VCC)
+  J1.5V y J1.3V3   salidas de alimentacion del USB-TTL; aisladas del circuito
 
  Los pines 39 y 40 del PIC quedan exclusivos del programador:
  no conectarles nada mas.
@@ -480,19 +490,20 @@
    2  VOUT     AN0
    3  GND      GND
 
- FUENTE - alimentador externo
-   +   terminal positivo, a PS1.VIN
-   -   terminal negativo, a GND
-   Consultar en el modulo el rango de tension de entrada admitido y no
-   superarlo. Verificar la polaridad del conector antes de enchufarlo.
+  FUENTE - fuente/cable que alimenta PS1
+    Conectar solo al puerto de entrada identificado por la serigrafia/manual
+    de PS1 (la foto muestra DC-IN y conectores USB; no asumir la funcion de
+    cada USB). Confirmar tension admitida y polaridad; no conectar dos fuentes.
 
- PS1 - modulo de alimentacion de protoboard
-   VIN   entrada, desde FUENTE.+
-   GND   GND comun
-   +5V   salida de 5 V
-   +3V3  salida de 3,3 V
-   VERIFICAR con multimetro que entregue 5,0 V y 3,3 V reales, y que las
-   dos salidas compartan GND, antes de conectar el sensor.
+  PS1 - modulo de alimentacion de protoboard (foto suministrada)
+    VIN   entrada, desde FUENTE.+
+    GND   GND comun
+    +5V   salida de 5 V
+    +3V3  salida de 3,3 V
+    Dos jumpers de seleccion independientes, uno por riel: seleccionar +5V
+    en un lado y +3V3 en el otro segun la serigrafia. La orientacion
+    izquierda/derecha se fijara al hacer el dibujo. Verificar ambos rieles
+    simultaneos y GND comun con multimetro.
 
   MOD1 - modulo Candy-Ho con MMA7361L (salidas analogicas)
     VCC   +3V3 (dentro del rango 3-5 V declarado para el modulo)
@@ -513,34 +524,36 @@
     a, b, c, d, e, f, g, dp   terminales de segmento
     AN                         anodo comun (unir todas las patas comunes)
 
-  Q1, Q2, Q3 - NPN BC337 (confirmado), seguidores de emisor propuestos
+  Q1, Q2, Q3 - NPN BC337, seguidores de emisor propuestos
     B   base
     C   colector, a +5 V
     E   emisor, al anodo comun del display correspondiente
     RCx alto activa el transistor. La salida de emisor queda aproximadamente
     VBE por debajo de +5 V; verificar margen, corriente y brillo en banco.
-   VERIFICAR el orden real de patas del BC337 (E-B-C visto de frente, con
-   la cara plana hacia el observador) antes de soldarlo.
+    Segun la imagen de patillaje entregada: cara plana al observador, patas
+    hacia abajo = 1 Colector, 2 Base, 3 Emisor (C-B-E).
 
  D1, D2 - LED rojo
    A   anodo
    K   catodo
 
- BZ1 - modulo buzzer activo 3,3-5 V (3 terminales)
+  BZ1 - modulo buzzer activo 3,3-5 V (3 terminales rotulados)
    VCC   +5V
    GND   GND
    I/O   RC3 (BZ_CTRL), entrada de control
-   El modulo ya incluye el driver: no lleva Q4 ni R20. Confirmar la
-   polaridad del I/O con la prueba de banco de la nota 6.7 antes de
-   conectarlo al PIC.
+    El modulo ya incluye el driver: no lleva Q4 ni R20. La serigrafia de la
+    imagen indica disparo de nivel bajo (activo-bajo). El firmware actual
+    asume activo-alto: invertir RC3 antes de conectarlo al PIC y medir la
+    corriente de I/O en banco.
 
- J1 - modulo USB-TTL
-   VCC   USB_VCC (no unir a +5V)
-   GND   GND comun
-   RXD   TX_TTL (recibe del PIC)
-   TXD   RX_TTL (entrega al PIC)
-   VERIFICAR la serigrafia: en algunos modulos RXD/TXD estan rotulados
-   al reves respecto de la PC.
+  J1 - modulo USB-TTL (5 pines rotulados en la foto)
+    3V3   salida de 3,3 V del adaptador; no unir a +3V3
+    GND   GND comun
+    RXD   TX_TTL (recibe del PIC)
+    TXD   RX_TTL (entrega al PIC)
+    +5V   salida de 5 V del adaptador; no unir a +5V del proyecto
+    Confirmar el nivel logico de TXD antes de conectarlo a RC7. Los pines
+    3V3 y +5V se dejan aislados; solo se usan GND, RXD y TXD.
 
  J2 - conector ICSP (PICkit, 6 pines)
    1  MCLR
@@ -561,7 +574,8 @@
               J1.GND, J2.3, BZ1.GND, MOD1.GND
  +3V3      = PS1.+3V3, MOD1.VCC, C9.1, C11.1   (ver aviso de la red +3V3)
  VIN       = FUENTE.+, PS1.VIN
- USB_VCC   = J1.VCC                        (no unir a +5V)
+  USB_TTL_5V   = J1.5V                      (salida aislada)
+  USB_TTL_3V3  = J1.3V3                     (salida aislada)
  AN0       = U4.2, U1.2
  X_IN      = MOD1.X, C5.1, U1.3
  Y_IN      = MOD1.Y, C6.1, U1.8
@@ -665,18 +679,15 @@
      Los 100 nF no reemplazan a C10 ni a C11: filtran alta frecuencia, no
      entregan carga durante un pulso de 1 ms.
 
- 6.7 Buzzer
-     Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
-     GND e I/O a RC3. El modulo ya incluye el driver, por lo que se eliminan
-     Q4 y R20.
-     Antes de conectarlo al PIC, probar la polaridad y la corriente del
-     terminal I/O: alimentar el modulo y llevar el I/O a +5V y a GND con una
-     resistencia de 1 k en serie, midiendo la corriente. Si consume pocos mA,
-     va directo a RC3. Si el modulo exige la corriente del buzzer por el I/O,
-     detenerse y volver a evaluar un driver externo.
-      Si la prueba muestra que el modulo es activo-bajo, el firmware debe
-      invertir el nivel logico de RC3; el cableado no cambia. No agregar un
-      diodo externo sin identificar antes el circuito del modulo.
+  6.7 Buzzer
+      Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
+      GND e I/O a RC3. El modulo ya incluye el driver, por lo que se eliminan
+      Q4 y R20.
+      La serigrafia de la foto indica disparo de nivel bajo (activo-bajo).
+      El firmware actual aun asume activo-alto: invertir RC3 antes de conectar
+      el modulo al PIC. Confirmar la corriente del I/O en banco con resistencia
+      serie de 1 k; si exige corriente de carga, reevaluar un driver externo.
+      No agregar diodo externo sin identificar el circuito del modulo.
 
  6.8 Zocalo DIP-40
      El zocalo no agrega conexiones: cada pata coincide con la del PIC.
@@ -713,18 +724,18 @@
      o usar un zocalo segun el tipo de placa. Evitar tension mecanica sobre
      los pads.
 
- 6.13 Alimentacion
-     FUENTE (alimentador externo) entra a PS1.VIN. PS1 entrega +5V y +3V3,
-     con GND comun. Ya no hay bateria: el encendido es el interruptor del
-     modulo si lo tiene, o desenchufando el alimentador.
-     Consultar en el modulo el rango de tension de entrada admitido y no
-     superarlo. Verificar la polaridad del conector antes de enchufarlo.
+  6.13 Alimentacion
+     FUENTE alimenta la entrada de PS1 identificada en su serigrafia/manual;
+     la foto muestra DC-IN y conectores USB, cuya funcion debe confirmarse.
+     PS1 entrega +5V y +3V3 simultaneamente si sus dos jumpers de rail se
+     colocan en las marcas correspondientes, con GND comun. No usar dos
+     entradas de alimentacion a la vez.
+     Confirmar el rango de entrada admitido y la polaridad de la fuente/DC-IN.
      El regulador de 5 V del modulo disipa (VIN - 5) V multiplicado por la
      corriente del circuito: con cargas altas puede calentar. No taparlo.
      La corriente disponible en 5 V no esta medida: comprobarla antes de
      conectar los tres displays. El pico del multiplexado es 80 mA.
-     Con alimentador externo desaparece el problema de autonomia; a cambio,
-     el circuito queda atado al tomacorriente.
+     La autonomia y portabilidad dependen de la fuente/cable que se conecte a PS1.
 
  6.14 Calculo de R17-R19, R21-R22 y R23
      Datos de partida: VDD = 5,0 V; VOH del PIC >= VDD - 0,7 V = 4,3 V con
@@ -805,17 +816,20 @@
    quedar por debajo de ~50 mV (nota 6.15).
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun, y medir la
    corriente disponible en 5 V.
- - Verificar el rango de entrada admitido por PS1 y la polaridad del conector
-   del alimentador externo.
+  - Confirmar cual entrada de PS1 se usara (USB/DC-IN), su tension/polaridad y
+    los jumpers para +5V y +3V3 simultaneos.
   - Confirmar en la serigrafia el orden del header Candy-Ho y si SLP/ST/GS
     estan expuestos o tienen pullup/puentes integrados.
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
    que no superen VDD y compatibilizarlas con la referencia del ADC.
   - Confirmar que el carrier mantiene GS bajo para +-1,5 g (nota 6.16).
- - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
- - Patillaje E-B-C de los BC337 comprados.
- - Polaridad y corriente del terminal I/O del modulo buzzer (nota 6.7).
- - Serigrafia de RXD/TXD del modulo USB-TTL.
+  - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
+  - Confirmar que los BC337 comprados coinciden con C-B-E de la imagen de
+    patillaje antes de soldar.
+  - Medir corriente del buzzer I/O; la serigrafia indica activo-bajo. Invertir
+    RC3 en firmware antes de conectar al PIC (nota 6.7).
+  - Confirmar nivel logico de TXD del USB-TTL; las etiquetas RXD/TXD y pines
+    3V3/+5V se ven en la imagen, pero las salidas de power quedan aisladas.
 
 ================================================================================
  FIN DEL ARCHIVO

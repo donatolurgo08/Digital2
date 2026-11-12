@@ -67,12 +67,11 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   menos, todas las salidas quedan apagadas.
 - LED1: RA2 (pin 4); LED2: RA5 (pin 7); señal del módulo buzzer: RC3 (pin 18).
   Los dos LED y el buzzer cambian juntos.
-- La salida RC3 se implementó activo-alto de manera provisional. La foto y la
-  publicación identifican un módulo activo de 3,3–5 V con tres pines (VCC,
-  GND y señal); no confirman la polaridad lógica ni la corriente de la entrada.
-- Estado: **escrita y compilada**, no probada en hardware. Si la prueba confirma
-  un módulo activo-bajo, invertir los niveles de RC3 en firmware, sin modificar
-  el conexionado.
+- La salida RC3 se implementó activo-alto de manera provisional. La foto del
+  buzzer indica disparo activo-bajo; invertir RC3 antes de conectarlo al PIC y
+  medir la corriente del I/O en banco. El cableado directo no cambia.
+- Estado: **escrita y compilada**, polaridad de firmware por corregir; falta
+  probar corriente y activación en hardware.
 
 ## Etapa 4: displays multiplexados
 

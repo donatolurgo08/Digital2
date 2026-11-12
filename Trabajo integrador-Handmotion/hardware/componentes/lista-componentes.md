@@ -15,8 +15,8 @@ que se confirma midiendo el display.
 | 1 | LM35 | Temperatura. Salida a AN0. Alimentación 4–30 V; en este circuito, 5 V. |
 | 3 | Capacitores de filtrado, 100 nF | Uno por eje, de la entrada a GND. |
 | 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |
-| 3 | Transistores NPN BC337 | Selectores como seguidores de emisor para los ánodos comunes. Verificar margen de tensión, corriente y patillaje. |
-| 1 | Módulo buzzer activo 3,3–5 V, 3 terminales (VCC, GND, I/O) | Alarma acústica. El I/O va directo a RC3; el módulo incluye el driver. |
+| 3 | Transistores NPN BC337 | Seguidores de emisor para ánodos comunes. Pinout de la imagen: C-B-E de izquierda a derecha mirando la cara plana; confirmar el lote antes de soldar. |
+| 1 | Módulo buzzer activo 3,3–5 V, 3 pines rotulados (GND, I/O, VCC) | La imagen indica trigger activo-bajo; confirmar corriente en banco e invertir RC3 en firmware antes de conectarlo. El módulo incluye driver. |
 | 2 | LED rojos | Alarma visual. |
 | 3 | Resistencias de 330 Ω, 1/4 W | Base de Q1–Q3 (R17–R19), para 10 mA de pico por segmento. |
 | 2 | Resistencias de 220 Ω, 1/4 W | Limitadoras de LED1 y LED2 (R21–R22), ~11 mA. |
@@ -25,9 +25,9 @@ que se confirma midiendo el display.
 | 1 | Capacitor electrolítico 220 µF / 16 V | Reserva del riel de 5 V (C10), junto al PIC y los displays. Respetar polaridad. |
 | 1 | Capacitor 10 µF / 10 V | Reserva del riel de 3,3 V (C11), junto al módulo acelerómetro. |
 | 2 | Capacitores cerámicos de 100 nF | Desacople de las dos alimentaciones del PIC. |
-| 1 | Alimentador externo para el módulo de protoboard | Reemplaza a la batería de 9 V de la Rev D. Verificar el rango de entrada admitido y la polaridad del conector. |
-| 1 | Módulo de alimentación de protoboard | Entrega 5 V y 3,3 V, con GND común, desde el alimentador externo. |
-| 1 | Conversor USB–TTL | Enlace con la PC. No es RS-232 y su VCC no se une al riel. |
+| 1 | Fuente/cable de entrada para PS1 | Conectar solo al puerto que la serigrafía/manual identifique como entrada (la foto muestra DC-IN y conectores USB). Confirmar tensión y polaridad. |
+| 1 | Módulo de alimentación de protoboard PS1 | Tiene dos selectores de rail independientes; ajustar uno a 5 V y otro a 3,3 V. Confirmar cuál de sus conectores es entrada antes de alimentar. |
+| 1 | Conversor USB–TTL, header de 5 pines | Etiquetas 3V3, TXD, RXD, GND, +5V. Usar TXD/RXD cruzados y GND; aislar 3V3/+5V y verificar niveles lógicos. |
 | 1 | Programador PICkit | Carga del firmware por ICSP. |
 
 ## Montaje disponible
