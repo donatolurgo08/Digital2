@@ -36,7 +36,8 @@ La supervisión térmica no participa en el reconocimiento.
   pendientes de verificar. No se usan amplificadores operacionales.
 - Canales ADC asignados en la Rev E del esquema: **AN0 = LM35**, **AN1 = X**,
   **AN5 = Y**, **AN6 = Z**, todos directos. Referencia `VREF+ = VDD`,
-  `VREF- = VSS`; RA3/AN3 queda libre.
+  `VREF- = VSS`; RA3/AN3 queda libre. Decisión del 2026-11-12: se mantiene
+  este mapeo (Y/Z no pasan a AN2/AN3 porque RA2 es LED1).
 - Alcance de la primera versión: se adquieren los tres ejes; el algoritmo de
   reconocimiento y los gestos se definen con mediciones reales. La conversión
   de X a mg usa offset y sensibilidad nominales hasta calibrar.

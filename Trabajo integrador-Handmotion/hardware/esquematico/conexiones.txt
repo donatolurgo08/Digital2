@@ -820,10 +820,9 @@
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
    que no superen VDD y compatibilizarlas con la referencia del ADC.
   - Confirmar que el carrier mantiene GS bajo para +-1,5 g (nota 6.16).
-  - DECISION DE PINES Y/Z: el documento de respuestas propone YOUT->AN2 (pin 4)
-    y ZOUT->AN3 (pin 5), pero la Rev E usa AN5 (pin 8) y AN6 (pin 9) porque
-    RA2/AN2 es LED1 y RA3/AN3 se dejo libre. Confirmar con el usuario antes de
-    cablear; no cambiar firmware ni netlist sin esa decision.
+  - PINES Y/Z (resuelto 2026-11-12): se mantiene Y->AN5 (pin 8) y Z->AN6
+    (pin 9) de la Rev E. El documento de respuestas proponia AN2/AN3, pero
+    RA2/AN2 es LED1 y RA3/AN3 queda libre. No cambiar firmware ni netlist.
   - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
   - Confirmar que los BC337 comprados coinciden con C-B-E de la imagen de
     patillaje antes de soldar.
