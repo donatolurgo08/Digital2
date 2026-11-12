@@ -1,7 +1,8 @@
 # D-01 — Investigación de temporizadores del PIC16F887
 
 **Responsable:** Donato Lurgo  
-**Estado:** TIMER0/TIMER1 configurados en firmware; validar tiempos en hardware  
+**Estado:** TIMER0/TIMER1 configurados en firmware; validar tiempos en hardware
+
 **Base temporal:** `TOSC=1/FOSC`; `TCY=4/FOSC`.
 
 `FOSC = 8 MHz` está confirmado. TIMER0 usa el tick nominal aceptado de 1 ms;

@@ -106,6 +106,7 @@ display_digit_c:
 ; @return TMP = decenas; COUNT = unidades.
 ;-------------------------------------------------------------------------------
 display_split_temp:
+        BANKSEL TEMP_C
         MOVF    TEMP_C,W
         MOVWF   COUNT
         CLRF    TMP
