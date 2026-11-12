@@ -3,7 +3,7 @@
 ================================================================================
  Proyecto : Hand Motion - reconocimiento de movimiento + temperatura
  Revision : E
- Fecha    : 2026-11-04 (actualizado 2026-11-11)
+ Fecha    : 2026-11-04 (actualizado 2026-11-12)
  Cambio   : Rev B: 2 x MCP6002 en lugar de 1 x MCP6004.
             Rev C: sensor LilyPad ADXL335 a 3,3 V.
             Rev D: alimentacion desde modulo de protoboard con bateria de
@@ -21,9 +21,13 @@
                    MMA7361 y se eliminan los amplificadores MCP6002 y toda la
                    red de ganancia/referencia (U2, U3, R1-R8, C3, C4). Las
                    salidas X, Y y Z van directas al ADC; VREF+ = VDD.
-             Actualizacion 2026-11-11: la alimentacion pasa a un alimentador
-                   externo enchufado en PS1. Se elimina BT1. PS1 sigue
-                   entregando +5V y +3V3, con GND comun.
+              Actualizacion 2026-11-11: la alimentacion pasa a un alimentador
+                    externo enchufado en PS1. Se elimina BT1. PS1 sigue
+                    entregando +5V y +3V3, con GND comun.
+              Actualizacion 2026-11-12: se identifica el modulo como Candy-Ho
+                    con MMA7361L. Se agregan sus rangos/niveles de control del
+                    datasheet; el orden fisico del header y puentes del carrier
+                    siguen pendientes de confirmar por serigrafia.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -48,9 +52,9 @@
        5 V y 3,3 V)
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
  U4    LM35, TO-92
- MOD1  Modulo acelerometro MMA7361 de 3 ejes, salidas analogicas
-       Verificar en la serigrafia si el modulo incluye regulador de 3,3 V
-       y cuales son sus pines de alimentacion, rango y sleep.
+ MOD1  Modulo Candy-Ho basado en MMA7361L, 3 ejes, salidas analogicas.
+        La publicacion del modulo indica VCC de 3-5 V; verificar la serigrafia,
+        el orden del conector y los puentes/control SLP/GS de esta placa.
  DS1   Display rojo 7 segmentos, anodo comun - decenas
  DS2   Display rojo 7 segmentos, anodo comun - unidades
  DS3   Display rojo 7 segmentos, anodo comun - C estandar
@@ -141,13 +145,12 @@
  C9.1      placa 1                  desacople de 3,3 V
  C11.1     placa 1 (+)              reserva de 3,3 V
 
- ATENCION: el documento del proyecto indica que el modulo MMA7361 elegido
- tiene regulador integrado, pero no confirma su rango de alimentacion. Se
- conecta a +3V3 porque es seguro para el sensor en cualquier variante. Si
- el modulo tiene una entrada VCC de 5 V y un pin 3V3 de SALIDA del regulador,
- no unir ese pin de salida al riel: alimentar por VCC segun la serigrafia.
- Medir la tension real en VCC y en las salidas X, Y y Z antes de conectar
- el PIC.
+  DATOS VERIFICADOS: la publicacion del modulo Candy-Ho indica VCC de 3-5 V.
+  El datasheet del MMA7361L especifica VDD del circuito integrado de 2,2-3,6 V.
+  Este conexionado alimenta la entrada del modulo con +3V3, valor dentro de
+  ambos rangos; no conectar +5V al CI desnudo. La publicacion no detalla el
+  regulador/puentes del carrier, asi que conservar la alimentacion a +3V3.
+  Medir VCC y X/Y/Z antes de conectar el PIC.
 
 --------------------------------------------------------------------------------
  RED: VIN   (entrada del modulo de alimentacion)
@@ -199,10 +202,16 @@
 --------------------------------------------------------------------------------
  MOD1.VCC  alimentacion            ver red +3V3
  MOD1.GND  referencia              ver red GND
- MOD1.ST   self-test               no conectar
- MOD1.GS   selector de rango       POR VERIFICAR: llevar a GND para +-1,5 g
-                                   si el modulo no trae puente propio
- MOD1.0G   deteccion de caida libre no conectar
+  MOD1.ST   self-test               nivel bajo para operacion normal; verificar
+                                    si el carrier ya fija el nivel
+  MOD1.SLP  sleep, activo en bajo   nivel alto para mantener el sensor activo;
+                                    verificar si el carrier ya fija el nivel
+  MOD1.GS   selector de rango       nivel bajo = +-1,5 g; verificar puente
+                                    o pad de seleccion del carrier
+  MOD1.0G   deteccion de caida libre, salida digital; no se usa
+  El datasheet del CI define estas funciones/niveles. El orden fisico del
+  conector y los puentes del modulo Candy-Ho deben confirmarse con la serigrafia
+  de la placa: el dibujo de producto no permite asignar pines por posicion.
 
  El documento del proyecto exige confirmar la alimentacion admitida por el
  modulo y los niveles de X, Y y Z antes de cerrar el diseno. No fijar el
@@ -413,9 +422,7 @@
  U1.35     RB2
  U1.37     RB4
  U1.38     RB5
- MOD1.ST   self-test del modulo     no conectar
- MOD1.GS   selector de rango        ver red MOD1 ALIMENTACION Y CONTROL
- MOD1.0G   deteccion de caida libre no conectar
+  MOD1.0G   deteccion de caida libre no conectar
  J1.VCC    se alimenta por USB (ver red USB_VCC)
 
  Los pines 39 y 40 del PIC quedan exclusivos del programador:
@@ -487,18 +494,20 @@
    VERIFICAR con multimetro que entregue 5,0 V y 3,3 V reales, y que las
    dos salidas compartan GND, antes de conectar el sensor.
 
- MOD1 - modulo acelerometro MMA7361 (3 ejes, salidas analogicas)
-   VCC   +3V3 (ver aviso de la red +3V3)
-   GND   GND
-   X     X_IN
-   Y     Y_IN
-   Z     Z_IN
-   ST    no conectar (self-test)
-   GS    selector de rango: verificar si el modulo trae puente; para
-         +-1,5 g debe quedar en nivel bajo
-   0G    no conectar (salida de deteccion de caida libre)
-   El modulo puede incluir regulador de 3,3 V y un pin de salida 3V3.
-   Identificar cada pin por la serigrafia, no por la posicion.
+  MOD1 - modulo Candy-Ho con MMA7361L (salidas analogicas)
+    VCC   +3V3 (dentro del rango 3-5 V declarado para el modulo)
+    GND   GND
+    X     X_IN
+    Y     Y_IN
+    Z     Z_IN
+    GS    nivel bajo = +-1,5 g; confirmar puente/pad del carrier
+    ST    nivel bajo = funcionamiento normal; confirmar pull/strap del carrier
+    SLP   activo-bajo; nivel alto mantiene el sensor despierto. Confirmar si
+          el carrier lo fija o lo expone antes de decidir la conexion.
+    0G    salida de deteccion de caida libre; sin uso
+    El CI MMA7361L desnudo admite 2,2-3,6 V (datasheet NXP). La publicacion
+    del modulo declara VCC de 3-5 V; el netlist usa +3V3. Orden fisico de los
+    pines y puentes del carrier: seguir la serigrafia, no la posicion del dibujo.
 
   DS1, DS2, DS3 - display rojo de 7 segmentos, anodo comun
     a, b, c, d, e, f, g, dp   terminales de segmento
@@ -694,7 +703,9 @@
      que el filtro no degrade los movimientos que se quieren detectar.
      Antes de conectar el PIC: medir VCC y las tensiones de X, Y y Z en
      reposo e inclinando el sensor. Verificar que nunca superen VDD.
-     El modulo puede incluir regulador de 3,3 V; identificar su pinout.
+      La publicacion del Candy-Ho declara entrada de 3-5 V; este netlist elige
+      +3V3. La presencia/conexion exacta del regulador y los puentes del carrier
+      deben cotejarse con serigrafia/esquema de la placa.
 
  6.12 Montaje del modulo
      Fijar el modulo a la mano con el eje Z perpendicular a la palma, para
@@ -754,7 +765,7 @@
      cuantos segmentos enciende el digito. Disipacion maxima ~18 mW. El valor
      se confirma midiendo Vf y el anodo real (nota 6.5).
 
- 6.15 Reserva de carga en los rieles
+  6.15 Reserva de carga en los rieles
      El multiplexado enciende hasta 8 segmentos a la vez: 80 mA durante 1 ms,
      con un promedio de ~27 mA sobre el ciclo de 3 ms. Como el ADC usa
      VREF+ = VDD, una caida del riel se traduce en error de medicion:
@@ -763,9 +774,23 @@
      C = (80 mA - 27 mA) x 100 us / 50 mV = ~106 uF. Se adopta el doble para
      tolerar un regulador mas lento. C11 = 10 uF cumple la misma funcion en
      +3V3, donde el modulo consume pocos mA.
-     En banco: medir el riel de 5 V con los tres displays encendidos y, si hay
-     osciloscopio, mirar el riel durante el refresco. La caida deberia quedar
-     por debajo de ~50 mV.
+      En banco: medir el riel de 5 V con los tres displays encendidos y, si hay
+      osciloscopio, mirar el riel durante el refresco. La caida deberia quedar
+      por debajo de ~50 mV.
+
+  6.16 Datos del MMA7361L y del modulo Candy-Ho
+      Datasheet del CI MMA7361L: VDD = 2,2..3,6 V; GS bajo selecciona +-1,5 g
+      (800 mV/g nominal) y GS alto +-6 g; SLP es activo-bajo (alto mantiene
+      medicion); ST alto activa self-test (bajo es normal); 0G-D detecta
+      caida libre. XOUT/YOUT/ZOUT son salidas analogicas.
+      La publicacion del modulo Candy-Ho declara VCC = 3..5 V. El netlist lo
+      alimenta con +3V3, dentro del rango declarado para el modulo y del rango
+      del CI. No aplicar +5 V directamente al CI desnudo.
+      El datasheet del CI no define el orden del header ni los puentes/pullups
+      del carrier Candy-Ho. Confirmar en su serigrafia si SLP, ST y GS estan
+      expuestos o fijados a bordo antes de dibujar cables por posicion.
+      Referencia: datasheet NXP/Freescale MMA7361L:
+      https://www.nxp.com/docs/en/data-sheet/MMA7361L.pdf
 
 
 ================================================================================
@@ -782,11 +807,11 @@
    corriente disponible en 5 V.
  - Verificar el rango de entrada admitido por PS1 y la polaridad del conector
    del alimentador externo.
- - Confirmar la alimentacion admitida por el modulo MMA7361 y su patillaje
-   real (VCC, GND, X, Y, Z, GS, ST, 0G).
+  - Confirmar en la serigrafia el orden del header Candy-Ho y si SLP/ST/GS
+    estan expuestos o tienen pullup/puentes integrados.
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
    que no superen VDD y compatibilizarlas con la referencia del ADC.
- - Confirmar como se selecciona el rango de +-1,5 g en el modulo (GS).
+  - Confirmar que el carrier mantiene GS bajo para +-1,5 g (nota 6.16).
  - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
  - Patillaje E-B-C de los BC337 comprados.
  - Polaridad y corriente del terminal I/O del modulo buzzer (nota 6.7).

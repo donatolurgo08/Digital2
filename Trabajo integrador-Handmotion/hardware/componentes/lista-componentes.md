@@ -11,7 +11,7 @@ que se confirma midiendo el display.
 |---:|---|---|
 | 1 | PIC16F887, PDIP-40 | Control, ADC, displays, alarmas y EUSART. |
 | 1 | Zócalo DIP-40 | Montaje del PIC. |
-| 1 | Módulo acelerómetro MMA7361, 3 ejes | Ejes X, Y y Z con salidas analógicas directas al ADC. Verificar alimentación y patillaje del módulo. |
+| 1 | Módulo acelerómetro Candy-Ho con MMA7361L | Salidas X/Y/Z directas al ADC. La publicación declara VCC de 3–5 V; el diseño lo alimenta a +3V3. Confirmar serigrafía/orden del conector y puentes GS/SLP antes del dibujo físico. |
 | 1 | LM35 | Temperatura. Salida a AN0. Alimentación 4–30 V; en este circuito, 5 V. |
 | 3 | Capacitores de filtrado, 100 nF | Uno por eje, de la entrada a GND. |
 | 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |

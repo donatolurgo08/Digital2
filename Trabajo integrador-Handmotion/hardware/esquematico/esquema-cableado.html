@@ -25,7 +25,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
 </div>
 <div class="w"><svg id="d" viewBox="0 0 1740 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Esquema con cableado Hand Motion"></svg></div>
 <ul class="n">
-<li><b>MOD1.VCC va a +3V3</b> (cable que sube por el borde izquierdo desde PS1). Es seguro para el MMA7361, pero hay que verificar si el módulo tiene regulador y no unir un pin de salida 3V3 al riel.</li>
+<li><b>MOD1.VCC va a +3V3</b> (cable que sube por el borde izquierdo desde PS1). La publicación Candy-Ho declara 3–5 V en el módulo y el CI MMA7361L admite 2,2–3,6 V. Se conserva +3V3; verificar la serigrafía y los puentes SLP/ST/GS del carrier.</li>
 <li><b>J1.VCC (USB_VCC) queda sin conectar a +5V:</b> el conversor se alimenta por USB y solo comparte GND.</li>
 <li><b>Cruces:</b> los cables RD0 y RD1 pasan por debajo del PIC (están en el lado izquierdo del chip) y los de DIG1–3 y BZ_CTRL también.</li>
  <li><b>Displays rojos de ánodo común:</b> RD0–RD7 activos en bajo. Q1–Q3 BC337 se proponen como seguidores de emisor del lado alto; colectores a +5 V y emisores a los ánodos comunes. VBE reduce el margen de tensión; probar un segmento antes del montaje completo.</li>
@@ -56,8 +56,8 @@ P(50,30,80,75,'U4','LM35',[['+VS','+5V',66],['GND','GND',90]],[['VOUT','AN0',66]
 W('+5V',[50,66,24,66]);V(24,66);CV(24,66,90,'C8');W('GND',[50,90,24,90]);G(24,90);
 W('AN0',[130,66,680,66,680,152,800,152]);lb(400,62,'AN0');
 /* MOD1 */
-P(50,150,100,395,'MOD1','MMA7361',[['VCC','+3V3',215],['GND','GND',250],['ST/GS','NC',285]],[['X','X_IN',190],['Y','Y_IN',348],['Z','Z_IN',518]]);
-W('+3V3',[50,215,10,215]);D('+3V3',24,215);CV(24,215,250,'C9');W('GND',[50,250,24,250]);D('GND',24,250);G(24,250);NC(78,285+0,0);
+P(50,150,100,395,'MOD1','MMA7361L',[['VCC','+3V3',215],['GND','GND',250],['GS/ST/SLP','CONTROL',285]],[['X','X_IN',190],['Y','Y_IN',348],['Z','Z_IN',518]]);
+W('+3V3',[50,215,10,215]);D('+3V3',24,215);CV(24,215,250,'C9');W('GND',[50,250,24,250]);D('GND',24,250);G(24,250);T(80,289,'ver netlist','nt');
 W('+3V3',[60,620,10,620,10,215]);lb(14,420,'+3V3');
 /* PS1 / FUENTE */
 P(60,580,110,110,'PS1','VIN→5V/3V3',[['+3V3','+3V3',620]],[['+5V','+5V',615],['GND','GND',650]]);
