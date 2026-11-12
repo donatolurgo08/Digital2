@@ -85,5 +85,6 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
 - Y y Z se guardan como cuentas crudas de 10 bits en `Y_H:Y_L` y `Z_H:Z_L`;
   todavía no se convierten a mg.
 - Las tres entradas del acelerómetro se conectan directo al ADC, sin
-  amplificadores. Si el módulo tiene regulador propio, su salida máxima ronda
-  3,3 V y solo se usa parte del fondo de escala de 5 V.
+  amplificadores. El módulo tiene regulador propio (U2, LP2985-3V) y se alimenta
+  por su pin 5V; la salida máxima ronda 3,0–3,3 V y solo se usa parte del fondo
+  de escala de 5 V. Medir el pin 3V3 para ajustar el offset nominal.

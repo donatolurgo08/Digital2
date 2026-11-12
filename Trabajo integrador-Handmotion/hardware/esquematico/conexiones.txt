@@ -23,16 +23,19 @@
               Actualizacion 2026-11-11: la alimentacion pasa a un alimentador
                     externo enchufado en PS1. Se elimina BT1. PS1 sigue
                     entregando +5V y +3V3, con GND comun.
-               Actualizacion 2026-11-12: se identifica el modulo como Candy-Ho
-                     con MMA7361L. Se agregan sus rangos/niveles de control del
-                     datasheet; el orden fisico del header y puentes del carrier
-                     siguen pendientes de confirmar por serigrafia.
+               Actualizacion 2026-11-12: se identifica el CI como MMA7361L y se
+                     agregan sus rangos/niveles de control del datasheet.
               Actualizacion 2026-11-12: fotos de PS1, BC337, USB-TTL y buzzer.
                     Se documentan selectores de riel, pinout C-B-E, cinco pines
                     rotulados del TTL y disparo bajo indicado en el buzzer.
               Actualizacion 2026-11-12: DS1-DS3 pasan a catodo comun por decision
                     del usuario; Q1-Q3 BC337 pasan a selectores de lado bajo.
                     Recalcular R9-R16 para la topologia nueva.
+              Actualizacion 2026-11-12: fotos del modulo MMA7361. Se confirma
+                    header 2x5 (5V, 3V3, GND, g-Select, SelfTest / X, Y, Z,
+                    Sleep, 0g-Detect), regulador U2 y jumper J1 del modulo.
+                    Alimentacion recomendada por 5V con el jumper abierto; 3V3
+                    es salida. Los pines de control son de 3 V.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -59,9 +62,14 @@
         cada riel (+5 V o +3V3) y entrada FUENTE (USB/DC-IN segun serigrafia)
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
  U4    LM35, TO-92
- MOD1  Modulo Candy-Ho basado en MMA7361L, 3 ejes, salidas analogicas.
-        La publicacion del modulo indica VCC de 3-5 V; verificar la serigrafia,
-        el orden del conector y los puentes/control SLP/GS de esta placa.
+ MOD1  Modulo MMA7361L de 2x5 pines, con regulador U2 (LP2985-3V) y jumper J1
+        del modulo (no confundir con J1, el conector USB-TTL).
+        Pinout fisico (cara de serigrafia, texto derecho):
+          columna izquierda, arriba->abajo: 5V, 3V3, GND, g-Select, SelfTest
+          columna derecha,  arriba->abajo: X, Y, Z, Sleep, 0g-Detect
+        Alimentacion recomendada: +5V al pin 5V (jumper abierto, regulador activo).
+        Alternativa: +3V3 al pin 3V3 con el jumper puenteado. No conectar 5V y 3V3
+        a la vez. Los pines de control son de 3 V, no de 5 V.
   DS1   Display rojo 7 segmentos, catodo comun - decenas
   DS2   Display rojo 7 segmentos, catodo comun - unidades
   DS3   Display rojo 7 segmentos, catodo comun - C estandar
@@ -93,9 +101,9 @@
  C6    Filtro de la entrada Y                           3,3 nF
  C7    Filtro de la entrada Z                           3,3 nF
  C8    Desacople de U4 (LM35)                           100 nF
- C9    Desacople del riel de 3,3 V, junto a MOD1          100 nF
+ C9    Desacople del riel de 3,3 V (reserva)              100 nF
  C10   Reserva del riel de 5 V, junto al PIC/display      220 uF / 16 V
- C11   Reserva del riel de 3,3 V, junto a MOD1            10 uF / 10 V
+ C11   Reserva del riel de 3,3 V (reserva)                10 uF / 10 V
 
 
 ================================================================================
@@ -110,7 +118,8 @@
  U4.1      +VS                      LM35
  PS1.+5V   salida de 5 V            modulo de protoboard
  BZ1.VCC   alimentacion del modulo buzzer
-  R23.1     extremo superior         pull-up de MCLR
+ MOD1.5V   entrada del regulador    modulo MMA7361
+ R23.1     extremo superior         pull-up de MCLR
  C1.1      placa 1                  desacople PIC
  C2.1      placa 1                  desacople PIC
  C8.1      placa 1                  desacople LM35
@@ -124,7 +133,9 @@
  U1.31     VSS                      PIC
  U4.3      GND                      LM35
  MOD1.GND  GND                      modulo MMA7361
-  PS1.GND   GND                      modulo de protoboard
+ MOD1.GS   g-Select bajo = +-1,5 g modulo MMA7361
+ MOD1.ST   SelfTest bajo = normal  modulo MMA7361
+ PS1.GND   GND                      modulo de protoboard
  FUENTE.-  terminal negativo        alimentador externo
  BZ1.GND   GND del modulo buzzer
  C9.2      placa 2                  desacople de 3,3 V
@@ -136,28 +147,41 @@
  C6.2      placa 2
  C7.2      placa 2
  C8.2      placa 2
-  D1.K      catodo
-  D2.K      catodo
-  Q1.E      emisor de Q1, selector de catodo lado bajo DS1
-  Q2.E      emisor de Q2, selector de catodo lado bajo DS2
-  Q3.E      emisor de Q3, selector de catodo lado bajo DS3
+ D1.K      catodo
+ D2.K      catodo
+ Q1.E      emisor de Q1, selector de catodo lado bajo DS1
+ Q2.E      emisor de Q2, selector de catodo lado bajo DS2
+ Q3.E      emisor de Q3, selector de catodo lado bajo DS3
  J1.GND    GND del modulo USB-TTL
  J2.3      pin 3                    GND del conector ICSP
 
 --------------------------------------------------------------------------------
- RED: +3V3   (alimentacion del acelerometro)
+ RED: +3V3   (reserva; NO usada por MOD1 en la conexion recomendada)
 --------------------------------------------------------------------------------
  PS1.+3V3  salida de 3,3 V          modulo de protoboard
- MOD1.VCC  VCC del modulo           modulo MMA7361
- C9.1      placa 1                  desacople de 3,3 V
- C11.1     placa 1 (+)              reserva de 3,3 V
+ C9.1      placa 1                  desacople de 3,3 V (reserva)
+ C11.1     placa 1 (+)              reserva de 3,3 V (reserva)
 
-  DATOS VERIFICADOS: la publicacion del modulo Candy-Ho indica VCC de 3-5 V.
-  El datasheet del MMA7361L especifica VDD del circuito integrado de 2,2-3,6 V.
-  Este conexionado alimenta la entrada del modulo con +3V3, valor dentro de
-  ambos rangos; no conectar +5V al CI desnudo. La publicacion no detalla el
-  regulador/puentes del carrier, asi que conservar la alimentacion a +3V3.
-  Medir VCC y X/Y/Z antes de conectar el PIC.
+  DATOS VERIFICADOS EN LAS FOTOS: el modulo es de 2x5 pines y trae un
+  regulador U2 (LP2985-3V) y el jumper J1 del modulo. El pin 5V es la entrada
+  del regulador; el pin 3V3 es su salida (o la entrada de 3,3 V si el jumper
+  se puentea). Alimentacion recomendada: +5V al pin 5V con el jumper abierto;
+  en ese caso el riel +3V3 de PS1 no alimenta MOD1 y queda como reserva.
+  Alternativa: puentear el jumper y alimentar MOD1.3V3 con +3V3; entonces
+  MOD1.5V queda sin conectar. No conectar 5V y 3V3 a la vez.
+  Medir la tension del pin 3V3 antes de calibrar: si el regulador es de 3,0 V,
+  el offset de 0 g es ~1,5 V (~307 cuentas con VREF=5 V), no 1,65 V.
+
+--------------------------------------------------------------------------------
+ RED: MOD1_3V3   (salida del regulador del modulo)
+--------------------------------------------------------------------------------
+ MOD1.3V3  salida del regulador U2  modulo MMA7361 (3,0 o 3,3 V)
+ MOD1.SLP  Sleep alto = despierto    modulo MMA7361
+
+  El pin Sleep es activo-bajo: se lleva a 3V3 para mantener el sensor
+  despierto. No aplicar 5 V a Sleep, g-Select ni SelfTest: son pines de 3 V.
+  g-Select va a GND (+-1,5 g) y SelfTest va a GND (funcionamiento normal).
+  0g-Detect es una salida y queda sin conectar.
 
 --------------------------------------------------------------------------------
  RED: VIN   (entrada del modulo de alimentacion)
@@ -211,24 +235,28 @@
  U1.9      RE1/AN6                  entrada analogica 6
 
 --------------------------------------------------------------------------------
- RED: MOD1 ALIMENTACION Y CONTROL
+ RED: MOD1 ALIMENTACION Y CONTROL (2x5 pines, fotos 2026-11-12)
 --------------------------------------------------------------------------------
- MOD1.VCC  alimentacion            ver red +3V3
+ MOD1.5V   entrada del regulador   +5V (jumper abierto; ver red +5V)
+ MOD1.3V3  salida del regulador    3,0 o 3,3 V; ver red MOD1_3V3
  MOD1.GND  referencia              ver red GND
-  MOD1.ST   self-test               nivel bajo para operacion normal; verificar
-                                    si el carrier ya fija el nivel
-  MOD1.SLP  sleep, activo en bajo   nivel alto para mantener el sensor activo;
-                                    verificar si el carrier ya fija el nivel
-  MOD1.GS   selector de rango       nivel bajo = +-1,5 g; verificar puente
-                                    o pad de seleccion del carrier
-  MOD1.0G   deteccion de caida libre, salida digital; no se usa
-  El datasheet del CI define estas funciones/niveles. El orden fisico del
-  conector y los puentes del modulo Candy-Ho deben confirmarse con la serigrafia
-  de la placa: el dibujo de producto no permite asignar pines por posicion.
+ MOD1.X    salida X                ver red X_IN
+ MOD1.Y    salida Y                ver red Y_IN
+ MOD1.Z    salida Z                ver red Z_IN
+ MOD1.GS   g-Select                GND = +-1,5 g; alto = +-6 g
+ MOD1.ST   SelfTest                GND = operacion normal; alto = autotest
+ MOD1.SLP  Sleep, activo-bajo      a 3V3 = despierto; bajo = dormido
+ MOD1.0G   0g-Detect               salida digital; sin conectar
 
- El documento del proyecto exige confirmar la alimentacion admitida por el
- modulo y los niveles de X, Y y Z antes de cerrar el diseno. No fijar el
- rango de +-1,5 g en firmware: es una seleccion por pin o puente del modulo.
+  Orden fisico (cara de serigrafia, texto derecho, pines en las dos columnas):
+    izquierda, arriba->abajo: 5V, 3V3, GND, g-Select, SelfTest
+    derecha,   arriba->abajo: X, Y, Z, Sleep, 0g-Detect
+  No confundir con la cara de componentes: alli las columnas aparecen
+  espejadas y las etiquetas se leen X/Y/Z/SL/OG a un lado y 5V/3V3/GND/GS/ST
+  al otro. El orden fisico es el mismo; guiarse por la serigrafia.
+  Todos los pines de control son de 3 V. No aplicar 5 V a GS, ST ni SLP.
+  La salida X/Y/Z queda entre 0 V y la tension del pin 3V3; es apta para el
+  ADC con VREF=5 V. Confirmar la tension real del pin 3V3 antes de calibrar.
 
 --------------------------------------------------------------------------------
  RED: MCLR
@@ -509,20 +537,26 @@
     izquierda/derecha se fijara al hacer el dibujo. Verificar ambos rieles
     simultaneos y GND comun con multimetro. No usar USB y DC-IN a la vez.
 
-  MOD1 - modulo Candy-Ho con MMA7361L (salidas analogicas)
-    VCC   +3V3 (dentro del rango 3-5 V declarado para el modulo)
-    GND   GND
-    X     X_IN
-    Y     Y_IN
-    Z     Z_IN
-    GS    nivel bajo o sin conectar = +-1,5 g
-    ST    nivel bajo = funcionamiento normal
-    SLP   nivel alto = sensor despierto (activo-bajo)
-    0G    salida de deteccion de caida libre; sin uso
-    El CI MMA7361L desnudo admite 2,2-3,6 V (datasheet NXP). La publicacion
-    del modulo declara VCC de 3-5 V; el netlist usa +3V3. Orden fisico de los
-    pines y puentes del carrier: seguir la serigrafia, no la posicion del dibujo.
-    Confirmar si SLP/ST/GS estan expuestos o puenteados a bordo antes de cablear.
+  MOD1 - modulo MMA7361L de 2x5 pines (fotos 2026-11-12)
+    Columna izquierda (serigrafia, arriba->abajo):
+      5V        +5V: entrada del regulador U2
+      3V3       salida del regulador (3,0 o 3,3 V); tambien entrada si el
+                jumper del modulo esta puenteado
+      GND       GND
+      g-Select  GND = +-1,5 g; 3V3 = +-6 g
+      SelfTest  GND = normal; 3V3 = autotest
+    Columna derecha (arriba->abajo):
+      X         X_IN
+      Y         Y_IN
+      Z         Z_IN
+      Sleep     3V3 = despierto; GND = dormido (activo-bajo)
+      0g-Detect salida de caida libre; sin conectar
+    U2 es un LP2985-3V (SOT-23) segun el esquema tipico de este modulo.
+    El jumper J1 del modulo puentea el regulador: dejar abierto para alimentar
+    por 5V; puentear para alimentar por 3V3. No conectar 5V y 3V3 a la vez.
+    Los pines GS/ST/SLP son de 3 V: no aplicar 5 V.
+    El CI MMA7361L desnudo admite 2,2-3,6 V (datasheet NXP). La salida del
+    regulador debe medirse antes de calibrar; puede ser 3,0 V y no 3,3 V.
 
   DS1, DS2, DS3 - display rojo de 7 segmentos, catodo comun
     a, b, c, d, e, f, g, dp   terminales de segmento
@@ -571,12 +605,14 @@
 ================================================================================
  5. RESUMEN DE UNA LINEA POR RED (para carga rapida)
 ================================================================================
-  +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC,
+  +5V       = PS1.+5V, U1.11, U1.32, U4.1, BZ1.VCC, MOD1.5V,
               R23.1, C1.1, C2.1, C8.1, C10.1, J2.2
   GND       = PS1.GND, FUENTE.-, U1.12, U1.31, U4.3, C1.2, C2.2,
               C5.2, C6.2, C7.2, C8.2, C9.2, C10.2, C11.2, D1.K, D2.K,
-              Q1.E, Q2.E, Q3.E, J1.GND, J2.3, BZ1.GND, MOD1.GND
- +3V3      = PS1.+3V3, MOD1.VCC, C9.1, C11.1   (ver aviso de la red +3V3)
+              Q1.E, Q2.E, Q3.E, J1.GND, J2.3, BZ1.GND, MOD1.GND,
+              MOD1.GS, MOD1.ST
+ +3V3      = PS1.+3V3, C9.1, C11.1   (reserva; ver aviso de la red +3V3)
+ MOD1_3V3  = MOD1.3V3, MOD1.SLP       (salida del regulador; Sleep alto)
  VIN       = FUENTE.+, PS1.VIN
   USB_TTL_5V   = J1.5V                      (salida aislada)
   USB_TTL_3V3  = J1.3V3                     (salida aislada)
@@ -634,10 +670,14 @@
 
  6.2 Sensibilidad y offset del MMA7361
      En el rango de +-1,5 g la sensibilidad nominal es 800 mV/g y la salida
-     de 0 g es aproximadamente VCC/2. Con VCC = 3,3 V y VREF = 5 V, un LSB
-     son 4,8828 mV: 1 g ~ 163,8 cuentas (6,10 mg/cuenta) y 0 g ~ 338 cuentas.
-     Son valores NOMINALES: medir el offset y la sensibilidad reales antes
-     de usarlos para reconocimiento. Si cambia VCC, cambian ambos.
+     de 0 g es aproximadamente VCC/2. La sensibilidad es ratiometrica con la
+     alimentacion del CI: si el modulo entrega 3,0 V en vez de 3,3 V, baja a
+     ~727 mV/g y el offset de 0 g baja a ~1,5 V.
+     Con VCC = 3,3 V y VREF = 5 V: 1 g ~ 163,8 cuentas (6,10 mg/cuenta) y
+     0 g ~ 338 cuentas. Con VCC = 3,0 V: 1 g ~ 145,5 cuentas (6,87 mg/cuenta)
+     y 0 g ~ 307 cuentas.
+     Son valores NOMINALES: medir el pin 3V3 del modulo, el offset y la
+     sensibilidad reales antes de usarlos para reconocimiento.
 
  6.3 Referencia del ADC
      Se usa VREF+ = VDD y VREF- = VSS (ADCON1 = 0x80). No hay divisor ni
@@ -709,16 +749,17 @@
      +-1,5 g la sensibilidad nominal es 800 mV/g y la salida de 0 g es
      aproximadamente VCC/2, ratiometrica con su alimentacion.
      Las salidas se leen directo con el ADC del PIC, referenciado a 5 V.
-     Como la salida maxima es cercana a 3,3 V, solo se usa parte del fondo
+     Como la salida maxima es cercana a 3,0-3,3 V, solo se usa parte del fondo
      de escala; no se agrega ganancia analogica.
      C5, C6 y C7 = 3,3 nF filtran cada eje a GND, valor recomendado por la
      datasheet del MMA7361L. Confirmar con mediciones que el filtro no degrade
      los movimientos que se quieren detectar.
-     Antes de conectar el PIC: medir VCC y las tensiones de X, Y y Z en
+     El modulo tiene regulador U2 (LP2985-3V) y jumper J1 del modulo. Alimentar
+     por 5V con el jumper abierto, o por 3V3 con el jumper puenteado; nunca
+     ambas. El pin 3V3 es la salida del regulador y se usa para llevar Sleep a
+     nivel alto.
+     Medir la tension del pin 3V3, VCC del CI y las tensiones de X, Y y Z en
      reposo e inclinando el sensor. Verificar que nunca superen VDD.
-      La publicacion del Candy-Ho declara entrada de 3-5 V; este netlist elige
-      +3V3. La presencia/conexion exacta del regulador y los puentes del carrier
-      deben cotejarse con serigrafia/esquema de la placa.
 
  6.12 Montaje del modulo
      Fijar el modulo a la mano con el eje Z perpendicular a la palma, para
@@ -786,17 +827,22 @@
       osciloscopio, mirar el riel durante el refresco. La caida deberia quedar
       por debajo de ~50 mV.
 
-  6.16 Datos del MMA7361L y del modulo Candy-Ho
+  6.16 Datos del MMA7361L y del modulo de 2x5 pines
       Datasheet del CI MMA7361L: VDD = 2,2..3,6 V; GS bajo selecciona +-1,5 g
       (800 mV/g nominal) y GS alto +-6 g; SLP es activo-bajo (alto mantiene
       medicion); ST alto activa self-test (bajo es normal); 0G-D detecta
       caida libre. XOUT/YOUT/ZOUT son salidas analogicas.
-      La publicacion del modulo Candy-Ho declara VCC = 3..5 V. El netlist lo
-      alimenta con +3V3, dentro del rango declarado para el modulo y del rango
-      del CI. No aplicar +5 V directamente al CI desnudo.
-      El datasheet del CI no define el orden del header ni los puentes/pullups
-      del carrier Candy-Ho. Confirmar en su serigrafia si SLP, ST y GS estan
-      expuestos o fijados a bordo antes de dibujar cables por posicion.
+      Modulo fotografiado (2x5): incluye U2, un LP2985-3V (SOT-23) segun el
+      esquema tipico, y el jumper J1 del modulo que puentea el regulador. El
+      pin 5V es la entrada del regulador; el pin 3V3 es su salida. Alimentar
+      por 5V con el jumper abierto, o por 3V3 con el jumper puenteado; no
+      conectar ambos. Medir la tension real del pin 3V3 (puede ser 3,0 V, no
+      3,3 V).
+      Los pines GS/ST/SLP son de 3 V: no aplicar 5 V. GS y ST a GND para
+      +-1,5 g y operacion normal; SLP a 3V3 para mantener despierto; 0G sin
+      conectar.
+      Orden fisico (cara de serigrafia): izquierda 5V, 3V3, GND, g-Select,
+      SelfTest; derecha X, Y, Z, Sleep, 0g-Detect.
       Referencia: datasheet NXP/Freescale MMA7361L:
       https://www.nxp.com/docs/en/data-sheet/MMA7361L.pdf
 
@@ -815,11 +861,16 @@
   - PS1: la decision provisional es usar la entrada USB de 5 V; no usar DC-IN
     hasta confirmar tension y polaridad del jack. Confirmar los jumpers para
     +5V y +3V3 simultaneos.
-  - Confirmar en la serigrafia el orden del header Candy-Ho y si SLP/ST/GS
-    estan expuestos o tienen pullup/puentes integrados.
+  - MOD1 (resuelto 2026-11-12): pinout 2x5 confirmado por fotos; izquierda
+    5V, 3V3, GND, g-Select, SelfTest; derecha X, Y, Z, Sleep, 0g-Detect.
+  - Medir el estado del jumper J1 del modulo y la tension del pin 3V3: si esta
+    abierto, alimentar por 5V; si esta puenteado, alimentar por 3V3. No usar
+    ambas entradas. Confirmar si el regulador entrega 3,0 V o 3,3 V para
+    ajustar el offset nominal (nota 6.2).
+  - Confirmar que GS y ST queden a GND y que Sleep quede a 3V3; no aplicar
+    5 V a los pines de control (nota 6.16).
  - Medir las tensiones de X, Y y Z en reposo y con inclinacion; confirmar
    que no superen VDD y compatibilizarlas con la referencia del ADC.
-  - Confirmar que el carrier mantiene GS bajo para +-1,5 g (nota 6.16).
   - PINES Y/Z (resuelto 2026-11-12): se mantiene Y->AN5 (pin 8) y Z->AN6
     (pin 9) de la Rev E. El documento de respuestas proponia AN2/AN3, pero
     RA2/AN2 es LED1 y RA3/AN3 queda libre. No cambiar firmware ni netlist.

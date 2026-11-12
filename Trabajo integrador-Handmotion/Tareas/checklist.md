@@ -24,10 +24,11 @@ Actualizada: 2026-11-12
 
 - [ ] **PS1 (HW-131/HW-130):** usar provisionalmente la entrada USB de 5 V. La entrada DC-IN existe pero queda sin usar hasta confirmar tensión y polaridad del jack. No conectar USB y DC-IN a la vez.
 - [ ] Ajustar los dos jumpers de PS1 para obtener simultáneamente 5 V y 3,3 V; medir ambas salidas, corriente de 5 V y GND común.
-- [ ] Confirmar en la serigrafía el orden del header Candy-Ho y si SLP/ST/GS están fijados por puentes/pullups. Objetivo: SLP alto, ST bajo, GS bajo o sin conectar. El módulo está especificado a 3–5 V y se cablea a +3V3.
-- [x] **Pines Y/Z decididos:** se mantiene Y→AN5 (pin 8) y Z→AN6 (pin 9) de la Rev E; el documento de respuestas proponía AN2/AN3, pero RA2/AN2 es LED1 y RA3/AN3 queda libre.
+- [x] **Pinout MOD1 confirmado por fotos (2×5):** izquierda 5V, 3V3, GND, g-Select, SelfTest; derecha X, Y, Z, Sleep, 0g-Detect. Trae regulador U2 (LP2985-3V) y jumper J1.
+- [ ] **Alimentación de MOD1:** medir el jumper J1 del módulo y la tensión del pin 3V3. Recomendado: +5 V al pin 5V con el jumper abierto. Alternativa: +3V3 al pin 3V3 con el jumper puenteado. No conectar ambas entradas.
+- [ ] Verificar que GS y ST queden a GND y Sleep a 3V3; no aplicar 5 V a los pines de control, que son de 3 V.
+- [ ] **Pines Y/Z decididos:** se mantiene Y→AN5 (pin 8) y Z→AN6 (pin 9) de la Rev E; el documento de respuestas proponía AN2/AN3, pero RA2/AN2 es LED1 y RA3/AN3 queda libre.
 - [ ] Medir X, Y y Z en reposo y con inclinación; comprobar que no superen VDD y que la impedancia de salida sea apta para el ADC.
-- [ ] Confirmar en el carrier que GS quede bajo/puenteado o sin conectar para ±1,5 g.
 - [ ] Confirmar C5–C7 = 3,3 nF en las salidas X/Y/Z (valor de datasheet) y C9 = 100 nF en +3V3.
 - [ ] Identificar el patillaje físico de los displays genéricos.
 - [x] Pinout BC337 según la imagen: C-B-E visto de frente, cara plana hacia el observador.

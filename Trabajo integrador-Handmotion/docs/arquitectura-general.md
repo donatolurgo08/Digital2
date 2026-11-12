@@ -13,7 +13,7 @@ localmente.
 ## Bloques funcionales
 
 ```text
-Módulo MMA7361 (3,3 V)
+Módulo MMA7361 (5 V→3,0/3,3 V a bordo)
   X ── AN1 ──┐
   Y ── AN5   ├── ADC ── filtrado/calibración ── reconocimiento ──┐
   Z ── AN6 ──┘                                                   ├── EUSART / USB-TTL ── GUI PC
@@ -32,8 +32,11 @@ La supervisión térmica no participa en el reconocimiento.
 - Oscilador interno a **8 MHz** (`OSCCON = 0x70`, `FOSC = INTRC_NOCLKOUT`);
   configuration bits ya verificados en el DFP.
 - Sensor: módulo **MMA7361** de tres ejes, salidas analógicas, rango inicial de
-  ±1,5 g (sensibilidad nominal 800 mV/g). Alimentación y patillaje del módulo
-  pendientes de verificar. No se usan amplificadores operacionales.
+  ±1,5 g (sensibilidad nominal 800 mV/g). Módulo de 2×5 pines con regulador U2
+  (LP2985-3V) y jumper J1 del módulo: se alimenta con **+5 V en el pin 5V**
+  (jumper abierto); el pin 3V3 es la salida del regulador (3,0 o 3,3 V) y
+  alimenta Sleep. Los pines GS/ST/SLP son de 3 V. No se usan amplificadores
+  operacionales.
 - Canales ADC asignados en la Rev E del esquema: **AN0 = LM35**, **AN1 = X**,
   **AN5 = Y**, **AN6 = Z**, todos directos. Referencia `VREF+ = VDD`,
   `VREF- = VSS`; RA3/AN3 queda libre. Decisión del 2026-11-12: se mantiene

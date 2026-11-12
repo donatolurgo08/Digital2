@@ -49,8 +49,10 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   Para 40 °C se esperan 82 cuentas; `TEMP_C = 40`.
 - Eje X del MMA7361 (±1,5 g): `DELTA = (cuentas − 338) × 49 / 8` mg, con signo
   en complemento a dos de 16 bits. Equivale a 6,125 mg/cuenta (6,10 mg/cuenta
-  nominal). El offset de 338 cuentas supone 0 g = VCC/2 con VCC = 3,3 V; el
-  offset y la sensibilidad son **nominales** y se ajustan por calibración.
+  nominal). El offset de 338 cuentas supone 0 g = VCC/2 con VCC = 3,3 V; si el
+  regulador del módulo entrega 3,0 V, el offset nominal baja a ~307 cuentas y la
+  sensibilidad a ~727 mV/g. El offset y la sensibilidad son **nominales** y se
+  ajustan por calibración.
 - Y y Z se adquieren y quedan como cuentas crudas en `Y_H:Y_L` y `Z_H:Z_L`.
 - El bucle principal adquiere AN0, AN5 y AN6 como antes; AN1/X se adquiere con
   el período separado de la Etapa 5. Los resultados quedan en `TEMP_C`,
