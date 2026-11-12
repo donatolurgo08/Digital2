@@ -6,7 +6,7 @@
 | TIMER0 | Tick nominal de 1 ms y muestreo de AN1/X a 50 Hz | Implementado con ISR, prescaler 1:8 y precarga 6; medir período/jitter en hardware |
 | TIMER1 | Temporización del multiplexado de tres displays | Etapa 4: 1 ms, 1:1, recarga 0xF830, polling |
 | EUSART | Comunicación bidireccional con la GUI | Etapa 6: 9600 Bd, 8N1; protocolo binario CRC-8 integrado, falta probar con el PIC y el adaptador reales |
-| GPIO | Displays rojos de ánodo común, LED rojo y buzzer | R9–R16 pendientes; driver BC337 por validar; la serigrafía del buzzer indica activo-bajo y el firmware debe invertir RC3 |
+| GPIO | Displays rojos de ánodo común, LED rojo y buzzer | R9–R16 pendientes; driver BC337 por validar; firmware actualizado a buzzer activo-bajo, probar en banco |
 | Interrupciones | TIMER0 marca muestras de X | ISR mínima activa; TIMER1 y EUSART siguen por polling |
 
 ## Mapa de pines (Rev E)

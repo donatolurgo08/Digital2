@@ -7,7 +7,7 @@ Actualizada: 2026-11-12
 - [ ] **Etapa 2:** probar en hardware la lectura del LM35 y de los tres ejes del MMA7361. La conversión supone una referencia real de 5 V; el offset y la sensibilidad de X son nominales.
 - [ ] Verificar que `Y_H:Y_L` y `Z_H:Z_L` reciban cuentas coherentes al inclinar el módulo en cada eje.
 - [ ] **Etapa 3:** comprobar que la alarma se apague con `TEMP_C <= 40` y se active con `TEMP_C > 40`; verificar la polaridad y corriente de la entrada del buzzer.
-- [ ] Invertir RC3 a activo-bajo según la serigrafía del buzzer y recompilar antes de conectar el módulo al PIC.
+- [x] Firmware RC3 actualizado a activo-bajo según la serigrafía del buzzer y recompilado.
 - [ ] **Etapa 4:** probar los displays de ánodo común, el refresco y el brillo. El código está escrito y compilado, pero no probado físicamente.
 - [ ] **Validar el driver BC337:** probar primero un dígito y un segmento. La conexión propuesta como seguidor de emisor pierde tensión; si no funciona bien, decidir otro driver antes de completar el montaje.
 - [x] **Etapa 5:** TIMER0 con tick nominal de 1 ms; AN1/X muestreado cada 20 ms (50 Hz). Firmware compilado.
@@ -33,7 +33,7 @@ Actualizada: 2026-11-12
 - [ ] Verificar en banco R17–R19 (330 Ω), R21–R22 (220 Ω) y R23 (10 kΩ), calculadas en la nota 6.14 del netlist.
 - [ ] Medir la caída del riel de 5 V con los tres displays multiplexando: debería quedar por debajo de ~50 mV. C10 la reduce; sin ella la lectura del ADC (VREF = VDD) se corre.
 - [ ] Verificar la polaridad de C10 antes de energizar: positivo a +5 V.
-- [ ] Antes de conectar BZ1 al PIC, invertir RC3 a activo-bajo y medir la corriente del I/O. Q4 y R20 fueron eliminados.
+- [ ] Medir la corriente del I/O del buzzer y validar su trigger activo-bajo antes de energizarlo desde el PIC. Q4 y R20 fueron eliminados.
 - [ ] Conectar USB-TTL por GND/TXD/RXD, dejar sus salidas 3V3/+5V aisladas y medir el nivel lógico de TXD.
 
 ## Documentación y GUI

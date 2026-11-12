@@ -16,7 +16,7 @@ que se confirma midiendo el display.
 | 3 | Capacitores de filtrado, 100 nF | Uno por eje, de la entrada a GND. |
 | 3 | Displays rojos de 7 segmentos, ánodo común | Decenas, unidades y `C` estándar. Verificar patillaje y especificación de corriente. |
 | 3 | Transistores NPN BC337 | Seguidores de emisor para ánodos comunes. Pinout de la imagen: C-B-E de izquierda a derecha mirando la cara plana; confirmar el lote antes de soldar. |
-| 1 | Módulo buzzer activo 3,3–5 V, 3 pines rotulados (GND, I/O, VCC) | La imagen indica trigger activo-bajo; confirmar corriente en banco e invertir RC3 en firmware antes de conectarlo. El módulo incluye driver. |
+| 1 | Módulo buzzer activo 3,3–5 V, 3 pines rotulados (GND, I/O, VCC) | La imagen indica trigger activo-bajo; firmware RC3 actualizado. Confirmar corriente en banco antes de conectarlo. El módulo incluye driver. |
 | 2 | LED rojos | Alarma visual. |
 | 3 | Resistencias de 330 Ω, 1/4 W | Base de Q1–Q3 (R17–R19), para 10 mA de pico por segmento. |
 | 2 | Resistencias de 220 Ω, 1/4 W | Limitadoras de LED1 y LED2 (R21–R22), ~11 mA. |

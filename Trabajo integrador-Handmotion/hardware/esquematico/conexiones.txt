@@ -541,10 +541,10 @@
    VCC   +5V
    GND   GND
    I/O   RC3 (BZ_CTRL), entrada de control
-    El modulo ya incluye el driver: no lleva Q4 ni R20. La serigrafia de la
-    imagen indica disparo de nivel bajo (activo-bajo). El firmware actual
-    asume activo-alto: invertir RC3 antes de conectarlo al PIC y medir la
-    corriente de I/O en banco.
+     El modulo ya incluye el driver: no lleva Q4 ni R20. La serigrafia de la
+     imagen indica disparo de nivel bajo (activo-bajo). El firmware pone RC3
+     alto en reposo y bajo durante la alarma. Medir la corriente de I/O y
+     validar la polaridad efectiva en banco.
 
   J1 - modulo USB-TTL (5 pines rotulados en la foto)
     3V3   salida de 3,3 V del adaptador; no unir a +3V3
@@ -683,11 +683,10 @@
       Es un modulo activo de 3 terminales (VCC, GND, I/O). VCC a +5V, GND a
       GND e I/O a RC3. El modulo ya incluye el driver, por lo que se eliminan
       Q4 y R20.
-      La serigrafia de la foto indica disparo de nivel bajo (activo-bajo).
-      El firmware actual aun asume activo-alto: invertir RC3 antes de conectar
-      el modulo al PIC. Confirmar la corriente del I/O en banco con resistencia
-      serie de 1 k; si exige corriente de carga, reevaluar un driver externo.
-      No agregar diodo externo sin identificar el circuito del modulo.
+       La serigrafia de la foto indica disparo de nivel bajo (activo-bajo). El
+       firmware pone RC3 alto en reposo y bajo en alarma. Confirmar polaridad y
+       corriente del I/O en banco; si exige corriente de carga, reevaluar un
+       driver externo. No agregar diodo sin identificar el circuito del modulo.
 
  6.8 Zocalo DIP-40
      El zocalo no agrega conexiones: cada pata coincide con la del PIC.

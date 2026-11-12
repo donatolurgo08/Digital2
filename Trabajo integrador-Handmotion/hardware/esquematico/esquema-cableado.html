@@ -32,7 +32,7 @@ svg{display:block;min-width:1500px;width:100%;height:auto}
  <li><b>Sin amplificadores:</b> X, Y y Z van directas a AN1, AN5 y AN6, con C5–C7 de 100 nF a GND. La referencia del ADC es VDD; RA3 queda libre.</li>
  <li><b>Verificar antes de soldar:</b> entrada y jumpers de PS1, corriente disponible, header/controles SLP/ST/GS de MOD1, pinout físico de los displays, nivel lógico de TXD del USB-TTL y corriente del buzzer.</li>
  <li><b>BC337:</b> la imagen recibida indica C-B-E mirando la cara plana con patas hacia abajo.</li>
- <li><b>Buzzer:</b> la serigrafía indica disparo activo-bajo. El firmware sigue activo-alto; invertir RC3 antes de probarlo con el PIC.</li>
+ <li><b>Buzzer:</b> la serigrafía indica disparo activo-bajo. El firmware pone RC3 alto para apagarlo y bajo para activarlo; confirmar corriente en banco.</li>
 <li><b>LED1 en RA2 (pin 4):</b> RA4 es open-drain y no puede entregar corriente al LED. RA4 queda sin conectar.</li>
 <li><b>Calibración pendiente:</b> el offset de 0 g (≈VCC/2) y los 800 mV/g son nominales; medir el módulo real antes de usar los valores para reconocimiento.</li>
 <li><b>Reserva de carga:</b> C10 = 220 µF entre +5 V y GND junto al PIC/display, y C11 = 10 µF en +3V3 junto al módulo. Sostienen el riel durante los pulsos de 80 mA del multiplexado; sin ellos el ADC, que usa VREF = VDD, lee de menos. C10 es electrolítico: positivo a +5 V.</li>

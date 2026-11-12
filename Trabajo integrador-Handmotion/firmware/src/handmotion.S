@@ -50,8 +50,8 @@
 ;             esta en modules/uart.inc.
 ;             Etapa 5: TIMER0 FOSC/4, prescaler 1:8, precarga 6 (1 ms nominal);
 ;             cada 20 ticks inicia una muestra X en foreground.
-;             La serigrafia del buzzer indica disparo activo-bajo; este codigo
-;             aun activa RC3 en alto y debe invertirse antes de conectar BZ1.
+;             El modulo buzzer indica trigger activo-bajo: RC3 alto lo apaga,
+;             RC3 bajo lo activa. Confirmar corriente de I/O en banco.
 ;===============================================================================
 
 ;===============================================================================
@@ -343,7 +343,7 @@ loop:
 ;           Niveles inactivos elegidos:
 ;             - LED1 (RA2) y LED2 (RA5) apagados: nivel bajo.
 ;             - DIG1-DIG3 (RC0-RC2) en bajo: ningun display habilitado.
-;             - BZ_CTRL (RC3) en bajo: buzzer apagado (confirmar polaridad).
+;             - BZ_CTRL (RC3) en alto: buzzer activo-bajo apagado.
 ;             - Segmentos (RD0-RD7) en alto: apagados (anodo comun).
 ;
 ; @param    ninguno
@@ -364,7 +364,8 @@ wait_osc:
         ;----- Salidas inactivas antes de habilitar los drivers -----
         BANKSEL PORTA
         CLRF    PORTA           ; LED1/LED2 apagados
-        CLRF    PORTC           ; digitos y buzzer apagados
+        CLRF    PORTC           ; digitos apagados; fijar BZ_CTRL en inactivo
+        BSF     PORTC,3         ; BZ_CTRL activo-bajo: alto = apagado
         MOVLW   0xFF
         MOVWF   PORTD           ; segmentos activos bajos: todos apagados
         CLRF    FLAGS           ; signo X y estado del display iniciales
@@ -554,10 +555,9 @@ temp_sat:
 ;
 ; @details  Si TEMP_C > ALARM_TEMP (40 C por defecto, configurable por
 ;           SET_THRESHOLD), activa LED1 (RA2), LED2 (RA5) y el terminal de
-;           control del modulo buzzer (RC3). Con TEMP_C <= umbral, las tres
-;           salidas quedan en bajo. ALARM_STATE<0> refleja el estado y viaja
-;           en la trama DATA. RC3 aun esta activo-alto provisionalmente; la
-;           serigrafia del modulo indica activo-bajo, pendiente de invertir.
+;           control del modulo buzzer (RC3). El buzzer es activo-bajo:
+;           RC3=0 lo activa y RC3=1 lo apaga. ALARM_STATE<0> refleja la alarma
+;           termica y viaja en la trama DATA.
 ;
 ; @param    TEMP_C = temperatura en grados C
 ; @return   ninguno
@@ -576,7 +576,7 @@ alarma_on:
         BSF     PORTA,2        ; LED1, pin 4 / RA2
         BSF     PORTA,5        ; LED2, pin 7 / RA5
         BANKSEL PORTC
-        BSF     PORTC,3        ; BZ_CTRL, pin 18 / RC3
+        BCF     PORTC,3        ; BZ_CTRL activo-bajo: 0 activa el buzzer
         RETURN
 
 alarma_off:
@@ -585,7 +585,7 @@ alarma_off:
         BCF     PORTA,2
         BCF     PORTA,5
         BANKSEL PORTC
-        BCF     PORTC,3
+        BSF     PORTC,3        ; BZ_CTRL activo-bajo: 1 apaga el buzzer
         RETURN
 
 ;*******************************************************************************
