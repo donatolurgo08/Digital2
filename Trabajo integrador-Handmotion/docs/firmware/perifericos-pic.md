@@ -3,11 +3,11 @@
 | Periférico | Uso previsto | Datos pendientes |
 |---|---|---|
 | ADC | Leer LM35 en AN0 y los tres ejes del MMA7361 en AN1 (X), AN5 (Y) y AN6 (Z), directos y sin amplificadores | Configurado: FOSC/32, VDD/VSS, ADFM=1; calibración pendiente |
-| TIMER0 | Base temporal de adquisición | Derivado: 1 ms, 1:8, recarga 6; aún no implementado |
+| TIMER0 | Tick nominal de 1 ms y muestreo de AN1/X a 50 Hz | Implementado con ISR, prescaler 1:8 y precarga 6; medir período/jitter en hardware |
 | TIMER1 | Temporización del multiplexado de tres displays | Etapa 4: 1 ms, 1:1, recarga 0xF830, polling |
 | EUSART | Comunicación bidireccional con la GUI | Etapa 6: 9600 Bd, 8N1; protocolo binario CRC-8 integrado, falta probar con el PIC y el adaptador reales |
 | GPIO | Displays rojos de ánodo común, LED rojo y buzzer | R9–R16 pendientes; R17–R19 (330 Ω), R21–R22 (220 Ω) y R23 (10 kΩ) calculadas; validar driver de dígitos |
-| Interrupciones | Eventos temporizados y recepción serie | Fuentes habilitadas y estrategia final |
+| Interrupciones | TIMER0 marca muestras de X | ISR mínima activa; TIMER1 y EUSART siguen por polling |
 
 ## Mapa de pines (Rev E)
 

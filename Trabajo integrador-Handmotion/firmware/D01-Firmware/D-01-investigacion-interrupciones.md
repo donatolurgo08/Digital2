@@ -1,7 +1,7 @@
 # D-01 — Investigación del sistema de interrupciones del PIC16F887
 
 **Responsable:** Donato Lurgo  
-**Estado:** En investigación
+**Estado:** TIMER0 usa una ISR mínima; validar temporización en hardware
 
 ## Funcionamiento general
 
@@ -45,10 +45,10 @@ evita entrar inmediatamente por un evento anterior.
 `TMR2IF` y `ADIF` deben limpiarse por software. Para EUSART TX, habilitar `TXIE` solo
 mientras haya datos pendientes evita interrupciones repetidas con la cola vacía.
 
-En HAND MOTION, TIMER0/1/2 y ADC son fuentes candidatas según sus usos
-propuestos; la recepción EUSART puede atenderse pronto para evitar desbordar su
-FIFO de dos caracteres. La transmisión, parseo de protocolo, reconocimiento y
-conversión/formateo se procesarán fuera de la ISR siempre que sea posible.
+En HAND MOTION, TIMER0 es actualmente la única fuente con interrupción
+habilitada: la ISR actualiza el tick/flag de muestreo de X. TIMER1 y EUSART se
+atienden por polling; la conversión ADC, el parseo de protocolo y el
+reconocimiento se ejecutan fuera de la ISR.
 
 ## Flujo recomendado de una ISR
 
@@ -84,11 +84,9 @@ FIN_ISR
 
 ## Pendiente de definir
 
-- Qué fuentes se habilitarán finalmente y si cada periférico usará polling o
-  interrupciones.
-- Organización de flags/colas compartidas y secuencia completa de guardado y
-  restauración para `pic-as`.
-- Recargas, latencias y períodos tras confirmar `FOSC` y requisitos.
+- Validar en hardware la recarga/latencia de TIMER0 y el período de muestreo.
+- Definir si otras fuentes necesitarán interrupciones; por ahora TIMER1 y
+  EUSART permanecen por polling.
 
 ## Fuente
 

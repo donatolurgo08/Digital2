@@ -58,10 +58,11 @@ La supervisión térmica no participa en el reconocimiento.
 
 ## Pendientes de integración
 
-Probar la comunicación de la GUI con el PIC real, definir períodos de
-adquisición de gestos y criterios de reconocimiento. También quedan pendientes
-la verificación de R9–R16 (150 Ω provisionales), la alimentación y el patillaje
-del MMA7361, y la calibración de offset/sensibilidad con el módulo real. Las
+Probar la comunicación de la GUI con el PIC real, validar el muestreo X de 20 ms,
+y definir filtros y criterios de reconocimiento para gestos y el muestreo futuro
+de Y/Z. También quedan pendientes la verificación de R9–R16 (150 Ω
+provisionales), la alimentación y el patillaje del MMA7361, y la calibración de
+offset/sensibilidad con el módulo real. Las
 resistencias de base (R17–R19), LED (R21–R22) y MCLR (R23) ya están calculadas. Ver
 [`firmware/perifericos-pic.md`](firmware/perifericos-pic.md) y
 [`comunicacion/README.md`](comunicacion/README.md).

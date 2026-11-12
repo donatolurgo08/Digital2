@@ -28,10 +28,10 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
 - Configuration bits: `FOSC = INTRC_NOCLKOUT`, `WDTE = OFF`, `PWRTE = ON`,
   `MCLRE = ON`, `CP = OFF`, `CPD = OFF`, `BOREN = ON`, `IESO = OFF`,
   `FCMEN = OFF`, `LVP = OFF`, `DEBUG = OFF`, `BOR4V = BOR40V`, `WRT = OFF`.
-- Valores derivados para las etapas siguientes: ADC `FOSC/32` (`TAD = 4 µs`),
-  TIMER0 1:8 con recarga 6 (1 ms), TIMER1 1:1 con recarga `0xF830` (1 ms por
-  dígito), EUSART 9600 Bd con `BRGH = 1` y `SPBRG = 51` (9615 Bd, error
-  aproximado +0,16 %).
+- ADC `FOSC/32` (`TAD = 4 µs`); TIMER0 `FOSC/4`, prescaler 1:8, precarga 6
+  (tick nominal de 1 ms); TIMER1 1:1 con recarga `0xF830` (1 ms por dígito);
+  EUSART 9600 Bd con `BRGH = 1` y `SPBRG = 51` (9615 Bd, error aproximado
+  +0,16 %).
 
 ## Etapa 2: ADC
 
@@ -52,8 +52,9 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   nominal). El offset de 338 cuentas supone 0 g = VCC/2 con VCC = 3,3 V; el
   offset y la sensibilidad son **nominales** y se ajustan por calibración.
 - Y y Z se adquieren y quedan como cuentas crudas en `Y_H:Y_L` y `Z_H:Z_L`.
-- El bucle principal adquiere AN0, AN1, AN5 y AN6 en forma continua. Los
-  resultados quedan en `TEMP_C`, `DELTA_H:DELTA_L`, `Y_H:Y_L` y `Z_H:Z_L`.
+- El bucle principal adquiere AN0, AN5 y AN6 como antes; AN1/X se adquiere con
+  el período separado de la Etapa 5. Los resultados quedan en `TEMP_C`,
+  `DELTA_H:DELTA_L`, `Y_H:Y_L` y `Z_H:Z_L`.
 - Estado de la Etapa 2: **escrita y compilada**, no probada en hardware. La
   referencia real es el riel de 5 V de PS1; si no es exactamente 5,000 V, la
   conversión en °C y mg escala en proporción. Antes de usar X para gestos hay
@@ -90,6 +91,22 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   ADC usa como referencia (`VREF+ = VDD`). C10 de 220 µF sostiene el riel; si la
   caída supera ~50 mV, la lectura se corre.
 - Estado: **escrita y compilada**, no probada en hardware.
+
+## Etapa 5: muestreo periódico de X
+
+- TIMER0 usa `FOSC/4`, prescaler `1:8` y precarga `6`: intervalo nominal de
+  `((256-6) × 8 × 0,5 µs) = 1 ms`. El intervalo real puede variar por la
+  latencia de la ISR y la inhibición de dos ciclos al escribir `TMR0`.
+- La ISR preserva `W` y `STATUS`, recarga TIMER0 y cada 20 ticks levanta una
+  bandera de muestra. La conversión ADC de AN1 se ejecuta en foreground, no en
+  la ISR.
+- AN1/X se muestrea cada **20 ms (50 Hz)**. El muestreo de temperatura y la
+  adquisición ya existente de Y/Z no se modifican; Y/Z siguen fuera del
+  protocolo serie v1.
+- La telemetría conserva su período independiente: 50 ms (20 Hz) por defecto,
+  configurable desde GUI entre 20 y 250 ms.
+- Estado: **escrita y compilada**, falta verificar en hardware el período y el
+  jitter reales antes de usarlos para reconocimiento de gestos.
 
 ## Etapa 6: EUSART y protocolo serie
 
@@ -132,22 +149,17 @@ Los siguientes módulos podrán extraerse cuando cada etapa esté estable:
   `PCLATH` explícitamente.
 - El `END` debe indicar el símbolo de entrada: `END resetVec`.
 
-## Flujo de ejecución previsto
+## Flujo de ejecución
 
-Las interrupciones señalarán eventos o atenderán operaciones breves. El bucle
-principal procesará muestras, temperatura, reconocimiento y mensajes de GUI sin
-esperas bloqueantes largas. El multiplexado se temporizará con TIMER1; TIMER0
-servirá de base para la adquisición periódica.
-
-Las rutinas de interrupción deberán ser cortas, guardar/restaurar el contexto
-necesario, atender y limpiar la fuente correspondiente. El análisis de gestos,
-el parseo de mensajes y el formateo de respuestas no se realizarán dentro de la
-ISR.
+TIMER0 genera el tick nominal de 1 ms y su ISR levanta una bandera cada 20 ticks.
+El bucle principal consume la bandera y adquiere/convirtiere AN1/X fuera de la
+ISR. TIMER1 y EUSART siguen atendidos por polling; el análisis de gestos y el
+parseo/formateo de mensajes no se realizan dentro de la ISR.
 
 ## Dependencias pendientes
 
-Integración del protocolo con la GUI, período de adquisición de gestos,
-criterios de reconocimiento, calibración de la sensibilidad de X, referencia
-real de 5 V y validación de R9–R16. El offset de X puede configurarse por serie,
-pero requiere medición. R17–R19, R21–R22 y R23 ya están calculadas. La Etapa 6
-está escrita y compilada; falta probarla en hardware.
+Validar en hardware la cadencia de TIMER0 y la comunicación GUI↔PIC; definir
+filtros/criterios de gestos y el futuro muestreo periódico de Y/Z; calibrar la
+sensibilidad de X y medir la referencia real de 5 V. También falta validar
+R9–R16. El offset de X se configura por serie. R17–R19, R21–R22 y R23 ya están
+calculadas. Las Etapas 5 y 6 están escritas y compiladas, no probadas en banco.

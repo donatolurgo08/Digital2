@@ -1,6 +1,6 @@
 # HAND MOTION — Checklist de pendientes
 
-Actualizada: 2026-11-11
+Actualizada: 2026-11-12
 
 ## Firmware
 
@@ -9,7 +9,8 @@ Actualizada: 2026-11-11
 - [ ] **Etapa 3:** comprobar que la alarma se apague con `TEMP_C <= 40` y se active con `TEMP_C > 40`; verificar la polaridad y corriente de la entrada del buzzer.
 - [ ] **Etapa 4:** probar los displays de ánodo común, el refresco y el brillo. El código está escrito y compilado, pero no probado físicamente.
 - [ ] **Validar el driver BC337:** probar primero un dígito y un segmento. La conexión propuesta como seguidor de emisor pierde tensión; si no funciona bien, decidir otro driver antes de completar el montaje.
-- [ ] **Etapa 5:** implementar el muestreo periódico de X, Y y Z con TIMER0. Definir el período de muestreo con mediciones reales.
+- [x] **Etapa 5:** TIMER0 con tick nominal de 1 ms; AN1/X muestreado cada 20 ms (50 Hz). Firmware compilado.
+- [ ] Medir/verificar el período y jitter de TIMER0 en hardware antes de usar X para gestos. Y/Z quedan para una etapa posterior.
 - [ ] Calibrar offset y sensibilidad de cada eje y definir filtros, umbrales y gestos reconocibles.
 - [x] **Etapa 6 — especificación y firmware:** protocolo binario v1 y EUSART 9600 Bd implementados y compilados; falta probar RX/TX en banco.
 - [x] Integrar la GUI con el protocolo v1: codec CRC-8, RX serial y controles de comandos.

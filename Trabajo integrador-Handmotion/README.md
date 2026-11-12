@@ -23,6 +23,8 @@ Los pines, frecuencia y configuración del PIC están documentados. El protocolo
 serie v1 está implementado en el firmware y la GUI (9600 Bd, trama binaria con
 CRC-8; temperatura y eje X). Falta probar el enlace en hardware, calibrar el
 sensor y definir los criterios de gestos. Y/Z no se transmiten todavía.
+El eje X se muestrea cada 20 ms (50 Hz) mediante TIMER0; el envío de DATA mantiene
+su período independiente de 50 ms por defecto.
 
 ## Organización
 

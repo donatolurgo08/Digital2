@@ -5,15 +5,14 @@
 ;
 ; @date       06/11/2026
 ;
-; @brief      HAND MOTION - Etapas 2-4 y 6: ADC, alarma, displays y EUSART.
+; @brief      HAND MOTION - Etapas 2-6: ADC, alarma, displays y EUSART.
 ;
 ; @details    PIC16F887 con oscilador interno a 8 MHz (OSCCON IRCF=111).
-;             Configura el ADC a FOSC/32 (TAD = 4 us), lee el LM35 por AN0 y
-;             los tres ejes del modulo MMA7361 por AN1 (X), AN5 (Y) y AN6 (Z),
-;             sin amplificadores operacionales. Convierte la temperatura y la
-;             aceleracion de X, controla la alarma termica, multiplexa tres
-;             displays con TIMER1 y comunica temperatura/X por EUSART con
-;             protocolo binario CRC-8.
+;             ADC a FOSC/32 (TAD = 4 us); AN1/X se muestrea cada 20 ms mediante
+;             TIMER0. LM35/AN0 y las lecturas existentes de Y/Z se conservan.
+;             Sin amplificadores operacionales. Convierte temperatura y X,
+;             controla la alarma termica, multiplexa tres displays con TIMER1
+;             y comunica temperatura/X por EUSART con protocolo CRC-8.
 ;
 ;             Mapa de pines segun la Rev E del esquema:
 ;               RA0/AN0  LM35                       entrada analogica
@@ -49,6 +48,8 @@
 ;             TIPO / DATOS / CRC8. Transmite temperatura, X y alarma; Y y Z
 ;             quedan muestreados pero fuera de la trama por ahora. El modulo
 ;             esta en modules/uart.inc.
+;             Etapa 5: TIMER0 FOSC/4, prescaler 1:8, precarga 6 (1 ms nominal);
+;             cada 20 ticks inicia una muestra X en foreground.
 ;             Pendiente de banco: polaridad electrica del terminal I/O del
 ;             buzzer; si es activo-bajo hay que invertir el nivel de RC3.
 ;===============================================================================
@@ -85,9 +86,10 @@
 ;   FOSC = 8 MHz            -> TCY = 4 / FOSC = 0,5 us
 ;   OSCCON = 0111 0000b     -> IRCF<2:0> = 111 (8 MHz), SCS = 00 (INTOSC)
 ;
-; Referencias de las etapas siguientes:
-;   TIMER0  1:8 + recarga 6       -> 1 ms (todavia no usado)
-;   EUSART  9600 Bd, BRGH=1       -> SPBRG = 51 (Etapa 6, en uso)
+; Temporizacion confirmada para esta etapa:
+;   TIMER0  FOSC/4, prescaler 1:8, precarga 6 -> 1 ms nominal
+;   Muestreo de X cada 20 ticks                 -> 20 ms / 50 Hz
+;   EUSART  9600 Bd, BRGH=1                     -> SPBRG = 51
         FOSC_KHZ        EQU     8000
         TCY_NS          EQU     500
         OSCCON_8MHZ     EQU     0x70
@@ -107,6 +109,10 @@
         PROTO_PERIOD    EQU     50      ; 50 ms = 20 Hz por defecto
         PROTO_PERIOD_MIN EQU    20      ; 50 Hz
         PROTO_PERIOD_MAX EQU    250     ; 4 Hz
+
+; TIMER0: TCY=0,5 us; (256-6) x 8 x 0,5 us = 1 ms nominal.
+        TMR0_RELOAD     EQU     6
+        X_SAMPLE_TICKS  EQU     20      ; 20 ms = 50 Hz para AN1/X
 
         T_DATA          EQU     0x01
         T_STATUS        EQU     0x02
@@ -167,7 +173,7 @@
 ;===============================================================================
 ; Variables en RAM comun (0x70-0x7F): accesibles desde cualquier banco sin
 ; BANKSEL. Son 16 bytes, el maximo de RAM comun del PIC16F887.
-; Los temporales W_TEMP/STATUS_TEMP se agregaran cuando exista ISR.
+; La ISR de TIMER0 preserva W y STATUS en RAM comun.
         PSECT   udata_shr,class=COMMON
 
 ADC_L:          DS      1       ; resultado ADC, byte bajo
@@ -184,8 +190,8 @@ MC_H:           DS      1       ; multiplicando desplazado, byte alto
 DELTA_L:        DS      1       ; X: cuentas-offset (entrada) / mg (salida)
 DELTA_H:        DS      1       ; idem, byte alto
 FLAGS:          DS      1       ; bit 0 = signo X; bits 2:1 = digito activo
-TEMP_C:         DS      1       ; temperatura en grados C (0..99)
-PROD_H:         DS      1       ; reserva del multiplicador en mul16x8
+T0_W_TEMP:      DS      1       ; contexto W de la ISR TIMER0
+T0_STATUS_TEMP: DS      1       ; contexto STATUS de la ISR TIMER0
 
 ; Muestras crudas de Y y Z. Quedan fuera de la RAM comun porque no hay
 ; espacio: todo acceso debe ir precedido de BANKSEL.
@@ -194,6 +200,10 @@ Y_L:            DS      1       ; eje Y, byte bajo del ADC
 Y_H:            DS      1       ; eje Y, bits 9:8
 Z_L:            DS      1       ; eje Z, byte bajo del ADC
 Z_H:            DS      1       ; eje Z, bits 9:8
+TEMP_C:         DS      1       ; temperatura en grados C (0..99)
+PROD_H:         DS      1       ; reserva del multiplicador en mul16x8
+T0_DIV:         DS      1       ; divisor por software para muestreo X
+X_SAMPLE_FLAG:  DS      1       ; bit 0 = hay una muestra X pendiente
 
 ; EUSART y protocolo (Etapa 6). Todo en banco 0; el codigo hace BANKSEL.
 TX_BUF:         DS      32      ; buffer circular de transmision
@@ -232,6 +242,41 @@ ACK_RES:        DS      1       ; resultado de la respuesta
 resetVec:
         GOTO    main
 
+; Vector unico de interrupcion. La ISR solo atiende TIMER0; guarda W y STATUS
+; porque BANKSEL modifica RP1:RP0. Todas las instrucciones de servicio operan
+; en banco 0, que es el banco estable del bucle principal.
+        PSECT   interruptVec,class=CODE,delta=2,abs
+        ORG     4
+
+interruptVec:
+        MOVWF   T0_W_TEMP
+        SWAPF   STATUS,W
+        MOVWF   T0_STATUS_TEMP
+
+        BANKSEL INTCON
+        BTFSS   INTCON,2        ; T0IF
+        GOTO    t0_isr_restore
+        BCF     INTCON,2        ; limpia T0IF
+
+        BANKSEL TMR0
+        MOVLW   TMR0_RELOAD
+        MOVWF   TMR0
+
+        BANKSEL T0_DIV
+        DECF    T0_DIV,F
+        BTFSS   STATUS,2        ; Z=1 cada 20 ticks
+        GOTO    t0_isr_restore
+        MOVLW   X_SAMPLE_TICKS
+        MOVWF   T0_DIV
+        BSF     X_SAMPLE_FLAG,0
+
+t0_isr_restore:
+        SWAPF   T0_STATUS_TEMP,W
+        MOVWF   STATUS
+        SWAPF   T0_W_TEMP,F
+        SWAPF   T0_W_TEMP,W
+        RETFIE
+
 ;===============================================================================
 ; PROGRAMA PRINCIPAL
 ;===============================================================================
@@ -241,13 +286,14 @@ main:
         CALL    init
         CALL    display_init
         CALL    uart_init
+        CALL    timer0_init
 
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
-; Adquisicion continua de AN0 (LM35), AN1 (X), AN5 (Y) y AN6 (Z), alarma
-; termica, servicio del display y del EUSART. TIMER1 se sondea por polling;
-; las interrupciones permanecen deshabilitadas.
+; AN0 (LM35), AN5 (Y) y AN6 (Z) conservan su adquisicion actual. AN1/X se
+; adquiere cada 20 ms por evento de TIMER0. TIMER1 y EUSART se sondean por
+; polling; la unica interrupcion habilitada es TIMER0.
 ; Resultados: TEMP_C = grados C; DELTA_H:DELTA_L = mg de X con signo;
 ;             Y_H:Y_L y Z_H:Z_L = cuentas crudas de 10 bits.
 ; El EUSART transmite temperatura, X y alarma cada PERIOD_MS (20 Hz por
@@ -258,9 +304,7 @@ loop:
         CALL    convertir_temp
         CALL    procesar_alarma
 
-        MOVLW   1               ; AN1 = X del MMA7361 (directo)
-        CALL    leer_adc
-        CALL    convertir_x_mg
+        CALL    sample_x_if_due ; AN1/X: 50 Hz, cadenciado por TIMER0
 
         MOVLW   5               ; AN5 = Y del MMA7361 (directo)
         CALL    leer_adc
@@ -354,6 +398,61 @@ wait_osc:
         RETURN
 
 ;*******************************************************************************
+; @brief Configura TIMER0 como base nominal de 1 ms e inicia la ISR.
+; @details FOSC/4=2 MHz; prescaler 1:8; precarga 6 -> 250*8*0,5 us=1 ms.
+;          La frecuencia es nominal: comprobar período/jitter en banco.
+;*******************************************************************************
+timer0_init:
+        BANKSEL OPTION_REG
+        BCF     OPTION_REG,5    ; T0CS=0: reloj interno FOSC/4
+        BCF     OPTION_REG,3    ; PSA=0: prescaler asignado a TIMER0
+        BCF     OPTION_REG,2    ; PS2:PS0 = 010 -> 1:8
+        BSF     OPTION_REG,1
+        BCF     OPTION_REG,0
+
+        BANKSEL TMR0
+        MOVLW   TMR0_RELOAD
+        MOVWF   TMR0
+
+        BANKSEL T0_DIV
+        MOVLW   X_SAMPLE_TICKS
+        MOVWF   T0_DIV
+        CLRF    X_SAMPLE_FLAG
+
+        BANKSEL INTCON
+        BCF     INTCON,7        ; GIE se habilita al final
+        BCF     INTCON,2        ; limpia T0IF pendiente
+        BSF     INTCON,5        ; T0IE
+        BSF     INTCON,7        ; GIE
+        RETURN
+
+;*******************************************************************************
+; @brief Lee X solo cuando TIMER0 completa los 20 ticks (20 ms).
+; @details La ISR solo fija la bandera; la conversión ADC se hace en foreground.
+;          Se enmascara GIE brevemente al consumir la bandera para no perder
+;          una muestra que llegue justo durante el test/clear.
+;*******************************************************************************
+sample_x_if_due:
+        BANKSEL INTCON
+        BCF     INTCON,7        ; sección crítica de test-and-clear
+        BANKSEL X_SAMPLE_FLAG
+        BTFSS   X_SAMPLE_FLAG,0
+        GOTO    sample_x_not_due
+        BCF     X_SAMPLE_FLAG,0
+        BANKSEL INTCON
+        BSF     INTCON,7
+
+        MOVLW   1               ; AN1 = X del MMA7361 (directo)
+        CALL    leer_adc
+        CALL    convertir_x_mg
+        RETURN
+
+sample_x_not_due:
+        BANKSEL INTCON
+        BSF     INTCON,7
+        RETURN
+
+;*******************************************************************************
 ; @brief    Espera el tiempo de adquisicion del sample-and-hold.
 ;
 ; @details  Bucle de 14 iteraciones. Cada iteracion consume 3 TCY (DECFSZ +
@@ -425,6 +524,7 @@ wait_adc:
 ; @modifica W, MUL_A, MUL_B, RES_L, RES_H, COUNT, TEMP_C
 ;*******************************************************************************
 convertir_temp:
+        BANKSEL TEMP_C
         MOVF    ADC_H,W
         BTFSS   STATUS,2
         GOTO    temp_sat
@@ -605,6 +705,7 @@ mul8_skip:
 ;           TMP, PROD_H, W
 ;*******************************************************************************
 mul16x8:
+        BANKSEL PROD_H
         MOVF    MUL_B,W
         MOVWF   PROD_H          ; guarda el multiplicador
         MOVF    DELTA_L,W

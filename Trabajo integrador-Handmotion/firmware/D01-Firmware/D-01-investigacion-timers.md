@@ -1,11 +1,11 @@
 # D-01 — Investigación de temporizadores del PIC16F887
 
 **Responsable:** Donato Lurgo  
-**Estado:** En investigación  
+**Estado:** TIMER0/TIMER1 configurados en firmware; validar tiempos en hardware  
 **Base temporal:** `TOSC=1/FOSC`; `TCY=4/FOSC`.
 
-Las asignaciones de uso son propuestas. No se fijan precargas ni períodos hasta
-confirmar `FOSC` y los requisitos temporales.
+`FOSC = 8 MHz` está confirmado. TIMER0 usa el tick nominal aceptado de 1 ms;
+TIMER1 conserva el período nominal de 1 ms para el barrido de displays.
 
 ## TIMER0
 
@@ -21,9 +21,9 @@ postscaler propio.
   `((256−N) × prescaler × TCY)`. Escribir `TMR0` inhibe el conteo durante dos
   ciclos y limpia el prescaler si está asignado a TIMER0; considerar esto al
   ajustar el período.
-- **Aplicación propuesta:** base periódica para coordinar adquisiciones ADC; la
-  ISR puede marcar el evento para que la lectura/procesamiento se haga fuera de
-  ella.
+- **Aplicación actual:** ISR cada tick nominal de 1 ms; cada 20 ticks levanta
+  una bandera para muestrear AN1/X cada 20 ms (50 Hz). El ADC y la conversión se
+  hacen en foreground, no en la ISR.
 
 ## TIMER1
 
@@ -36,8 +36,8 @@ reloj externo, no elegido para esta propuesta.
 - **Desborde:** `0xFFFF → 0x0000`; con precarga `N`, el intervalo nominal interno
   es `((65536−N) × prescaler × TCY)`. Para interrupción: limpiar `TMR1IF` y
   habilitar `TMR1IE`, `INTCON.PEIE` e `INTCON.GIE`.
-- **Aplicación propuesta:** temporizar el barrido de los tres displays,
-  activando un dígito por evento.
+- **Aplicación actual:** temporiza el barrido de los tres displays con polling
+  de `TMR1IF`, activando un dígito por evento.
 
 ## TIMER2
 
@@ -55,9 +55,10 @@ con `PR2`, se reinicia el contador y avanza el postscaler (1:1–1:16).
 
 ## Pendiente de definir
 
-- `FOSC`, frecuencia de muestreo ADC y frecuencia de refresco de displays.
-- Precargas/prescalers y latencia de ISR; deben validarse con los tiempos reales.
-- Si TIMER2 se reserva o se asigna a otra tarea.
+- Medir el período y jitter reales de TIMER0/TIMER1; el cálculo es nominal y
+  debe verificarse con el hardware.
+- Definir la cadencia para Y/Z y reconocimiento de gestos a partir de mediciones.
+- Decidir si TIMER2 queda reservado o se asigna a otra tarea.
 
 ## Fuente
 
