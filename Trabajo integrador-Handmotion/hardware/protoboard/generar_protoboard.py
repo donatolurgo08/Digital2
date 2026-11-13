@@ -532,12 +532,13 @@ for net, pins in NETS.items():
         if n in seen:
             continue
         seen.add(n)
-        hs.append((hx(b, r), hy(c), n))
+        hs.append((hx(b, r), hy(c), n, ref(b, r, c)))
     for u, v in mst(hs):
         pts = jumper(u[0], u[1], v[0], v[1], 3.2 + (wi % 4) * 1.4)
         wi += 1
-        W.append('<path d="M%s" class="w-%s"/>'
-                 % (' L'.join('%g %g' % (x, y) for x, y in pts), FAM[net]))
+        W.append('<path d="M%s" class="w-%s" data-net="%s" data-a="%s" data-b="%s"/>'
+                 % (' L'.join('%g %g' % (x, y) for x, y in pts), FAM[net],
+                    net, u[3], v[3]))
 W.append('</g>')
 SVG = SVG.replace('</svg>', ''.join(W) + '</svg>')
 
@@ -649,7 +650,11 @@ svg{display:block;width:490px;height:800px}
 .dash{stroke:var(--pr);stroke-width:.9;stroke-dasharray:3 3;opacity:.75}
 .pol{font:700 6px ui-monospace,monospace;fill:#fff}
 .wires.hidden{display:none}
-.wires path{fill:none;stroke-width:1.25;opacity:.85;stroke-linecap:round;stroke-linejoin:round}
+.wires path{fill:none;stroke-width:1.25;opacity:.85;stroke-linecap:round;stroke-linejoin:round;
+cursor:pointer}
+.wires path:hover{opacity:1;stroke-width:2.2}
+.wires path.sel{stroke-width:3.8;opacity:1;
+filter:drop-shadow(0 0 1px rgba(0,0,0,.6)) drop-shadow(0 0 2.5px var(--hl))}
 .w-p5{stroke:var(--p5)}.w-p3{stroke:var(--p3)}.w-gnd{stroke:var(--gnd)}
 .w-an{stroke:var(--an)}.w-dg{stroke:var(--dg)}.w-pr{stroke:var(--pr)}
 circle.hl{fill:var(--hl);r:3.2}
@@ -664,6 +669,9 @@ padding:1px 4px;border-radius:3px}
 .nl{color:var(--mu);font-size:11.5px}
 .ctr{display:flex;gap:18px;align-items:center;font-size:13px;margin:10px 0 0;flex-wrap:wrap}
 .ctr label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.selinfo{font:600 12px ui-monospace,monospace;color:var(--fg);
+background:color-mix(in srgb,var(--hl) 35%,transparent);padding:2px 8px;border-radius:4px}
+.selinfo:empty{display:none}
 ol,ul{max-width:1100px;padding-left:22px}
 li{margin:4px 0}
 .warn{border-left:3px solid var(--warn);background:color-mix(in srgb,var(--warn) 8%,transparent);
@@ -678,7 +686,23 @@ function hl(net,on){holes.forEach(h=>{if(h.dataset.net===net)h.classList.toggle(
 rows.forEach(tr=>{tr.addEventListener('mouseenter',()=>hl(tr.dataset.net,true));
 tr.addEventListener('mouseleave',()=>hl(tr.dataset.net,false))});
 document.getElementById('wchk').addEventListener('change',e=>{
-document.getElementById('wires').classList.toggle('hidden',!e.target.checked)});
+document.getElementById('wires').classList.toggle('hidden',!e.target.checked); clearSel()});
+const wg=document.getElementById('wires'), info=document.getElementById('selinfo');
+let sel=null;
+function clearSel(){ if(sel) sel.classList.remove('sel');
+ holes.forEach(h=>h.classList.remove('hl'));
+ sel=null; info.textContent=''; }
+wg.addEventListener('click',ev=>{
+ const p=ev.target.closest('#wires path'); if(!p) return;
+ ev.stopPropagation();
+ const same=(p===sel); clearSel(); if(same) return;
+ sel=p; p.classList.add('sel'); wg.appendChild(p);
+ hl(p.dataset.net,true);
+ info.textContent='Red '+p.dataset.net+' \\u2014 '+p.dataset.a+' a '+p.dataset.b;
+});
+document.querySelector('svg').addEventListener('click',ev=>{
+ if(!ev.target.closest('#wires path')) clearSel();
+});
 """
 
 html = """<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
@@ -700,7 +724,8 @@ Pasa el mouse por una red de la tabla para ver sus agujeros.</p>
 <div class="wrap"><div class="dia">@@SVG@@
 <div class="ctr"><label><input type="checkbox" id="wchk"> Mostrar cables</label>
 <span class="nl">Vista superior, escala 1:1 (1 agujero = 2,54 mm). Los buses +5V, +3V3 y GND no
-llevan cable: van por los rieles.</span></div></div></div>
+llevan cable: van por los rieles.</span>
+<span id="selinfo" class="selinfo"></span></div></div></div>
 
 <h2>Como leer el dibujo</h2>
 <ul>
@@ -714,6 +739,8 @@ fila <b>g</b> (0,6" entre filas). El numero de cada pata esta rotulado junto al 
 <li><b>Displays:</b> filas <b>e</b> y <b>f</b> (0,3"), columnas 6-10, 14-18 y 22-26 de la placa B.</li>
 <li><b>MMA7361:</b> adaptador 2x5 sobre las filas e y f, columnas 2-6, cruzando el canal.</li>
 <li><b>Buses:</b> cada bus esta partido a la altura de la columna 31/32: hay que puentearlo.</li>
+<li><b>Cables:</b> con <i>Mostrar cables</i> activo, un clic sobre un cable lo resalta y marca
+en amarillo todos los agujeros de esa red. Un segundo clic lo suelta.</li>
 </ul>
 
 <div class="warn"><b>Antes de energizar:</b> verifica con el multimetro que el bus marcado +5V

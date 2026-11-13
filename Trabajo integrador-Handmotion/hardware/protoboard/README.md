@@ -48,6 +48,10 @@ La casilla **Mostrar cables** superpone los puentes de señal. Cada cable sale
 del agujero, corre por el canal entre filas y entra al agujero destino con codos
 de 90°; los buses de alimentación no se dibujan porque van por los rieles.
 
+Un clic sobre un cable lo engrosa y le pone un halo, marca en amarillo todos los
+agujeros de esa red y muestra el nombre de la red con los dos extremos. Un
+segundo clic (o un clic fuera de los cables) lo suelta.
+
 En esta orientación cada columna de cinco agujeros (a–e o f–j) es **un solo
 nodo**. Por eso ningún componente se apoya en una columna ya usada por otra red:
 el generador verifica que no haya dos redes en el mismo nodo y que no haya dos
