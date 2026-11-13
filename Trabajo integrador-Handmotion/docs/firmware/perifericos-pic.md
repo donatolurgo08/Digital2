@@ -6,7 +6,7 @@
 | TIMER0 | Tick nominal de 1 ms y muestreo de AN1/X a 50 Hz | Implementado con ISR, prescaler 1:8 y precarga 6; medir período/jitter en hardware |
 | TIMER1 | Temporización del multiplexado de tres displays | Etapa 4: 1 ms, 1:1, recarga 0xF830, polling |
 | EUSART | Comunicación bidireccional con la GUI | Etapa 6: 9600 Bd, 8N1; protocolo binario CRC-8 integrado, falta probar con el PIC y el adaptador reales |
-| GPIO | Displays rojos de cátodo común, LED rojo y buzzer | R9–R16: 220 Ω candidato por validar; driver BC337 de lado bajo; buzzer activo-bajo por validar en banco |
+| GPIO | Displays rojos de cátodo común, LED rojo y buzzer | R9–R16: 220 Ω adoptadas, Vf/VOH y brillo por verificar en banco; driver BC337 de lado bajo; buzzer activo-bajo por validar en banco |
 | Interrupciones | TIMER0 marca muestras de X | ISR mínima activa; TIMER1 y EUSART siguen por polling |
 
 ## Mapa de pines (Rev E)
@@ -44,11 +44,11 @@ queda libre porque es open-drain y no puede entregar corriente al LED.
   Validar un dígito/segmento y la corriente antes de montar el conjunto.
 - Verificar corrientes y compatibilidad eléctrica antes de conectar displays,
   LED o buzzer. R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ ya están
-  calculadas; R9–R16 = 220 Ω es candidato para 10 mA y debe confirmarse
-  midiendo Vf/VOH en la nueva topología.
+  calculadas; R9–R16 = 220 Ω quedan adoptadas para 10 mA y deben confirmarse
+  midiendo Vf/VOH y brillo en la nueva topología.
 - Buzzer: módulo de 3 pines (GND/I/O/VCC), directo a RC3. La serigrafía indica
-  trigger activo-bajo; el firmware aún es activo-alto y debe invertirse antes
-  de conectarlo al PIC. Medir corriente de I/O en banco.
+  trigger activo-bajo; el firmware ya deja RC3 alto en reposo y lo baja en
+  alarma. Medir corriente de I/O en banco.
 
 ## Alarma térmica (Etapa 3)
 

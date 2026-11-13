@@ -39,7 +39,7 @@
 ;             de usar DELTA para reconocimiento.
 ;             Displays rojos de catodo comun (decision 2026-11-12): segmentos
 ;             activos altos; Q1-Q3 BC337 como selectores de catodo lado bajo.
-;             R9-R16=220 ohm es candidato para 10 mA (confirmar Vf/VOH);
+;             R9-R16=220 ohm adoptadas para 10 mA (confirmar Vf/VOH);
 ;             R17-R19=330 ohm quedan como valores existentes a validar.
 ;             R21-R22=220 ohm y R23=10 kohm siguen calculadas. LED1 se movio
 ;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.

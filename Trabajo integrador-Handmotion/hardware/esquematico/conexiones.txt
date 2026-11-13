@@ -3,7 +3,7 @@
 ================================================================================
  Proyecto : Hand Motion - reconocimiento de movimiento + temperatura
  Revision : E
- Fecha    : 2026-11-04 (actualizado 2026-11-12)
+ Fecha    : 2026-11-04 (actualizado 2026-11-13)
  Cambio   : Rev B: 2 x MCP6002 en lugar de 1 x MCP6004.
             Rev C: sensor LilyPad ADXL335 a 3,3 V.
             Rev D: alimentacion desde modulo de protoboard con bateria de
@@ -36,6 +36,12 @@
                     Sleep, 0g-Detect), regulador U2 y jumper J1 del modulo.
                     Alimentacion recomendada por 5V con el jumper abierto; 3V3
                     es salida. Los pines de control son de 3 V.
+              Actualizacion 2026-11-12 (Rev E del documento de conexionado):
+                    PS1 pasa a entrada DC-IN con fuente regulada de 9 V DC; el
+                    USB-A hembra es salida de 5 V y no se usa como entrada. Se
+                    adopta el patillaje fisico de los displays, se confirma el
+                    lote BC337 C-B-E, R9-R16 = 220 ohm quedan adoptadas y se
+                    documenta el orden de etiquetas del USB-TTL.
  Fuente   : "Lista de materiales - Hand Motion"
  Uso      : este archivo reemplaza a esquema.md y a los SVG de bloque.
             Esta pensado para transcribir el circuito a otro CAD.
@@ -44,22 +50,23 @@
  Si el componente no tiene numeracion fija, se usa REF.NOMBRE
  (ej. Q1.C = colector de Q1, DS1.a = segmento a del display 1).
 
- R9-R16 = 150 ohm era un valor provisional calculado para la antigua topologia
- de anodo comun y queda invalidado por la decision de catodo comun. Recalcular
- antes de comprar/armar; candidato 220 ohm para 10 mA bajo las hipotesis de la
- nota 6.5. R17-R19=330 ohm se revisan para el uso como interruptores de lado
- bajo; R21, R22 y R23 no cambian.
+ R9-R16 = 220 ohm es el valor ADOPTADO para catodo comun (10 mA bajo las
+ hipotesis de la nota 6.5). Reemplaza al 150 ohm de la antigua topologia de
+ anodo comun. Verificar Vf/VOH y brillo en banco antes de soldar. R17-R19=330
+ ohm se mantienen para el uso como interruptores de lado bajo; R21, R22 y R23
+ no cambian.
 ================================================================================
 
 
 ================================================================================
  1. DESIGNACIONES (REFDES)
 ================================================================================
-  FUENTE Fuente/cable conectado al terminal de entrada identificado en PS1.
-         La foto muestra DC-IN y puertos USB; confirmar cual es entrada,
-         tension admitida y polaridad. No usar un puerto USB de salida como entrada.
-  PS1   Modulo de alimentacion de protoboard con selector independiente en
-        cada riel (+5 V o +3V3) y entrada FUENTE (USB/DC-IN segun serigrafia)
+  FUENTE Fuente regulada de 9 V DC conectada a la entrada DC-IN de PS1.
+         Confirmar en la serigrafia la polaridad del jack y que el modulo
+         admita 9 V DC. Usar solo fuente DC regulada, nunca AC.
+  PS1   Modulo de alimentacion de protoboard HW-131/MB102, con selector
+        independiente en cada riel (+5 V o +3V3). Entrada DC-IN de 9 V DC;
+        el USB-A hembra es salida de 5 V y NO se usa como entrada.
  U1    PIC16F887, PDIP-40, en zocalo DIP-40
  U4    LM35, TO-92
  MOD1  Modulo MMA7361L de 2x5 pines, con regulador U2 (LP2985-3V) y jumper J1
@@ -73,6 +80,9 @@
   DS1   Display rojo 7 segmentos, catodo comun - decenas
   DS2   Display rojo 7 segmentos, catodo comun - unidades
   DS3   Display rojo 7 segmentos, catodo comun - C estandar
+        Patillaje fisico adoptado (10 patas): 1=e, 2=d, 3=CC, 4=c, 5=dp,
+        6=b, 7=a, 8=CC, 9=f, 10=g. Verificar con datasheet o multimetro
+        antes de soldar.
   Q1    NPN BC337 - selector de catodo a GND, DS1
   Q2    NPN BC337 - selector de catodo a GND, DS2
   Q3    NPN BC337 - selector de catodo a GND, DS3
@@ -81,14 +91,14 @@
  BZ1   Modulo buzzer activo MDU1095, 3,5-5,5 V (3 terminales: VCC, GND, I/O)
   J1    Conversor USB-TTL (5 terminales rotulados: 3V3, TXD, RXD, GND, +5V)
  J2    Conector ICSP de 6 pines para PICkit
- R9    Limitadora segmento a                            220 ohm candidato (CC)
- R10   Limitadora segmento b                            220 ohm candidato (CC)
- R11   Limitadora segmento c                            220 ohm candidato (CC)
- R12   Limitadora segmento d                            220 ohm candidato (CC)
- R13   Limitadora segmento e                            220 ohm candidato (CC)
- R14   Limitadora segmento f                            220 ohm candidato (CC)
- R15   Limitadora segmento g                            220 ohm candidato (CC)
- R16   Limitadora segmento dp                           220 ohm candidato (CC)
+ R9    Limitadora segmento a                            220 ohm adoptado (CC)
+ R10   Limitadora segmento b                            220 ohm adoptado (CC)
+ R11   Limitadora segmento c                            220 ohm adoptado (CC)
+ R12   Limitadora segmento d                            220 ohm adoptado (CC)
+ R13   Limitadora segmento e                            220 ohm adoptado (CC)
+ R14   Limitadora segmento f                            220 ohm adoptado (CC)
+ R15   Limitadora segmento g                            220 ohm adoptado (CC)
+ R16   Limitadora segmento dp                           220 ohm adoptado (CC)
  R17   Base de Q1                                       330 ohm, 1/4 W
  R18   Base de Q2                                       330 ohm, 1/4 W
  R19   Base de Q3                                       330 ohm, 1/4 W
@@ -184,10 +194,10 @@
   0g-Detect es una salida y queda sin conectar.
 
 --------------------------------------------------------------------------------
- RED: VIN   (entrada del modulo de alimentacion)
+ RED: DC_IN   (entrada de alimentacion de PS1)
 --------------------------------------------------------------------------------
- FUENTE.+  terminal positivo        alimentador externo
- PS1.VIN   entrada                  modulo de protoboard
+ FUENTE.+  terminal positivo        fuente regulada de 9 V DC
+ PS1.DC-IN entrada DC-IN            modulo HW-131/MB102
 
 --------------------------------------------------------------------------------
  RED: USB_TTL_5V   (salida del conversor, aislada)
@@ -521,21 +531,23 @@
    2  VOUT     AN0
    3  GND      GND
 
-  FUENTE - fuente/cable que alimenta PS1
-    Conectar solo al puerto de entrada identificado por la serigrafia/manual
-    de PS1 (la foto muestra DC-IN y conectores USB; no asumir la funcion de
-    cada USB). Confirmar tension admitida y polaridad; no conectar dos fuentes.
+  FUENTE - fuente regulada que alimenta PS1
+    Salida de 9 V DC regulados al jack DC-IN de PS1. Confirmar en la
+    serigrafia la polaridad del jack (centro positivo solo si esta indicado)
+    y que el modulo admita 9 V DC. No usar fuente AC ni dos fuentes a la vez.
 
-  PS1 - modulo de alimentacion de protoboard HW-131 / HW-130
-    VIN   entrada USB tipo A de 5 V (decision provisional). La entrada DC-IN
-          existe pero NO se usa hasta confirmar tension y polaridad del jack.
+  PS1 - modulo de alimentacion de protoboard HW-131 / MB102
+    DC-IN entrada de alimentacion de 9 V DC regulados (unica entrada usada)
+    USB-A salida de 5 V del modulo; NO usar como entrada de alimentacion
     GND   GND comun
     +5V   salida de 5 V
     +3V3  salida de 3,3 V
     Dos jumpers de seleccion independientes, uno por riel: seleccionar +5V
     en un lado y +3V3 en el otro segun la serigrafia. La orientacion
     izquierda/derecha se fijara al hacer el dibujo. Verificar ambos rieles
-    simultaneos y GND comun con multimetro. No usar USB y DC-IN a la vez.
+    simultaneos y GND comun con multimetro. No conectar DC-IN y USB a la vez.
+    Con 9 V de entrada el regulador de 5 V disipa mas calor: comprobar la
+    temperatura de PS1 durante la prueba integrada.
 
   MOD1 - modulo MMA7361L de 2x5 pines (fotos 2026-11-12)
     Columna izquierda (serigrafia, arriba->abajo):
@@ -559,16 +571,21 @@
     regulador debe medirse antes de calibrar; puede ser 3,0 V y no 3,3 V.
 
   DS1, DS2, DS3 - display rojo de 7 segmentos, catodo comun
-    a, b, c, d, e, f, g, dp   terminales de segmento
-    CC                         catodo comun (unir las patas comunes)
+    Patillaje fisico adoptado (vista del dibujo, 10 patas):
+      1  e        2  d        3  CC       4  c        5  dp
+      6  b        7  a        8  CC       9  f       10  g
+    Las patas 3 y 8 son el catodo comun y se unen entre si.
+    Mapeo: RD0-RD7 -> R9-R16 -> patas 7,6,4,2,1,9,10,5 (a,b,c,d,e,f,g,dp).
+    Contrastar con el datasheet del display o con el multimetro en modo diodo
+    antes de soldar; probar primero un solo display y un solo segmento.
 
   Q1, Q2, Q3 - NPN BC337, selectores de catodo lado bajo
     B   base
     C   colector, al catodo comun del display correspondiente
     E   emisor, a GND
     RCx alto activa el transistor. Confirmar saturacion/corriente en banco.
-    Segun la imagen de patillaje entregada: cara plana al observador, patas
-    hacia abajo = 1 Colector, 2 Base, 3 Emisor (C-B-E).
+    Lote verificado por el usuario: todos C-B-E. Cara plana al observador,
+    patas hacia abajo = 1 Colector, 2 Base, 3 Emisor. No invertir C y E.
 
  D1, D2 - LED rojo
    A   anodo
@@ -584,14 +601,15 @@
      la entrada I/O (no confundirla con los 30 mA del modulo) y validar el
      modelo y la polaridad efectiva en banco.
 
-  J1 - modulo USB-TTL (5 pines rotulados en la foto)
+  J1 - modulo USB-TTL (5 pines; orden de etiquetas: 3V3, TXD, RXD, GND, +5V)
     3V3   salida de 3,3 V del adaptador; no unir a +3V3
-    GND   GND comun
-    RXD   TX_TTL (recibe del PIC)
     TXD   RX_TTL (entrega al PIC)
+    RXD   TX_TTL (recibe del PIC)
+    GND   GND comun
     +5V   salida de 5 V del adaptador; no unir a +5V del proyecto
-    Confirmar el nivel logico de TXD antes de conectarlo a RC7. Los pines
-    3V3 y +5V se dejan aislados; solo se usan GND, RXD y TXD.
+    Solo se usan GND, TXD y RXD, con TX/RX cruzados. Confirmar el nivel
+    logico de TXD antes de conectarlo a RC7. Los pines 3V3 y +5V quedan
+    aislados; el adaptador no alimenta el circuito.
 
  J2 - conector ICSP (PICkit, 6 pines)
    1  MCLR
@@ -613,7 +631,7 @@
               MOD1.GS, MOD1.ST
  +3V3      = PS1.+3V3, C9.1, C11.1   (reserva; ver aviso de la red +3V3)
  MOD1_3V3  = MOD1.3V3, MOD1.SLP       (salida del regulador; Sleep alto)
- VIN       = FUENTE.+, PS1.VIN
+ DC_IN     = FUENTE.+, PS1.DC-IN
   USB_TTL_5V   = J1.5V                      (salida aislada)
   USB_TTL_3V3  = J1.3V3                     (salida aislada)
  AN0       = U4.2, U1.2
@@ -698,11 +716,11 @@
       sigue siendo 10 mA de pico por segmento; no usar 25 mA como corriente de
       diseno.
       El valor previo de 150 ohm correspondia a la topologia de anodo comun y
-      queda invalidado. Como candidato para catodo comun:
+      queda invalidado. Valor adoptado para catodo comun:
         R = (VOH - Vf - VCEsat) / I = (4,3 - 1,9 - 0,2) / 10 mA = 220 ohm.
       Los valores 4,3 V, Vf=1,9 V y VCEsat=0,2 V son hipotesis de calculo; la
-      VOH del PIC a 10 mA y Vf real deben verificarse. No comprar hasta medir.
-      Con 8 segmentos a 10 mA, Qx hunde 80 mA; R17=330 ohm da ~10,9 mA de base
+      VOH del PIC a 10 mA y Vf real deben verificarse en banco antes de soldar.
+      Con 8 segmentos a 10 mA, Qx hunde 80 mA; R17-R19=330 ohm dan ~10,9 mA de base
       si VOH=4,3 V y VBE=0,7 V, suficiente como sobreexcitacion. Verificar la
       corriente y saturacion de Qx en banco.
 
@@ -768,14 +786,17 @@
      los pads.
 
   6.13 Alimentacion
-     FUENTE alimenta la entrada de PS1 identificada en su serigrafia/manual;
-     la foto muestra DC-IN y conectores USB, cuya funcion debe confirmarse.
+     La unica entrada de alimentacion es DC-IN de PS1 (HW-131/MB102), con una
+     fuente regulada de 9 V DC. El USB-A hembra del modulo es una salida de
+     5 V y NO se usa como entrada; no conectar DC-IN y USB a la vez.
      PS1 entrega +5V y +3V3 simultaneamente si sus dos jumpers de rail se
      colocan en las marcas correspondientes, con GND comun. No usar dos
      entradas de alimentacion a la vez.
-     Confirmar el rango de entrada admitido y la polaridad de la fuente/DC-IN.
-     El regulador de 5 V del modulo disipa (VIN - 5) V multiplicado por la
-     corriente del circuito: con cargas altas puede calentar. No taparlo.
+     Confirmar en la serigrafia la polaridad del jack y que el modulo admita
+     9 V DC antes de energizar. Usar fuente DC regulada, nunca AC.
+     El regulador de 5 V del modulo disipa (9 - 5) V multiplicado por la
+     corriente del circuito: con cargas altas puede calentar. No taparlo y
+     comprobar su temperatura en la prueba integrada; no subir a 12 V.
      La corriente disponible en 5 V no esta medida: comprobarla antes de
      conectar los tres displays. El pico del multiplexado es 80 mA.
      La autonomia y portabilidad dependen de la fuente/cable que se conecte a PS1.
@@ -785,11 +806,11 @@
       a 3 mA, no a 10 mA); Vf rojo=1,9 V tipico (medir); VCEsat BC337=0,2 V
       estimado; objetivo=10 mA de pico por segmento. Recalcular con mediciones.
 
-      Displays de catodo comun, R9-R16 (valor candidato 220 ohm):
+      Displays de catodo comun, R9-R16 (valor adoptado 220 ohm):
         Iseg=(VOH-Vf-VCEsat)/R=(4,3-1,9-0,2)/220=10 mA nominales.
         El valor anterior de 150 ohm correspondia al circuito de anodo comun;
         con esta topologia daria ~14,7 mA bajo las mismas hipotesis y queda
-        invalidado. 220 ohm es candidato, no comprar hasta confirmar Vf y VOH.
+        invalidado. 220 ohm queda adoptado; confirmar Vf, VOH y brillo en banco.
         Ocho segmentos a 10 mA suman 80 mA por digito (10 mA por pin RDx).
         La potencia estimada de Qx con VCEsat=0,2 V es ~16 mW.
 
@@ -809,10 +830,10 @@
        despreciable. Con 13 V de VPP la corriente hacia el riel de +5 V es
        (13 - 5) / 10 k = 0,8 mA, tolerable por el programador.
 
-     Tolerancia 5 % y 1/4 W en las seis resistencias.
+     Tolerancia 5 % y 1/4 W en todas las resistencias de displays, alarma y MCLR.
 
-      R9-R16 candidate 220 ohm no final; el valor de 150 ohm de la antigua
-      topologia de anodo comun queda invalidado. Confirmar tras medir Vf y VOH.
+      R9-R16 = 220 ohm adoptado; el valor de 150 ohm de la antigua topologia de
+      anodo comun queda invalidado. Confirmar Vf/VOH y brillo en banco.
 
   6.15 Reserva de carga en los rieles
      El multiplexado enciende hasta 8 segmentos a la vez: 80 mA durante 1 ms,
@@ -850,17 +871,18 @@
 ================================================================================
  7. PENDIENTE ANTES DE COMPRAR O SOLDAR
 ================================================================================
- - Aprobar en banco R9..R16 = 220 ohm candidatos (segmentos de catodo comun):
-   depende de Vf, VOH y la corriente por segmento (notas 6.5 y 6.14).
+ - Verificar en banco R9..R16 = 220 ohm adoptadas (segmentos de catodo comun):
+   confirmar Vf, VOH, corriente por segmento y brillo (notas 6.5 y 6.14).
  - Confirmar en banco los valores calculados de R17..R19 (330 ohm),
    R21..R22 (220 ohm) y R23 (10 kohm), nota 6.14.
  - Medir la caida del riel de 5 V con los tres displays encendidos: deberia
    quedar por debajo de ~50 mV (nota 6.15).
  - Verificar que PS1 entregue 5,0 V y 3,3 V reales, con GND comun, y medir la
    corriente disponible en 5 V.
-  - PS1: la decision provisional es usar la entrada USB de 5 V; no usar DC-IN
-    hasta confirmar tension y polaridad del jack. Confirmar los jumpers para
-    +5V y +3V3 simultaneos.
+  - PS1: la entrada adoptada es DC-IN con fuente regulada de 9 V DC; el USB-A
+    hembra es salida y no se usa como entrada. Confirmar polaridad del jack y
+    compatibilidad con 9 V DC antes de energizar. Confirmar los jumpers para
+    +5V y +3V3 simultaneos y vigilar la temperatura del regulador.
   - MOD1 (resuelto 2026-11-12): pinout 2x5 confirmado por fotos; izquierda
     5V, 3V3, GND, g-Select, SelfTest; derecha X, Y, Z, Sleep, 0g-Detect.
   - Medir el estado del jumper J1 del modulo y la tension del pin 3V3: si esta
@@ -874,9 +896,11 @@
   - PINES Y/Z (resuelto 2026-11-12): se mantiene Y->AN5 (pin 8) y Z->AN6
     (pin 9) de la Rev E. El documento de respuestas proponia AN2/AN3, pero
     RA2/AN2 es LED1 y RA3/AN3 queda libre. No cambiar firmware ni netlist.
-  - Modelo y patillaje real de los displays (mapear a, b, c, d, e, f, g, dp).
-  - Confirmar que los BC337 comprados coinciden con C-B-E de la imagen de
-    patillaje antes de soldar.
+  - Patillaje de displays (adoptado 2026-11-12): 1=e, 2=d, 3=CC, 4=c, 5=dp,
+    6=b, 7=a, 8=CC, 9=f, 10=g. Contrastar con el datasheet o el multimetro
+    antes de soldar y probar un segmento/digito primero.
+  - BC337 (resuelto 2026-11-12): el usuario verifico el lote completo, todos
+    C-B-E. Mantener esa orientacion al soldar.
   - Medir la corriente de la entrada I/O del buzzer MDU1095; el firmware ya usa
     activo-bajo (RC3 alto en reposo, bajo en alarma). Confirmar el modelo y no
     confundir los 30 mA del modulo con la corriente de control (nota 6.7).

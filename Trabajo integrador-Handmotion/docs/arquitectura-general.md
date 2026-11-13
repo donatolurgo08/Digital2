@@ -48,8 +48,9 @@ La supervisión térmica no participa en el reconocimiento.
 - Tres displays rojos de **cátodo común** multiplexados: dos dígitos de temperatura
   y una `C` estándar. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp), activos
   en alto; RC0–RC2 activan Q1–Q3 BC337 como selectores de cátodo lado bajo.
-  R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ. R9–R16 tienen 220 Ω como
-  candidato para cátodo común; confirmar con Vf/VOH y corriente en banco.
+  R9–R16 = 220 Ω adoptadas, R17–R19 = 330 Ω, R21–R22 = 220 Ω y R23 = 10 kΩ;
+  confirmar Vf/VOH y brillo en banco. Patillaje físico adoptado: 1=e, 2=d,
+  3=CC, 4=c, 5=dp, 6=b, 7=a, 8=CC, 9=f, 10=g (patas 3 y 8 al colector de Qx).
 - LED rojo y buzzer activo simultáneos cuando T > 40 °C. LED1 en RA2, LED2 en
   RA5. El buzzer es un módulo MDU1095 de 3 terminales (VCC, GND, I/O): VCC a
   +5 V, GND a GND e I/O directo a RC3. No lleva Q4 ni R20. Se activa en bajo:
@@ -57,15 +58,20 @@ La supervisión térmica no participa en el reconocimiento.
 - Reserva de carga en los rieles: C10 = 220 µF en +5 V y C11 = 10 µF en +3V3,
   además de los 100 nF de desacople. El ADC usa `VREF+ = VDD`, así que los
   pulsos de 80 mA del multiplexado no deben mover el riel.
+- Alimentación: única entrada **DC-IN de PS1 (HW-131/MB102)** con fuente
+  regulada de **9 V DC**. El USB-A hembra del módulo es una **salida de 5 V**,
+  no una entrada; no conectar DC-IN y USB a la vez. PS1 entrega +5 V y +3,3 V
+  con GND común. Confirmar polaridad del jack y vigilar la temperatura del
+  regulador con 9 V de entrada.
 - No se usará teclado matricial ni habrá etapa de potencia para actuadores externos.
 
 ## Pendientes de integración
 
 Probar la comunicación de la GUI con el PIC real, validar el muestreo X de 20 ms,
 y definir filtros y criterios de reconocimiento para gestos y el muestreo futuro
-de Y/Z. También quedan pendientes la verificación de R9–R16 (150 Ω
-provisionales), la alimentación y el patillaje del MMA7361, y la calibración de
-offset/sensibilidad con el módulo real. Las
+de Y/Z. También quedan pendientes la verificación en banco de R9–R16 (220 Ω
+adoptadas), la alimentación DC-IN de 9 V y el patillaje del MMA7361, y la
+calibración de offset/sensibilidad con el módulo real. Las
 resistencias de base (R17–R19), LED (R21–R22) y MCLR (R23) ya están calculadas. Ver
 [`firmware/perifericos-pic.md`](firmware/perifericos-pic.md) y
 [`comunicacion/README.md`](comunicacion/README.md).

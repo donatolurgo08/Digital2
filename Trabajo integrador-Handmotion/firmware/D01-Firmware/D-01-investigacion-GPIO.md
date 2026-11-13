@@ -55,9 +55,10 @@ esquema y programación antes de asignar números de pata o señales.
 - La hoja de datos da límites absolutos de 25 mA por I/O y 200 mA combinados por
   grupos de puertos. **No son corrientes de diseño recomendadas**; respetar las
   especificaciones normales `VOH`/`VOL` y márgenes eléctricos.
-- El tipo cátodo común y los BC337 NPN están confirmados. El pinout aportado es
-  C-B-E mirando la cara plana; verificar el lote físico, corriente y brillo.
-  R9–R16 = 220 Ω es candidato para esta topología y aún debe validarse.
+- El tipo cátodo común y los BC337 NPN están confirmados. El lote verificado
+  por el usuario es C-B-E mirando la cara plana; falta verificar corriente y
+  brillo. R9–R16 = 220 Ω quedan adoptadas para esta topología y deben
+  validarse en banco.
 
 ## Fuente
 
