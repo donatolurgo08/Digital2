@@ -53,5 +53,6 @@ Actualizada: 2026-11-13
 - [x] Reserva de carga C10/C11 pusheada: `c6b8f61`.
 - [x] Protocolo serie y firmware de Etapa 6 pusheados: `0cc73bb`.
 - [x] Integración de la GUI con el protocolo v1 publicada en esta etapa.
-- [x] Diseño de protoboard de dos placas de 830 lado a lado generado en `hardware/protoboard/protoboard.html` (diagrama + mapa de patas + redes + guía de armado). Verificado sin cortocircuitos de nodo.
+- [x] Diseño de protoboard de dos placas de 830 encastradas generado en `hardware/protoboard/protoboard.html` (diagrama + mapa de patas + redes + guía de armado). Verificado sin cortocircuitos de nodo (47 redes, 156 pines, 0 agujeros compartidos).
+- [x] Ronda de fidelidad visual: buses azules, displays de 7 segmentos con forma real, LM35 y MMA7361 dibujados, placas unidas y grilla de agujeros alineada.
 - [ ] Probar el armado real sobre la protoboard y corregir ubicaciones si algún componente no entra.
