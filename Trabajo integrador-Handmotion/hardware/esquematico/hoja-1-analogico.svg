@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="1150" viewBox="0 0 1150 1150">
+<rect width="1150" height="1150" fill="#ffffff"/>
+<text x="40" y="46" font-family="Segoe UI, Arial" font-size="26" font-weight="700" fill="#111111">HAND MOTION — Hoja 1: sensores y acondicionamiento</text>
+<text x="40" y="72" font-family="Segoe UI, Arial" font-size="14" fill="#c62828" font-weight="700">OBSOLETA: muestra MCP6002 y ADXL335. El diseño vigente (Rev E) usa MMA7361 directo al ADC, sin amplificadores.</text>
+<rect x="20" y="20" width="1110" height="1110" fill="none" stroke="#111111" stroke-width="1"/>
+<rect x="60" y="150" width="160" height="120" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
+<text x="140.0" y="172" font-family="Segoe UI, Arial" font-size="13" fill="#111111" text-anchor="middle" font-weight="700">U3  LM35</text>
+<text x="140" y="205" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="middle" font-weight="normal">LM35</text>
+<text x="140" y="225" font-family="Segoe UI, Arial" font-size="11" fill="#555555" text-anchor="middle" font-weight="normal">TO-92</text>
+<line x1="140" y1="150" x2="140" y2="138" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<line x1="131" y1="138" x2="149" y2="138" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="135" y1="132" x2="145" y2="132" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<text x="154" y="136" font-family="Segoe UI, Arial" font-size="11" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<text x="150" y="148" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">1</text>
+<line x1="140" y1="270" x2="140" y2="284" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="124" y1="284" x2="156" y2="284" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="130" y1="292" x2="150" y2="292" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="136" y1="300" x2="144" y2="300" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<text x="150" y="288" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="normal">3</text>
+<line x1="220" y1="205" x2="300" y2="205" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="230" y="196" font-family="Segoe UI, Arial" font-size="10" fill="#111111" text-anchor="start" font-weight="normal">2</text>
+<text x="305" y="209" font-family="Segoe UI, Arial" font-size="13" fill="#1a3dcc" text-anchor="start" font-weight="700">AN0</text>
+<rect x="60" y="380" width="190" height="180" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
+<text x="155.0" y="402" font-family="Segoe UI, Arial" font-size="13" fill="#111111" text-anchor="middle" font-weight="700">MOD1  GY-61</text>
+<text x="155" y="440" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="middle" font-weight="normal">ADXL335</text>
+<text x="155" y="460" font-family="Segoe UI, Arial" font-size="11" fill="#555555" text-anchor="middle" font-weight="normal">X / Y / Z</text>
+<line x1="155" y1="380" x2="155" y2="368" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<line x1="146" y1="368" x2="164" y2="368" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="150" y1="362" x2="160" y2="362" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<text x="169" y="366" font-family="Segoe UI, Arial" font-size="11" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<line x1="155" y1="560" x2="155" y2="574" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="139" y1="574" x2="171" y2="574" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="145" y1="582" x2="165" y2="582" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="151" y1="590" x2="159" y2="590" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="250" y1="425" x2="300" y2="425" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="256" y="418" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">X</text>
+<line x1="250" y1="470" x2="300" y2="470" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="256" y="463" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">Y</text>
+<line x1="250" y1="515" x2="300" y2="515" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="256" y="508" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">Z</text>
+<text x="255" y="585" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">VCC solo si el módulo regula</text>
+<path d="M 300 425 L 330 425 L 330 240 L 560 240" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="484" y1="240" x2="516" y2="240" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="484" y1="252" x2="516" y2="252" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="500" y1="222" x2="500" y2="240" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="500" y1="252" x2="500" y2="270" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<circle cx="500" cy="240" r="4" fill="#1a3dcc"/>
+<line x1="500" y1="270" x2="500" y2="284" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="484" y1="284" x2="516" y2="284" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="490" y1="292" x2="510" y2="292" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="496" y1="300" x2="504" y2="300" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<text x="516" y="286" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">CfX</text>
+<path d="M 560 240 L 560 264 L 650 264" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 650 198 L 730 240 L 650 282 Z" fill="#fafafa" stroke="#111111" stroke-width="2"/>
+<text x="658" y="218" font-family="Segoe UI, Arial" font-size="18" fill="#111111" text-anchor="start" font-weight="normal">−</text>
+<text x="658" y="270" font-family="Segoe UI, Arial" font-size="16" fill="#111111" text-anchor="start" font-weight="normal">+</text>
+<text x="680" y="245" font-family="Segoe UI, Arial" font-size="12" fill="#111111" text-anchor="middle" font-weight="700">U2A</text>
+<path d="M 650 216 L 600 216" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600" cy="216" r="4" fill="#1a3dcc"/>
+<path d="M 600 216 L 590 223.5 L 610 238.5 L 590 253.5 L 610 268.5 L 590 283.5 L 610 298.5 L 600 306" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="616" y="265.0" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">RgX</text>
+<line x1="600" y1="306" x2="600" y2="320" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="584" y1="320" x2="616" y2="320" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="590" y1="328" x2="610" y2="328" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="596" y1="336" x2="604" y2="336" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 600 216 L 600 150 L 620 150" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 620 150 L 625.8333333333334 140 L 637.5 160 L 649.1666666666666 140 L 660.8333333333334 160 L 672.5 140 L 684.1666666666666 160 L 690 150" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="655.0" y="134" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="normal">RfX</text>
+<path d="M 690 150 L 730 150 L 730 240" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="730" cy="150" r="4" fill="#1a3dcc"/>
+<line x1="690" y1="198" x2="690" y2="178" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<text x="700" y="186" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<text x="744" y="234" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="start" font-weight="normal">3 / 2 / 1</text>
+<line x1="690" y1="282" x2="690" y2="296" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="674" y1="296" x2="706" y2="296" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="680" y1="304" x2="700" y2="304" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="686" y1="312" x2="694" y2="312" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="730" y1="240" x2="800" y2="240" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="806" y="244" font-family="Segoe UI, Arial" font-size="13" fill="#1a3dcc" text-anchor="start" font-weight="700">AN1</text>
+<path d="M 300 470 L 360 470 L 360 470 L 560 470" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="484" y1="470" x2="516" y2="470" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="484" y1="482" x2="516" y2="482" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="500" y1="452" x2="500" y2="470" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="500" y1="482" x2="500" y2="500" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<circle cx="500" cy="470" r="4" fill="#1a3dcc"/>
+<line x1="500" y1="500" x2="500" y2="514" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="484" y1="514" x2="516" y2="514" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="490" y1="522" x2="510" y2="522" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="496" y1="530" x2="504" y2="530" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<text x="516" y="516" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">CfY</text>
+<path d="M 560 470 L 560 494 L 650 494" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 650 428 L 730 470 L 650 512 Z" fill="#fafafa" stroke="#111111" stroke-width="2"/>
+<text x="658" y="448" font-family="Segoe UI, Arial" font-size="18" fill="#111111" text-anchor="start" font-weight="normal">−</text>
+<text x="658" y="500" font-family="Segoe UI, Arial" font-size="16" fill="#111111" text-anchor="start" font-weight="normal">+</text>
+<text x="680" y="475" font-family="Segoe UI, Arial" font-size="12" fill="#111111" text-anchor="middle" font-weight="700">U2B</text>
+<path d="M 650 446 L 600 446" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600" cy="446" r="4" fill="#1a3dcc"/>
+<path d="M 600 446 L 590 453.5 L 610 468.5 L 590 483.5 L 610 498.5 L 590 513.5 L 610 528.5 L 600 536" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="616" y="495.0" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">RgY</text>
+<line x1="600" y1="536" x2="600" y2="550" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="584" y1="550" x2="616" y2="550" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="590" y1="558" x2="610" y2="558" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="596" y1="566" x2="604" y2="566" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 600 446 L 600 380 L 620 380" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 620 380 L 625.8333333333334 370 L 637.5 390 L 649.1666666666666 370 L 660.8333333333334 390 L 672.5 370 L 684.1666666666666 390 L 690 380" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="655.0" y="364" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="normal">RfY</text>
+<path d="M 690 380 L 730 380 L 730 470" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="730" cy="380" r="4" fill="#1a3dcc"/>
+<line x1="690" y1="428" x2="690" y2="408" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<text x="700" y="416" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<text x="744" y="464" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="start" font-weight="normal">5 / 6 / 7</text>
+<line x1="690" y1="512" x2="690" y2="526" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="674" y1="526" x2="706" y2="526" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="680" y1="534" x2="700" y2="534" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="686" y1="542" x2="694" y2="542" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="730" y1="470" x2="800" y2="470" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="806" y="474" font-family="Segoe UI, Arial" font-size="13" fill="#1a3dcc" text-anchor="start" font-weight="700">AN5</text>
+<path d="M 300 515 L 390 515 L 390 700 L 560 700" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="484" y1="700" x2="516" y2="700" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="484" y1="712" x2="516" y2="712" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="500" y1="682" x2="500" y2="700" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="500" y1="712" x2="500" y2="730" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<circle cx="500" cy="700" r="4" fill="#1a3dcc"/>
+<line x1="500" y1="730" x2="500" y2="744" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="484" y1="744" x2="516" y2="744" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="490" y1="752" x2="510" y2="752" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="496" y1="760" x2="504" y2="760" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<text x="516" y="746" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">CfZ</text>
+<path d="M 560 700 L 560 724 L 650 724" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 650 658 L 730 700 L 650 742 Z" fill="#fafafa" stroke="#111111" stroke-width="2"/>
+<text x="658" y="678" font-family="Segoe UI, Arial" font-size="18" fill="#111111" text-anchor="start" font-weight="normal">−</text>
+<text x="658" y="730" font-family="Segoe UI, Arial" font-size="16" fill="#111111" text-anchor="start" font-weight="normal">+</text>
+<text x="680" y="705" font-family="Segoe UI, Arial" font-size="12" fill="#111111" text-anchor="middle" font-weight="700">U3A</text>
+<path d="M 650 676 L 600 676" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600" cy="676" r="4" fill="#1a3dcc"/>
+<path d="M 600 676 L 590 683.5 L 610 698.5 L 590 713.5 L 610 728.5 L 590 743.5 L 610 758.5 L 600 766" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="616" y="725.0" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">RgZ</text>
+<line x1="600" y1="766" x2="600" y2="780" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="584" y1="780" x2="616" y2="780" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="590" y1="788" x2="610" y2="788" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="596" y1="796" x2="604" y2="796" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 600 676 L 600 610 L 620 610" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 620 610 L 625.8333333333334 600 L 637.5 620 L 649.1666666666666 600 L 660.8333333333334 620 L 672.5 600 L 684.1666666666666 620 L 690 610" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="655.0" y="594" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="middle" font-weight="normal">RfZ</text>
+<path d="M 690 610 L 730 610 L 730 700" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="730" cy="610" r="4" fill="#1a3dcc"/>
+<line x1="690" y1="658" x2="690" y2="638" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<text x="700" y="646" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<text x="744" y="694" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="start" font-weight="normal">3 / 2 / 1</text>
+<line x1="690" y1="742" x2="690" y2="756" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="674" y1="756" x2="706" y2="756" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="680" y1="764" x2="700" y2="764" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="686" y1="772" x2="694" y2="772" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="730" y1="700" x2="800" y2="700" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="806" y="704" font-family="Segoe UI, Arial" font-size="13" fill="#1a3dcc" text-anchor="start" font-weight="700">AN6</text>
+<path d="M 650 878 L 730 920 L 650 962 Z" fill="#fafafa" stroke="#111111" stroke-width="2"/>
+<text x="658" y="898" font-family="Segoe UI, Arial" font-size="18" fill="#111111" text-anchor="start" font-weight="normal">−</text>
+<text x="658" y="950" font-family="Segoe UI, Arial" font-size="16" fill="#111111" text-anchor="start" font-weight="normal">+</text>
+<text x="680" y="925" font-family="Segoe UI, Arial" font-size="12" fill="#111111" text-anchor="middle" font-weight="700">U3B</text>
+<path d="M 730 920 L 760 920 L 760 896 L 650 896" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="650" cy="896" r="4" fill="#1a3dcc"/>
+<line x1="500" y1="800" x2="500" y2="788" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<line x1="491" y1="788" x2="509" y2="788" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="495" y1="782" x2="505" y2="782" stroke="#c62828" stroke-width="2.2" stroke-linecap="round"/>
+<text x="514" y="786" font-family="Segoe UI, Arial" font-size="11" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<path d="M 500 800 L 490 806.6666666666666 L 510 820.0 L 490 833.3333333333334 L 510 846.6666666666666 L 490 860.0 L 510 873.3333333333334 L 500 880" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="516" y="844.0" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">R1</text>
+<circle cx="500" cy="880" r="4" fill="#1a3dcc"/>
+<path d="M 500 880 L 490 886.6666666666666 L 510 900.0 L 490 913.3333333333334 L 510 926.6666666666666 L 490 940.0 L 510 953.3333333333334 L 500 960" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="516" y="924.0" font-family="Segoe UI, Arial" font-size="11" fill="#111111" text-anchor="start" font-weight="normal">R2</text>
+<line x1="500" y1="960" x2="500" y2="974" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="484" y1="974" x2="516" y2="974" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="490" y1="982" x2="510" y2="982" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="496" y1="990" x2="504" y2="990" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 500 880 L 560 880 L 560 944 L 650 944" fill="none" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="690" y1="878" x2="690" y2="858" stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+<text x="700" y="866" font-family="Segoe UI, Arial" font-size="10" fill="#c62828" text-anchor="start" font-weight="normal">+5 V</text>
+<text x="744" y="914" font-family="Segoe UI, Arial" font-size="9" fill="#555555" text-anchor="start" font-weight="normal">5 / 6 / 7</text>
+<line x1="690" y1="962" x2="690" y2="976" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<line x1="674" y1="976" x2="706" y2="976" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="680" y1="984" x2="700" y2="984" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="686" y1="992" x2="694" y2="992" stroke="#111111" stroke-width="2.2" stroke-linecap="round"/>
+<line x1="730" y1="920" x2="800" y2="920" stroke="#1a3dcc" stroke-width="2" stroke-linecap="round"/>
+<text x="806" y="924" font-family="Segoe UI, Arial" font-size="13" fill="#1a3dcc" text-anchor="start" font-weight="700">VREF</text>
+<rect x="830" y="130" width="260" height="150" rx="6" fill="#fffdf5" stroke="#111111" stroke-width="2"/>
+<text x="960.0" y="152" font-family="Segoe UI, Arial" font-size="13" fill="#111111" text-anchor="middle" font-weight="700">Referencias</text>
+<text x="850" y="175" font-family="Segoe UI, Arial" font-size="12" fill="#1a3dcc" text-anchor="start" font-weight="normal">Azul: señal</text>
+<text x="850" y="198" font-family="Segoe UI, Arial" font-size="12" fill="#c62828" text-anchor="start" font-weight="normal">Rojo: +5 V</text>
+<text x="850" y="221" font-family="Segoe UI, Arial" font-size="12" fill="#111111" text-anchor="start" font-weight="normal">Negro: GND / componente</text>
+<text x="850" y="244" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="start" font-weight="normal">R y C sin valor definido</text>
+<text x="60" y="1040" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="start" font-weight="normal">Cada canal es un amplificador no inversor: Rf entre salida y entrada −, Rg de la entrada − a GND o a VREF.</text>
+<text x="60" y="1062" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="start" font-weight="normal">U2 = MCP6002: canal A para X, canal B para Y.  U3 = MCP6002: canal A para Z, canal B como buffer de VREF.</text>
+<text x="60" y="1084" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="start" font-weight="normal">Alimentación de los dos MCP6002: VDD pata 8 a +5 V; VSS pata 4 a GND. Agregar 100 nF junto a cada integrado.</text>
+<text x="60" y="1106" font-family="Segoe UI, Arial" font-size="12" fill="#555555" text-anchor="start" font-weight="normal">RA2 y RA3 del PIC quedan libres porque también son VREF− y VREF+.</text>
+</svg>

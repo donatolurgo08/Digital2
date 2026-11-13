@@ -1,0 +1,298 @@
+/* Hand Motion — Identidad visual Cyberpunk Industrial (Etapa 2) */
+
+QWidget {
+    background-color: #0a0f1a;
+    color: #e6edf3;
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 13px;
+}
+
+QMainWindow {
+    background-color: #0a0f1a;
+}
+
+/* Tarjetas */
+QFrame#Card {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #161d2d, stop:1 #121826);
+    border: 1px solid #26314a;
+    border-radius: 14px;
+}
+
+QFrame#Card:hover {
+    border-color: #33415f;
+}
+
+QLabel#CardTitle {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+QLabel#CardValue {
+    color: #38bdf8;
+    font-family: "Cascadia Code", "Consolas", "Lucida Console", monospace;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+QLabel#CardUnit {
+    color: #64748b;
+    font-family: "Cascadia Code", "Consolas", "Lucida Console", monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* Barra superior */
+QFrame#TopBar {
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                      stop:0 #080c14, stop:1 #0d1322);
+    border-bottom: 1px solid #1f2937;
+}
+
+QLabel#AppTitle {
+    color: #38bdf8;
+    font-family: "Bahnschrift", "Segoe UI Variable", "Segoe UI", sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 4px;
+}
+
+QLabel#BrandLogo {
+    background-color: transparent;
+}
+
+/* Botones */
+QPushButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #202a40, stop:1 #192132);
+    color: #e6edf3;
+    border: 1px solid #2a3348;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    background-color: #2a3348;
+    border-color: #38bdf8;
+}
+
+QPushButton:pressed {
+    background-color: #151b2b;
+}
+
+QPushButton:disabled {
+    color: #64748b;
+    background-color: #151b2b;
+    border-color: #1f2937;
+}
+
+QPushButton#Primary {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #38bdf8, stop:1 #0ea5e9);
+    border: none;
+    color: #04121e;
+    font-weight: 700;
+}
+
+QPushButton#Primary:hover {
+    background-color: #7dd3fc;
+}
+
+QPushButton#Primary:pressed {
+    background-color: #0284c7;
+}
+
+QPushButton#Danger {
+    background-color: #7f1d1d;
+    border-color: #ef4444;
+    color: #fecaca;
+}
+
+QPushButton#Danger:hover {
+    background-color: #991b1b;
+}
+
+QPushButton#Secondary {
+    background-color: #1e2536;
+    color: #94a3b8;
+}
+
+QPushButton#Secondary:hover {
+    background-color: #2a3348;
+    color: #e6edf3;
+}
+
+/* Campos de entrada */
+QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox {
+    background-color: #0a0f1a;
+    border: 1px solid #2a3348;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #e6edf3;
+    font-family: "Cascadia Code", "Consolas", "Lucida Console", monospace;
+}
+
+QComboBox:focus, QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+    border-color: #38bdf8;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #151b2b;
+    border: 1px solid #2a3348;
+    selection-background-color: #1e2536;
+    selection-color: #38bdf8;
+}
+
+QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    width: 16px;
+    border: none;
+    background-color: #151b2b;
+}
+
+QCheckBox {
+    color: #94a3b8;
+    spacing: 6px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #2a3348;
+    border-radius: 4px;
+    background-color: #0a0f1a;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #38bdf8;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #38bdf8;
+    border-color: #38bdf8;
+}
+
+/* Indicador de estado */
+QLabel#StatusDot {
+    font-size: 16px;
+}
+
+/* Banner de alarma */
+QFrame#AlarmBanner {
+    background-color: #3b0a0a;
+    border: 1px solid #ef4444;
+    border-radius: 10px;
+}
+
+/* TextEdit (logs) */
+QTextEdit {
+    background-color: #0a0f1a;
+    border: 1px solid #2a3348;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-family: "Cascadia Code", "Consolas", "Lucida Console", monospace;
+    font-size: 11px;
+    padding: 4px;
+}
+
+QTextEdit:focus {
+    border-color: #38bdf8;
+}
+
+/* Barras de progreso */
+QProgressBar {
+    background-color: #0a0f1a;
+    border: 1px solid #2a3348;
+    border-radius: 7px;
+    text-align: center;
+    color: #94a3b8;
+    min-height: 14px;
+}
+
+QProgressBar::chunk {
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                      stop:0 #38bdf8, stop:1 #8b5cf6);
+    border-radius: 7px;
+}
+
+/* Scroll */
+QScrollArea {
+    border: none;
+    background-color: #0a0f1a;
+}
+
+QScrollBar:vertical {
+    background-color: #0a0f1a;
+    width: 10px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #2a3348;
+    border-radius: 5px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #38bdf8;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+QScrollBar:horizontal {
+    background-color: #0a0f1a;
+    height: 10px;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #2a3348;
+    border-radius: 5px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #38bdf8;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* Separadores */
+QFrame[frameShape="4"], QFrame[frameShape="5"] {
+    color: #2a3348;
+}
+
+/* Barra lateral */
+QWidget#Sidebar {
+    background-color: #080c14;
+    border-right: 1px solid #1f2937;
+}
+
+QToolButton#SidebarButton {
+    background-color: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+QToolButton#SidebarButton:hover {
+    background-color: #151b2b;
+}
+
+QToolButton#SidebarButton:checked {
+    background-color: #1e2536;
+    border-left: 3px solid #38bdf8;
+}
