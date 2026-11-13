@@ -236,13 +236,15 @@ def cap_v(b, row, c1, c2, label, kind='ceramic', side=1):
     else:
         txt(x - 7, m + 2, label, 'part', 'end')
 
-def cap_h(b, col, label):
+def cap_h(b, col, label, val=None):
     x1, x2 = hx(b, 'e'), hx(b, 'f'); y = hy(col); m = (x1 + x2) / 2
     line(x1, y, m - 4, y)
     line(m + 4, y, x2, y)
     add('<ellipse cx="%g" cy="%g" rx="4" ry="5.5" class="capdisc"/>' % (m, y))
     if label:
         txt(x1 - 5, y, label, 'part', 'middle', rot=True)
+    if val:
+        txt(x2 + 6, y + 2, val, 'cval', 'start')
 
 def led_v(b, row, c1, c2, label):
     x = hx(b, row); y1, y2 = hy(c1), hy(c2); m = (y1 + y2) / 2
@@ -443,10 +445,10 @@ psu_inset()
 # --- placa A: sensores, LEDs, buzzer y programacion
 to92('A', 'a', 56, 'U4', ['V', 'OUT', 'GND'])
 txt(hx('A', 'a') - 7, hy(57) + 2, 'LM35', 'chiplbl', 'middle', rot=True)
-cap_v('A', 'c', 56, 58, 'C8')
+cap_v('A', 'c', 56, 58, 'C8 100n')
 res_v('A', 'b', 19, 22, 'R23 10k', BANDS['10k'], side=-1)
-cap_v('A', 'b', 32, 33, 'C1', side=-1)
-cap_v('A', 'h', 30, 31, 'C2', side=-1)
+cap_v('A', 'b', 32, 33, 'C1 100n', side=-1)
+cap_v('A', 'h', 30, 31, 'C2 100n', side=-1)
 res_v('A', 'i', 50, 53, 'R21 220', BANDS['220'], side=-1)
 led_v('A', 'i', 54, 55, 'D1')
 res_v('A', 'i', 56, 59, 'R22 220', BANDS['220'], side=-1)
@@ -461,32 +463,35 @@ txt(hx('A', 'e') + 15, hy(50) + 4, 'R9-R16', 'note')
 txt(hx('A', 'e') + 15, hy(51) + 4, '8 x 220', 'note')
 # C5-C7: filtros de las salidas X/Y/Z
 for nm, c in (('C5', 9), ('C6', 10), ('C7', 11)):
-    cap_h('A', c, nm)
+    cap_h('A', c, nm, '3n3')
 
 # --- placa B: displays, drivers, desacople y USB-TTL
-cap_v('B', 'a', 2, 3, 'C9', side=-1)
-cap_v('B', 'b', 2, 3, 'C11', 'ecap')
+cap_v('B', 'a', 2, 3, 'C9 100n')
+cap_v('B', 'b', 2, 3, 'C11 10uF', 'ecap')
 for nm, c1 in (('R17', 30), ('R18', 38), ('R19', 46)):
     res_v('B', 'i', c1, c1 + 3, nm + ' 330', BANDS['330'])
 for nm, c1 in (('Q1', 27), ('Q2', 35), ('Q3', 43)):
     to92('B', 'j', c1, nm, ['C', 'B', 'E'])
-cap_v('B', 'j', 50, 51, 'C10', 'ecap')
+cap_v('B', 'j', 50, 51, 'C10 220uF', 'ecap', side=-1)
 hdr('B', 'j', 52, 5, 'J1 USB-TTL', ['3V3', 'TXD', 'RXD', 'GND', '+5V'])
+txt(hx('B', 'j'), hy(56) + 24, '3V3 y +5V: no conectar', 'note')
 
 add('</svg>')
 SVG = ''.join(S)
 
 # ---------------- cables (ocultos por defecto)
-def rail_x(net, b, r):
-    if net == '+5V':
-        if b == 'A':
-            return RAILX['A']['L5'] if r in TOP else RAILX['A']['R5']
-        return RAILX['B']['R5']
-    if net == '+3V3':
-        return RAILX['B']['L3']
-    if b == 'A':
-        return RAILX['A']['LG'] if r in TOP else RAILX['A']['RG']
-    return RAILX['B']['LG'] if r in TOP else RAILX['B']['RG']
+def rails_for(net, b):
+    return [x for k, x in RAILX[b].items() if RAIL_LAB[k] == net]
+
+def rail_target(net, b, r, c):
+    """Agujero de riel mas cercano. Se elige una columna vecina a la del pin
+    para que el tramo largo cruce el riel entre agujeros, no sobre uno."""
+    x1 = hx(b, r)
+    rx = min(rails_for(net, b), key=lambda x: abs(x - x1))
+    lo, hi = (7, 31) if rx < BOFF[b] + 112 else (33, 57)
+    rc = min(max(c, lo), hi)
+    rc = rc + 1 if rc < hi else rc - 1
+    return rx, rc
 
 def mst(holes):
     """Arbol de expansion minima (distancia Manhattan) sobre los agujeros de una red."""
@@ -522,9 +527,27 @@ def jumper(x1, y1, x2, y2, o):
 
 W = ['<g id="wires" class="wires hidden">']
 wi = 0
+POW = ('+5V', '+3V3', 'GND')
+# bajadas de alimentacion: de cada pin al agujero de riel mas cercano
+for net in POW:
+    seen = set()
+    for p in NETS[net]:
+        b, r, c = P[p]
+        n = node(b, r, c)
+        if n in seen:
+            continue
+        seen.add(n)
+        x1, y1 = hx(b, r), hy(c)
+        rx, rc = rail_target(net, b, r, c)
+        pts = jumper(x1, y1, rx, hy(rc), 2.4 + (wi % 5) * 1.1)
+        wi += 1
+        W.append('<path d="M%s" class="w-%s" data-net="%s" data-a="%s" data-b="%s"/>'
+                 % (' L'.join('%g %g' % (x, y) for x, y in pts), FAM[net],
+                    net, p, 'riel %s col %d' % (net, rc)))
+# puentes de senal
 for net, pins in NETS.items():
-    if net in ('+5V', 'GND', '+3V3'):
-        continue                      # los buses van por los rieles, no por cables
+    if net in POW:
+        continue
     seen, hs = set(), []
     for p in pins:
         b, r, c = P[p]
@@ -539,6 +562,12 @@ for net, pins in NETS.items():
         W.append('<path d="M%s" class="w-%s" data-net="%s" data-a="%s" data-b="%s"/>'
                  % (' L'.join('%g %g' % (x, y) for x, y in pts), FAM[net],
                     net, u[3], v[3]))
+# pines del USB-TTL que no se conectan
+for p in ('J1.3V3', 'J1.5V'):
+    b, r, c = P[p]
+    x, y = hx(b, r), hy(c)
+    W.append('<path d="M%g %g L%g %g M%g %g L%g %g" class="nc"/>'
+             % (x - 3, y - 3, x + 3, y + 3, x - 3, y + 3, x + 3, y - 3))
 W.append('</g>')
 SVG = SVG.replace('</svg>', ''.join(W) + '</svg>')
 
@@ -657,6 +686,8 @@ cursor:pointer}
 filter:drop-shadow(0 0 1px rgba(0,0,0,.6)) drop-shadow(0 0 2.5px var(--hl))}
 .w-p5{stroke:var(--p5)}.w-p3{stroke:var(--p3)}.w-gnd{stroke:var(--gnd)}
 .w-an{stroke:var(--an)}.w-dg{stroke:var(--dg)}.w-pr{stroke:var(--pr)}
+.wires path.nc{stroke:var(--warn);stroke-width:1.7;opacity:1;pointer-events:none}
+.cval{font:600 5.5px ui-monospace,monospace;fill:var(--mu)}
 circle.hl{fill:var(--hl);r:3.2}
 table{border-collapse:collapse;font-size:12.5px;width:100%;max-width:1100px}
 th,td{border-bottom:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}
@@ -720,11 +751,12 @@ Pasa el mouse por una red de la tabla para ver sus agujeros.</p>
 <span><i style="background:var(--an)"></i>analogico</span>
 <span><i style="background:var(--dg)"></i>displays / alarmas</span>
 <span><i style="background:var(--pr)"></i>UART / programacion</span>
+<span><b style="color:var(--warn)">&times;</b> no conectar</span>
 </div>
 <div class="wrap"><div class="dia">@@SVG@@
 <div class="ctr"><label><input type="checkbox" id="wchk"> Mostrar cables</label>
-<span class="nl">Vista superior, escala 1:1 (1 agujero = 2,54 mm). Los buses +5V, +3V3 y GND no
-llevan cable: van por los rieles.</span>
+<span class="nl">Vista superior, escala 1:1 (1 agujero = 2,54 mm). Cada pin de +5V, +3V3 y GND
+se dibuja con su bajada al agujero de riel mas cercano.</span>
 <span id="selinfo" class="selinfo"></span></div></div></div>
 
 <h2>Como leer el dibujo</h2>
@@ -738,7 +770,10 @@ llevan cable: van por los rieles.</span>
 fila <b>g</b> (0,6" entre filas). El numero de cada pata esta rotulado junto al agujero.</li>
 <li><b>Displays:</b> filas <b>e</b> y <b>f</b> (0,3"), columnas 6-10, 14-18 y 22-26 de la placa B.</li>
 <li><b>MMA7361:</b> adaptador 2x5 sobre las filas e y f, columnas 2-6, cruzando el canal.</li>
-<li><b>Buses:</b> cada bus esta partido a la altura de la columna 31/32: hay que puentearlo.</li>
+<li><b>Buses:</b> cada bus esta partido a la altura de la columna 31/32: hay que puentearlo.
+Con <i>Mostrar cables</i> activo, cada pin de alimentacion muestra su bajada al riel mas cercano.</li>
+<li><b>Sin conectar:</b> la &times; sobre los pines 3V3 y +5V del USB-TTL recuerda que esos
+dos no se usan: el adaptador solo comparte GND, TXD y RXD con el PIC.</li>
 <li><b>Cables:</b> con <i>Mostrar cables</i> activo, un clic sobre un cable lo resalta y marca
 en amarillo todos los agujeros de esa red. Un segundo clic lo suelta.</li>
 </ul>
@@ -769,12 +804,13 @@ los 8 tramos (2 por placa: +5V y GND en cada lado). Sin esto, media placa queda 
 Medir antes de conectar nada mas.</li>
 <li><b>Zocalo DIP-40</b> en las columnas 22-41 (fila c la pata 1, fila g la pata 40). Recien
 despues insertar el PIC, con la muesca hacia la columna 22.</li>
-<li><b>Desacople:</b> C1 entre las columnas 32 y 33 (patas 11 y 12), C2 entre 30 y 31 (patas 32 y
-31). Van pegados al zocalo.</li>
+<li><b>Desacople:</b> C1 (100 nF) entre las columnas 32 y 33 (patas 11 y 12), C2 (100 nF)
+entre 30 y 31 (patas 32 y 31). Van pegados al zocalo.</li>
 <li><b>MCLR:</b> R23 entre la columna 19 y la 22, con el extremo de la 19 al bus +5V.</li>
-<li><b>LM35</b> en las columnas 56-58 (1=+VS, 2=VOUT, 3=GND) y C8 entre las columnas 56 y 58 de
-la fila c.</li>
-<li><b>Filtros del sensor:</b> C5, C6 y C7 entre la fila f y la fila e de las columnas 9, 10 y 11.</li>
+<li><b>LM35</b> en las columnas 56-58 (1=+VS, 2=VOUT, 3=GND) y C8 (100 nF) entre las
+columnas 56 y 58 de la fila c.</li>
+<li><b>Filtros del sensor:</b> C5, C6 y C7 (3,3 nF) entre la fila f y la fila e de las
+columnas 9, 10 y 11.</li>
 <li><b>MOD1</b> sobre el adaptador 2x5, con los 10 pines en las filas e y f de las columnas 2 a 6
 (cruza el canal). GS y ST a GND, Sleep al pin 3V3 del modulo, 0g sin conectar.</li>
 <li><b>Displays</b> en la placa B: DS1 en 6-10, DS2 en 14-18, DS3 en 22-26, con la pata 1 en la
@@ -784,10 +820,11 @@ y la otra en la fila f de la misma columna). Quedan al lado de las patas RD0-RD7
 <li><b>Q1-Q3</b> en la fila j (columnas 27, 35 y 43) y R17-R19 en la fila i (30, 38 y 46).</li>
 <li><b>LEDs:</b> R21 y D1 en la fila i columnas 50-55; R22 y D2 en 56-61.</li>
 <li><b>Buzzer e ICSP</b> en la fila j: BZ1 en 12-14 y J2 en 16-21.</li>
-<li><b>Desacople de la placa B:</b> C9 entre las columnas 2 y 3 de la fila a; C11 (10 uF) entre
-las columnas 2 y 3 de la fila b; C10 (220 uF) entre las columnas 50 y 51 de la fila j.</li>
+<li><b>Desacople de la placa B:</b> C9 (100 nF) entre las columnas 2 y 3 de la fila a;
+C11 (10 uF / 10 V) entre las columnas 2 y 3 de la fila b; C10 (220 uF / 16 V) entre
+las columnas 50 y 51 de la fila j. Respetar la polaridad de C10 y C11.</li>
 <li><b>USB-TTL</b> en la placa B, fila j columnas 52-56. Usar solo GND, TXD y RXD,
-cruzados con el PIC; 3V3 y +5V del adaptador quedan aislados.</li>
+cruzados con el PIC; 3V3 y +5V del adaptador quedan aislados (marcados con &times;).</li>
 <li><b>Continuidad:</b> antes de poner el PIC, revisar con el multimetro que +5V y GND no esten en
 cortocircuito y que cada red llegue solo a donde debe.</li>
 </ol>

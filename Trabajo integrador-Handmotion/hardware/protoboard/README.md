@@ -44,9 +44,13 @@ Los buses se dibujan en rojo, naranja y azul oscuro: `+5V` rojo, `+3V3`
 naranja y `GND` azul oscuro, cada uno con su banda translúcida y 25 agujeros
 por mitad.
 
-La casilla **Mostrar cables** superpone los puentes de señal. Cada cable sale
-del agujero, corre por el canal entre filas y entra al agujero destino con codos
-de 90°; los buses de alimentación no se dibujan porque van por los rieles.
+La casilla **Mostrar cables** superpone los puentes de señal y las bajadas de
+cada pin de `+5V`, `+3V3` y `GND` al agujero de riel más cercano, con codos de
+90°. Esto incluye la alimentación de `MOD1.5V` desde el riel rojo. En el USB-TTL
+solo se cablean GND, TXD y RXD; los pines 3V3 y +5V se marcan como no conectar.
+
+Los valores de los capacitores se muestran junto a sus referencias: C1/C2/C8/C9
+100 nF, C5–C7 3,3 nF, C10 220 µF/16 V y C11 10 µF/10 V.
 
 Un clic sobre un cable lo engrosa y le pone un halo, marca en amarillo todos los
 agujeros de esa red y muestra el nombre de la red con los dos extremos. Un
