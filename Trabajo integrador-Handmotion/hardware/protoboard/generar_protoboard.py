@@ -488,33 +488,56 @@ def rail_x(net, b, r):
         return RAILX['A']['LG'] if r in TOP else RAILX['A']['RG']
     return RAILX['B']['LG'] if r in TOP else RAILX['B']['RG']
 
-segs = []
+def mst(holes):
+    """Arbol de expansion minima (distancia Manhattan) sobre los agujeros de una red."""
+    if len(holes) < 2:
+        return []
+    in_t, rest = [0], list(range(1, len(holes)))
+    edges = []
+    while rest:
+        best = None
+        for i in in_t:
+            for j in rest:
+                d = abs(holes[i][0] - holes[j][0]) + abs(holes[i][1] - holes[j][1])
+                if best is None or d < best[0]:
+                    best = (d, i, j)
+        _, i, j = best
+        edges.append((holes[i], holes[j]))
+        in_t.append(j)
+        rest.remove(j)
+    return edges
+
+def jumper(x1, y1, x2, y2, o):
+    """Cable recto con codos de 90 grados: sale del agujero, corre por el canal
+    entre filas y entra al agujero destino. Todos los tramos largos van por
+    los canales, nunca sobre una linea de agujeros."""
+    if abs(x1 - x2) < 0.6:
+        return [(x1, y1), (x1, y2)]
+    if abs(y1 - y2) < 0.6:
+        return [(x1, y1), (x2, y1)]
+    ex = o if x2 > x1 else -o
+    ey = o if y2 > y1 else -o
+    return [(x1, y1), (x1 + ex, y1), (x1 + ex, y2 + ey),
+            (x2, y2 + ey), (x2, y2)]
+
+W = ['<g id="wires" class="wires hidden">']
+wi = 0
 for net, pins in NETS.items():
-    seen, reps = set(), []
+    if net in ('+5V', 'GND', '+3V3'):
+        continue                      # los buses van por los rieles, no por cables
+    seen, hs = set(), []
     for p in pins:
         b, r, c = P[p]
         n = node(b, r, c)
         if n in seen:
             continue
         seen.add(n)
-        reps.append((b, r, c))
-    if net in ('+5V', 'GND', '+3V3'):
-        continue
-    else:
-        reps.sort(key=lambda t: (t[0], t[2], t[1]))
-        for u, v in zip(reps, reps[1:]):
-            if node(*u) == node(*v):
-                continue
-            segs.append((net, hx(u[0], u[1]), hy(u[2]), hx(v[0], v[1]), hy(v[2])))
-
-W = ['<g id="wires" class="wires hidden">']
-for net, x1, y1, x2, y2 in segs:
-    mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-    dx, dy = x2 - x1, y2 - y1
-    L = (dx * dx + dy * dy) ** 0.5 or 1
-    ox, oy = -dy / L * 7, dx / L * 7
-    W.append('<path d="M%g %g Q%g %g %g %g" class="w-%s"/>'
-             % (x1, y1, mx + ox, my + oy, x2, y2, FAM[net]))
+        hs.append((hx(b, r), hy(c), n))
+    for u, v in mst(hs):
+        pts = jumper(u[0], u[1], v[0], v[1], 3.2 + (wi % 4) * 1.4)
+        wi += 1
+        W.append('<path d="M%s" class="w-%s"/>'
+                 % (' L'.join('%g %g' % (x, y) for x, y in pts), FAM[net]))
 W.append('</g>')
 SVG = SVG.replace('</svg>', ''.join(W) + '</svg>')
 
@@ -550,15 +573,15 @@ for n in range(1, 41):
 CSS = """
 :root{--bg:#fff;--fg:#15181c;--mu:#66707a;--bd:#d3d8de;
 --board:#f3f5f1;--chan:#d6dbd4;--hole:#b9bfb9;--holein:#3a3f44;
---railp:#1c6fd1;--railp2:#3d8fe0;--railg:#123f6b;
+--railp:#c62828;--railp2:#e07a00;--railg:#123f6b;
 --chip:#2b2f33;--chiptext:#e8ecef;--edge:#0e1012;
---p5:#1c6fd1;--p3:#3d8fe0;--an:#0e7c86;--dg:#14895a;--pr:#a02f7f;--gnd:#123f6b;
+--p5:#c62828;--p3:#e07a00;--an:#0e7c86;--dg:#14895a;--pr:#a02f7f;--gnd:#123f6b;
 --hl:#ffd54a;--warn:#c47a00}
 @media (prefers-color-scheme:dark){:root{--bg:#14171b;--fg:#e9ecef;--mu:#98a1aa;--bd:#333a42;
 --board:#20252b;--chan:#181c21;--hole:#5c6672;--holein:#0b0d0f;
---railp:#4a9bf0;--railp2:#7bb8f5;--railg:#2b6fb5;
+--railp:#ef5a5a;--railp2:#f0a23c;--railg:#2b6fb5;
 --chip:#1b1e21;--chiptext:#e9ecef;--edge:#8b949c;
---p5:#4a9bf0;--p3:#7bb8f5;--an:#3fb8c4;--dg:#3fb98a;--pr:#d268ac;--gnd:#2b6fb5;
+--p5:#ef5a5a;--p3:#f0a23c;--an:#3fb8c4;--dg:#3fb98a;--pr:#d268ac;--gnd:#2b6fb5;
 --hl:#ffd54a;--warn:#f0a23c}}
 *{box-sizing:border-box}
 body{margin:0;padding:18px 20px 60px;background:var(--bg);color:var(--fg);
@@ -626,7 +649,7 @@ svg{display:block;width:490px;height:800px}
 .dash{stroke:var(--pr);stroke-width:.9;stroke-dasharray:3 3;opacity:.75}
 .pol{font:700 6px ui-monospace,monospace;fill:#fff}
 .wires.hidden{display:none}
-.wires path{fill:none;stroke-width:1.1;opacity:.62;stroke-linecap:round}
+.wires path{fill:none;stroke-width:1.25;opacity:.85;stroke-linecap:round;stroke-linejoin:round}
 .w-p5{stroke:var(--p5)}.w-p3{stroke:var(--p3)}.w-gnd{stroke:var(--gnd)}
 .w-an{stroke:var(--an)}.w-dg{stroke:var(--dg)}.w-pr{stroke:var(--pr)}
 circle.hl{fill:var(--hl);r:3.2}
@@ -676,7 +699,8 @@ Pasa el mouse por una red de la tabla para ver sus agujeros.</p>
 </div>
 <div class="wrap"><div class="dia">@@SVG@@
 <div class="ctr"><label><input type="checkbox" id="wchk"> Mostrar cables</label>
-<span class="nl">Vista superior, escala 1:1 (1 agujero = 2,54 mm)</span></div></div></div>
+<span class="nl">Vista superior, escala 1:1 (1 agujero = 2,54 mm). Los buses +5V, +3V3 y GND no
+llevan cable: van por los rieles.</span></div></div></div>
 
 <h2>Como leer el dibujo</h2>
 <ul>

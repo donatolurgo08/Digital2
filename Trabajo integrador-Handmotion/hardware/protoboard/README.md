@@ -40,8 +40,13 @@ Las dos placas van **encastradas**, sin separación: el borde derecho de la plac
 A coincide con el borde izquierdo de la B y forman una sola superficie. El canal
 central queda en vertical y los buses a los costados.
 
-Los buses se dibujan en azul: `+5V` azul medio, `+3V3` azul claro y `GND` azul
-oscuro, cada uno con su banda translúcida y 25 agujeros por mitad.
+Los buses se dibujan en rojo, naranja y azul oscuro: `+5V` rojo, `+3V3`
+naranja y `GND` azul oscuro, cada uno con su banda translúcida y 25 agujeros
+por mitad.
+
+La casilla **Mostrar cables** superpone los puentes de señal. Cada cable sale
+del agujero, corre por el canal entre filas y entra al agujero destino con codos
+de 90°; los buses de alimentación no se dibujan porque van por los rieles.
 
 En esta orientación cada columna de cinco agujeros (a–e o f–j) es **un solo
 nodo**. Por eso ningún componente se apoya en una columna ya usada por otra red:
