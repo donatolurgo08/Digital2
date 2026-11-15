@@ -1,4 +1,4 @@
-"""Conexión USB-TTL, estado del protocolo y controles PIC v1."""
+"""Conexión USB-TTL, estado y controles compatibles con firmware PIC v2/v3."""
 
 from __future__ import annotations
 
@@ -17,13 +17,13 @@ from hand_motion.ui.styles.palette import ALARM_RED, OK_GREEN, WARNING_AMBER
 
 
 class SerialMonitor(QWidget):
-    """Permite conectar el PIC y enviar comandos del protocolo serie v1."""
+    """Conecta el PIC y envía comandos compatibles con el protocolo v2/v3."""
 
     def __init__(self, controller: AppController, parent=None) -> None:
         super().__init__(parent)
         self.controller = controller
 
-        card = Card("PIC · Serie v1")
+        card = Card("PIC · Serie v2/v3")
         layout = card.content_layout()
 
         port_row = QHBoxLayout()
@@ -104,7 +104,10 @@ class SerialMonitor(QWidget):
         controls.addWidget(self.ping_btn, 3, 3)
         layout.addLayout(controls)
 
-        self.device_info = QLabel("Esperando STATUS del PIC · X en mg nominales · Y/Z reservados")
+        self.device_info = QLabel(
+            "Esperando STATUS · DATA v2: X/Y · DATA v3: X/Y/Z · "
+            "Z no disponible con v2"
+        )
         self.device_info.setWordWrap(True)
         self.device_info.setStyleSheet(f"color:{WARNING_AMBER}; font-size:11px;")
         layout.addWidget(self.device_info)
@@ -227,9 +230,15 @@ class SerialMonitor(QWidget):
 
     def _on_data_packet(self, packet: DataPacket) -> None:
         alarm = "alarma activa" if packet.alarm_active else "alarma apagada"
+        z_value = (
+            f"{packet.z_mg:+d} mg"
+            if packet.z_mg is not None
+            else "-- (no disponible en v2)"
+        )
         self.last_data.setText(
             f"DATA #{packet.sequence} · {packet.temperature_c} °C · "
-            f"X {packet.x_mg:+d} mg · {alarm}"
+            f"X {packet.x_mg:+d} mg · Y {packet.y_mg:+d} mg · "
+            f"Z {z_value} · {alarm}"
         )
 
     def _on_status_packet(self, packet: StatusPacket) -> None:
@@ -241,7 +250,8 @@ class SerialMonitor(QWidget):
         mode = "streaming activo" if packet.streaming else "streaming detenido"
         self.device_info.setText(
             f"Firmware v{packet.version} · {packet.period_ms} ms · "
-            f"umbral {packet.threshold_c} °C · offset X {packet.x_offset_counts} · {mode}"
+            f"umbral {packet.threshold_c} °C · offset X {packet.x_offset_counts} · "
+            f"DATA v2: X/Y, v3: X/Y/Z · Z no disponible en v2 · {mode}"
         )
         self.device_info.setStyleSheet(f"color:{OK_GREEN}; font-size:11px;")
         self._log(f"STATUS recibido: firmware v{packet.version}, {mode}.")

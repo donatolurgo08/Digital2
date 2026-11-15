@@ -82,31 +82,40 @@ class MainWindow(QMainWindow):
         grid.setSpacing(16)
 
         self.temp_panel = TemperatureIndicator()
-        self.accel_panel = AccelerometerPanel()
+        self.accel_panel = AccelerometerPanel("X")
+        self.accel_y_panel = AccelerometerPanel("Y")
+        self.accel_z_panel = AccelerometerPanel("Z")
         self.alarm_panel = AlarmPanel()
         self.gesture_panel = GesturePanel()
         self.serial_panel = SerialMonitor(self.controller)
         self.accel_source = SimulatedAccelSource()
         self.accel_graph = AccelerometerGraph(source=self.accel_source)
-        self.accel_source.sample.connect(self._on_simulated_sample)
+        self.accel_source.sample_xyz.connect(self._on_simulated_sample)
 
-        grid.addWidget(self.temp_panel, 0, 0)
-        grid.addWidget(self.accel_panel, 0, 1)
-        grid.addWidget(self.alarm_panel, 0, 2)
-        grid.addWidget(self.gesture_panel, 1, 0, 1, 2)
-        grid.addWidget(self.serial_panel, 1, 2)
-        grid.addWidget(self.accel_graph, 2, 0, 1, 3)
-
-        grid.setColumnStretch(0, 1)
-        grid.setColumnStretch(1, 1)
-        grid.setColumnStretch(2, 1)
-        grid.setRowStretch(1, 1)
-        grid.setRowStretch(2, 2)
+        self._dashboard_grid = grid
+        self._dashboard_widgets = (
+            self.temp_panel,
+            self.accel_panel,
+            self.accel_y_panel,
+            self.accel_z_panel,
+            self.alarm_panel,
+            self.gesture_panel,
+            self.serial_panel,
+        )
+        self._dashboard_compact: bool | None = None
+        self._arrange_dashboard()
 
         self.stack.addWidget(self.dashboard_page)
 
+        # --- Adquisición XYZ en tiempo real ---
+        self.acquisition_page = QWidget()
+        acquisition_layout = QVBoxLayout(self.acquisition_page)
+        acquisition_layout.setContentsMargins(16, 16, 16, 16)
+        acquisition_layout.addWidget(self.accel_graph, 1)
+        self.stack.addWidget(self.acquisition_page)
+
         # --- Secciones provisionales ---
-        for name in ("Adquisición", "Reconocimiento", "Historial", "Configuración"):
+        for name in ("Reconocimiento", "Historial", "Configuración"):
             self.stack.addWidget(PlaceholderView(name))
 
         body_layout.setStretch(1, 1)
@@ -143,17 +152,31 @@ class MainWindow(QMainWindow):
             if self.state.data.data_received:
                 self._show_latest_device_data()
                 self.status_bar.set_message("Mostrando la última medición recibida del PIC")
-            elif self.state.data.connected:
-                self.status_bar.set_message("Conectado: esperando tramas DATA del PIC")
             else:
-                self.status_bar.set_message("Modo dispositivo: conectá el PIC desde Monitor serial")
+                self.temp_panel.clear_reading()
+                self.accel_panel.clear_value()
+                self.accel_y_panel.clear_value()
+                self.accel_z_panel.clear_value()
+                self.alarm_panel.set_waiting()
+                if self.state.data.connected:
+                    self.status_bar.set_message(
+                        "Conectado: esperando tramas DATA del PIC"
+                    )
+                else:
+                    self.status_bar.set_message(
+                        "Modo dispositivo: conectá el PIC desde Monitor serial"
+                    )
         else:
             self.mode_button.setText("SIMULACIÓN")
             self.status_bar.set_mode("MODO: SIMULACIÓN", WARNING_AMBER)
             self.temp_panel.clear_reading()
             self.accel_panel.clear_value()
+            self.accel_y_panel.clear_value()
+            self.accel_z_panel.clear_value()
             self.alarm_panel.set_waiting()
-            self.status_bar.set_message("Modo simulación activo · el gráfico X usa datos simulados")
+            self.status_bar.set_message(
+                "Modo simulación activo · fuente XYZ determinista"
+            )
 
     def _show_latest_device_data(self) -> None:
         data = self.state.data
@@ -161,6 +184,11 @@ class MainWindow(QMainWindow):
             return
         self.temp_panel.update_temperature(data.temperature_c, data.alarm_active)
         self.accel_panel.update_value(data.accel_x, live=True)
+        if data.accel_y is None:
+            self.accel_y_panel.clear_value()
+        else:
+            self.accel_y_panel.update_value(data.accel_y, live=True)
+        self.accel_z_panel.update_value(data.accel_z, live=True)
         self.alarm_panel.update_alarm(data.alarm_active, data.alarm_threshold_c)
 
     def _on_live_data(self, packet) -> None:
@@ -169,10 +197,19 @@ class MainWindow(QMainWindow):
         data = self.state.data
         self.temp_panel.update_temperature(packet.temperature_c, packet.alarm_active)
         self.accel_panel.update_value(packet.x_g, live=True)
+        self.accel_y_panel.update_value(packet.y_g, live=True)
+        self.accel_z_panel.update_value(packet.z_g, live=True)
         self.alarm_panel.update_alarm(packet.alarm_active, data.alarm_threshold_c)
-        self.accel_graph.add_live_sample(packet.x_g, data.period_ms)
+        self.accel_graph.add_live_sample(
+            packet.x_g,
+            period_ms=data.period_ms,
+            y_g=packet.y_g,
+            z_g=packet.z_g,
+        )
+        z_text = "--" if packet.z_mg is None else f"{packet.z_mg:+d} mg"
         self.status_bar.set_message(
             f"PIC DATA #{packet.sequence} · X {packet.x_mg:+d} mg · "
+            f"Y {packet.y_mg:+d} mg · Z {z_text} · "
             f"{packet.temperature_c} °C"
         )
 
@@ -197,9 +234,57 @@ class MainWindow(QMainWindow):
             self.mode_button.setChecked(False)
             self._set_mode(False)
 
-    def _on_simulated_sample(self, value_g: float) -> None:
+    def _on_simulated_sample(
+        self, x_g: float, y_g: float, z_g: float
+    ) -> None:
         if not self._device_mode:
-            self.accel_panel.update_value(value_g, live=False)
+            self.accel_panel.update_value(x_g, live=False)
+            self.accel_y_panel.update_value(y_g, live=False)
+            self.accel_z_panel.update_value(z_g, live=False)
+
+    def _arrange_dashboard(self) -> None:
+        """Refluye las tarjetas al ancho compacto sin rediseñar el dashboard."""
+        compact = self.width() < 1150
+        if compact == self._dashboard_compact:
+            return
+
+        grid = self._dashboard_grid
+        for widget in self._dashboard_widgets:
+            grid.removeWidget(widget)
+        for column in range(5):
+            grid.setColumnStretch(column, 0)
+        for row in range(3):
+            grid.setRowStretch(row, 0)
+
+        if compact:
+            grid.addWidget(self.temp_panel, 0, 0)
+            grid.addWidget(self.accel_panel, 0, 1)
+            grid.addWidget(self.accel_y_panel, 0, 2)
+            grid.addWidget(self.gesture_panel, 1, 0, 1, 2)
+            grid.addWidget(self.serial_panel, 1, 2)
+            grid.addWidget(self.accel_z_panel, 2, 0)
+            grid.addWidget(self.alarm_panel, 2, 1)
+            for column in range(3):
+                grid.setColumnStretch(column, 1)
+            grid.setRowStretch(1, 1)
+        else:
+            grid.addWidget(self.temp_panel, 0, 0)
+            grid.addWidget(self.accel_panel, 0, 1)
+            grid.addWidget(self.accel_y_panel, 0, 2)
+            grid.addWidget(self.accel_z_panel, 0, 3)
+            grid.addWidget(self.alarm_panel, 0, 4)
+            grid.addWidget(self.gesture_panel, 1, 0, 1, 3)
+            grid.addWidget(self.serial_panel, 1, 3, 1, 2)
+            for column in range(5):
+                grid.setColumnStretch(column, 1)
+            grid.setRowStretch(1, 1)
+
+        self._dashboard_compact = compact
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        if hasattr(self, "_dashboard_grid"):
+            self._arrange_dashboard()
 
     def _build_top_bar(self) -> QFrame:
         bar = QFrame()
@@ -236,7 +321,7 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(title_box)
 
-        subtitle = QLabel("Supervisión térmica · adquisición del acelerómetro X")
+        subtitle = QLabel("Supervisión térmica · adquisición del acelerómetro XYZ")
         subtitle.setStyleSheet(f"color:{TEXT_SECONDARY}; font-size:13px; margin-left:12px;")
         layout.addWidget(subtitle)
 

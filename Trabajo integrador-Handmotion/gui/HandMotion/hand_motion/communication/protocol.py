@@ -1,8 +1,9 @@
-"""Codec del protocolo binario v1 entre el PIC16F887 y la GUI.
+"""Codec del protocolo binario v2/v3 entre el PIC16F887 y la GUI.
 
 Formato: ``AA 55 | LEN | TIPO | DATOS | CRC8``. LEN incluye TIPO y DATOS;
 CRC-8/ATM (poly 0x07, init 0, MSB-first) cubre LEN hasta el último dato.
-El firmware v1 transmite temperatura y eje X; Y/Z se reservan para después.
+DATA v2 transmite temperatura y X/Y; DATA v3 agrega Z. STATUS informa la
+versión del firmware, pero DATA se decodifica por su propia longitud.
 """
 
 from __future__ import annotations
@@ -12,8 +13,9 @@ from enum import IntEnum
 
 
 SYNC = b"\xAA\x55"
-PROTOCOL_VERSION = 1
-MAX_FRAME_LENGTH = 8  # igual al máximo aceptado por el firmware PIC
+PROTOCOL_VERSION = 2
+SUPPORTED_PROTOCOL_VERSIONS = frozenset((2, 3))
+MAX_FRAME_LENGTH = 10  # DATA v3 ocupa 14 bytes físicos
 DEFAULT_DATA_PERIOD_MS = 50
 MIN_DATA_PERIOD_MS = 20
 MAX_DATA_PERIOD_MS = 250
@@ -39,13 +41,34 @@ class DataPacket:
     sequence: int
     temperature_c: int
     x_mg: int
+    y_mg: int
     alarm_active: bool
     flags: int
+    z_mg: int | None = None
+
+    @property
+    def data_format_version(self) -> int:
+        """Versión del formato DATA inferida por presencia de Z, no por STATUS."""
+        return 3 if self.z_mg is not None else 2
+
+    @property
+    def z_available(self) -> bool:
+        return self.z_mg is not None
 
     @property
     def x_g(self) -> float:
         """X expresado en g a partir del valor nominal de mg enviado por PIC."""
         return self.x_mg / 1000.0
+
+    @property
+    def y_g(self) -> float:
+        """Y expresado en g a partir del valor nominal de mg enviado por PIC."""
+        return self.y_mg / 1000.0
+
+    @property
+    def z_g(self) -> float | None:
+        """Z en g nominales; None significa que la trama v2 no contiene Z."""
+        return None if self.z_mg is None else self.z_mg / 1000.0
 
 
 @dataclass(frozen=True)
@@ -118,7 +141,7 @@ def _validate_command(command: Command, payload: bytes) -> None:
 
 
 def encode_command(command: Command | int | str, payload: bytes = b"") -> bytes:
-    """Codifica un comando validando su longitud y rango según protocolo v1.
+    """Codifica comandos compatibles con firmware v2 y v3.
 
     ``command`` admite un miembro de :class:`Command`, su byte o su nombre
     (por ejemplo ``"START"``). Para SET_OFFSET el payload son dos bytes
@@ -153,19 +176,26 @@ def decode_frame(frame: bytes) -> Packet:
     frame_type = frame[3]
     payload = frame[4:-1]
     if frame_type == FrameType.DATA:
-        if length != 6 or len(payload) != 5:
-            raise ValueError("La trama DATA v1 debe contener cinco bytes")
-        flags = payload[4]
+        if length == 8 and len(payload) == 7:
+            flags = payload[6]
+            z_mg = None
+        elif length == 10 and len(payload) == 9:
+            flags = payload[8]
+            z_mg = int.from_bytes(payload[6:8], "little", signed=True)
+        else:
+            raise ValueError("DATA requiere LEN=8 (v2) o LEN=10 (v3)")
         return DataPacket(
             sequence=payload[0],
             temperature_c=payload[1],
             x_mg=int.from_bytes(payload[2:4], "little", signed=True),
+            y_mg=int.from_bytes(payload[4:6], "little", signed=True),
             alarm_active=bool(flags & 0x01),
             flags=flags,
+            z_mg=z_mg,
         )
     if frame_type == FrameType.STATUS:
         if length != 7 or len(payload) != 6:
-            raise ValueError("La trama STATUS v1 debe contener seis bytes")
+            raise ValueError("La trama STATUS debe contener seis bytes")
         mode = payload[5]
         return StatusPacket(
             version=payload[0],
@@ -177,9 +207,9 @@ def decode_frame(frame: bytes) -> Packet:
         )
     if frame_type == FrameType.ACK:
         if length != 3 or len(payload) != 2:
-            raise ValueError("La trama ACK v1 debe contener dos bytes")
+            raise ValueError("La trama ACK debe contener dos bytes")
         return AckPacket(command=payload[0], result=payload[1])
-    return UnknownPacket(frame_type=frame_type, payload=payload)
+    raise ValueError(f"Tipo de trama desconocido: 0x{frame_type:02X}")
 
 
 class FrameParser:

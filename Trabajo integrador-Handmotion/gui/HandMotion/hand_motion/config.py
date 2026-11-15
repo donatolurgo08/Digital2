@@ -1,4 +1,4 @@
-"""Configuración de enlace v1 y valores iniciales de la GUI."""
+"""Configuración de enlace v2 y valores iniciales de la GUI."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ MAX_DATA_PERIOD_MS: int = PROTOCOL_MAX_DATA_PERIOD_MS
 TEMP_ALARM_THRESHOLD_C: float = 40.0  # valor inicial del firmware, configurable
 
 # --- Acelerómetro ---
-# Eje principal en la primera etapa (DEC-001).
+# Eje principal conservado para compatibilidad con consumidores existentes.
 PRIMARY_ACCEL_AXIS: str = "X"
 
 # --- Simulación local (no representa el período del PIC) ---

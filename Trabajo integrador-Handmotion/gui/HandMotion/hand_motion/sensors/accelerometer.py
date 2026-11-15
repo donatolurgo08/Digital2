@@ -1,7 +1,8 @@
 """Unidades de aceleración recibidas del protocolo PIC.
 
-El firmware transmite X en mg después de aplicar su offset y sensibilidad
-nominales del MMA7361. Esta capa solo cambia unidades; no recalibra el sensor.
+El firmware transmite los ejes disponibles en mg después de aplicar sus offsets
+y sensibilidades nominales/provisionales. Esta capa solo cambia unidades; no
+recalibra el sensor.
 """
 
 from __future__ import annotations
@@ -12,8 +13,8 @@ from dataclasses import dataclass
 @dataclass
 class AccelReading:
     x: float | None = None
-    y: float | None = None  # futuro
-    z: float | None = None  # futuro
+    y: float | None = None
+    z: float | None = None
 
 
 def mg_to_g(acceleration_mg: int) -> float:

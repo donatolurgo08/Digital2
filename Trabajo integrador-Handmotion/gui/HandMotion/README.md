@@ -1,13 +1,12 @@
 # HAND MOTION
 
-Aplicación de escritorio para recibir temperatura y eje X de un MMA7361 desde
-un PIC16F887 vía EUSART/USB-TTL. El reconocimiento de gestos y la comunicación
-de Y/Z quedan pendientes; no se muestran ejes que el protocolo v1 no transmite.
+Aplicación de escritorio para recibir temperatura y los ejes X/Y/Z de un MMA7361
+desde un PIC16F887 vía EUSART/USB-TTL. El reconocimiento de gestos queda pendiente.
 
-La GUI implementa el protocolo binario v1 `AA 55 / LEN / TIPO / DATOS / CRC-8`
-a 9600 Bd, 8N1. Permite PING, START/STOP, consultar estado, fijar el umbral de
-alarma y calibrar el offset de X. La sensibilidad del acelerómetro sigue siendo
-nominal hasta medir el módulo real.
+La GUI acepta DATA de los protocolos v2 (X/Y) y v3 (X/Y/Z), con CRC-8, y mantiene
+compatibilidad con STATUS, ACK y comandos a 9600 Bd, 8N1. Permite PING, START/STOP,
+consultar estado, fijar el umbral de alarma y calibrar el offset de X. Las
+aceleraciones se muestran en g nominales; Z sigue pendiente de calibración física.
 
 La aplicación abre en pantalla completa. Usá **F11** para alternar entre
 pantalla completa y ventana; **Esc** sale de pantalla completa.

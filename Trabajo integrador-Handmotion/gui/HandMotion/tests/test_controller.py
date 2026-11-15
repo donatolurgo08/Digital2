@@ -18,6 +18,8 @@ class _FakePort:
 
 def test_controller_encodes_commands_and_updates_state() -> None:
     state = AppState()
+    y_updates: list[float] = []
+    state.accel_y_changed.connect(y_updates.append)
     controller = AppController(state)
     fake_port = _FakePort()
     controller.serial._serial = fake_port  # fake pyserial port; no physical I/O
@@ -27,14 +29,17 @@ def test_controller_encodes_commands_and_updates_state() -> None:
     assert controller.set_threshold(42)
     assert controller.set_x_offset(338)
 
-    controller.handle_packet(DataPacket(4, 41, -250, True, 1))
+    controller.handle_packet(DataPacket(4, 41, -250, 125, True, 1))
     assert state.data.temperature_c == 41.0
     assert state.data.accel_x == -0.25
     assert state.data.accel_x_mg == -250
+    assert state.data.accel_y == 0.125
+    assert state.data.accel_y_mg == 125
+    assert y_updates == [0.125]
     assert state.data.alarm_active is True
-    assert state.data.accel_y is None and state.data.accel_z is None
+    assert state.data.accel_z is None
 
-    controller.handle_packet(StatusPacket(1, 50, 42, 338, True, 1))
+    controller.handle_packet(StatusPacket(2, 50, 42, 338, True, 1))
     assert state.data.alarm_threshold_c == 42
     assert state.data.x_offset_counts == 338
 

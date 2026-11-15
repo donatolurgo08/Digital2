@@ -18,8 +18,10 @@ class AppStateData:
     temperature_c: float | None = None
     accel_x: float | None = None  # g nominales convertidos desde X en mg
     accel_x_mg: int | None = None
-    accel_y: float | None = None  # no enviado por protocolo v1
-    accel_z: float | None = None  # no enviado por protocolo v1
+    accel_y: float | None = None  # g nominales convertidos desde Y en mg
+    accel_y_mg: int | None = None
+    accel_z: float | None = None  # None si DATA v2 o aún no hay muestra
+    accel_z_mg: int | None = None
     alarm_active: bool = False
     alarm_threshold_c: int = 40
     gesture: str | None = None
@@ -27,9 +29,16 @@ class AppStateData:
     period_ms: int = 50
     x_offset_counts: int = 338
     streaming: bool = True
-    protocol_version: int | None = None
+    protocol_version: int | None = None  # versión reportada por STATUS
+    data_format_version: int | None = None  # 2/3, determinada por LEN de DATA
+    data_source: str | None = None  # "device" para paquetes recibidos del PIC
     last_ack: AckPacket | None = None
     data_received: bool = False
+
+    @property
+    def firmware_version(self) -> int | None:
+        """Versión reportada explícitamente por STATUS, no inferida desde DATA."""
+        return self.protocol_version
 
 
 class AppState(QObject):
@@ -38,6 +47,8 @@ class AppState(QObject):
     connection_changed = Signal(bool)
     temperature_changed = Signal(float)
     accel_changed = Signal(float)
+    accel_y_changed = Signal(float)
+    accel_z_changed = Signal(object)
     alarm_changed = Signal(bool)
     data_packet_received = Signal(object)
     status_packet_received = Signal(object)
@@ -58,19 +69,35 @@ class AppState(QObject):
             self._data.temperature_c = None
             self._data.accel_x = None
             self._data.accel_x_mg = None
+            self._data.accel_y = None
+            self._data.accel_y_mg = None
+            self._data.accel_z = None
+            self._data.accel_z_mg = None
             self._data.alarm_active = False
             self._data.sequence = None
+            self._data.protocol_version = None
+            self._data.data_format_version = None
+            self._data.data_source = None
+            self._data.last_ack = None
         self.connection_changed.emit(value)
 
     def set_data_packet(self, packet: DataPacket) -> None:
         self._data.temperature_c = float(packet.temperature_c)
         self._data.accel_x_mg = packet.x_mg
         self._data.accel_x = mg_to_g(packet.x_mg)
+        self._data.accel_y_mg = packet.y_mg
+        self._data.accel_y = mg_to_g(packet.y_mg)
+        self._data.accel_z_mg = packet.z_mg
+        self._data.accel_z = packet.z_g
         self._data.alarm_active = packet.alarm_active
         self._data.sequence = packet.sequence
         self._data.data_received = True
+        self._data.data_format_version = packet.data_format_version
+        self._data.data_source = "device"
         self.temperature_changed.emit(float(packet.temperature_c))
         self.accel_changed.emit(mg_to_g(packet.x_mg))
+        self.accel_y_changed.emit(mg_to_g(packet.y_mg))
+        self.accel_z_changed.emit(packet.z_g)
         self.alarm_changed.emit(packet.alarm_active)
         self.data_packet_received.emit(packet)
 

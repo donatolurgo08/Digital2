@@ -1,4 +1,4 @@
-"""Orquesta el transporte serie, el protocolo v1 y el estado de la aplicación."""
+"""Orquesta el transporte serie, el protocolo v2/v3 y el estado de la aplicación."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from hand_motion.communication.protocol import (
     Command,
     DataPacket,
     Packet,
+    SUPPORTED_PROTOCOL_VERSIONS,
     StatusPacket,
     UnknownPacket,
     encode_command,
@@ -84,7 +85,7 @@ class AppController(QObject):
             return
         if isinstance(packet, StatusPacket):
             self.state.set_status_packet(packet)
-            if packet.version != 1:
+            if packet.version not in SUPPORTED_PROTOCOL_VERSIONS:
                 self.message.emit(
                     f"Versión de protocolo no reconocida: {packet.version}"
                 )
