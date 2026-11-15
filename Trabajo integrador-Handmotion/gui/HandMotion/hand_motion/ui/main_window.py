@@ -31,6 +31,7 @@ from hand_motion.ui.widgets.temperature_indicator import TemperatureIndicator
 from hand_motion.ui.widgets.accelerometer_panel import AccelerometerPanel
 from hand_motion.ui.widgets.accelerometer_graph import AccelerometerGraph
 from hand_motion.ui.widgets.gesture_panel import GesturePanel, GestureSummary
+from hand_motion.ui.widgets.gesture_toast import GestureToast
 from hand_motion.ui.widgets.serial_monitor import SerialMonitor
 from hand_motion.ui.widgets.alarm_panel import AlarmPanel
 from hand_motion.ui.widgets.status_bar import StatusBar
@@ -102,6 +103,9 @@ class MainWindow(QMainWindow):
         self.serial_panel = SerialMonitor(self.controller)
         self.accel_source = SimulatedAccelSource()
         self.accel_graph = AccelerometerGraph(source=self.accel_source)
+        self.gesture_toast = GestureToast(
+            self.accel_graph, anchor=self.accel_graph.plot
+        )
         self.accel_source.sample_xyz.connect(self._on_simulated_sample)
 
         self.gesture_recognizer = GestureRecognizer(
@@ -313,6 +317,7 @@ class MainWindow(QMainWindow):
         value = gesture or None
         self.gesture_panel.set_gesture(value)
         self.gesture_summary.set_gesture(value)
+        self.gesture_toast.show_gesture(value)
 
     def _on_gesture_thresholds_changed(self) -> None:
         x_g, y_g, z_g = self.gesture_panel.thresholds()

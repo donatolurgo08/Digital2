@@ -74,7 +74,9 @@ y la visualización en vivo de temperatura/X/Y/Z están implementados. La GUI of
 PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. La sección
 **Reconocimiento** integra un clasificador de inclinaciones X/Y/Z con ventana,
 antirrebote y umbrales/reposo ajustables; los valores iniciales son
-provisionales y el reposo se captura desde la GUI. Este reconocimiento corre en
+provisionales y el reposo se captura desde la GUI. La página **Adquisición**
+muestra un aviso flotante transitorio con el gesto confirmado sobre el gráfico.
+Este reconocimiento corre en
 Python y no reemplaza una futura implementación en Assembler del PIC.
 Pendientes: validar con el PIC físico, calibrar los ejes X/Y/Z, ajustar los
 umbrales con el módulo real y decidir si el gesto se porta al firmware.

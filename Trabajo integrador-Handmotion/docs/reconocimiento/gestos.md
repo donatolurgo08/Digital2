@@ -15,6 +15,10 @@ sección **Reconocimiento**:
   confirmar un cambio.
 - Con DATA v2 (sin Z) solo se evalúan X e Y.
 
+La página **Adquisición** muestra un aviso flotante sobre el gráfico con el
+gesto recién confirmado (X+, Y-, REPOSO, etc.). El aviso se desvanece solo y no
+intercepta el mouse; no reemplaza al panel de Reconocimiento.
+
 Los umbrales por eje, la ventana y el reposo se ajustan desde la GUI y viven
 solo en memoria. Los valores iniciales (0,25 g) son **provisionales de
 interfaz**, no una calibración del sensor. El reposo se captura con el botón

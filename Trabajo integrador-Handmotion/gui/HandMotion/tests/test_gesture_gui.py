@@ -7,6 +7,7 @@ import unittest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from hand_motion.communication.protocol import DataPacket
@@ -84,6 +85,43 @@ class GestureGuiTests(unittest.TestCase):
 
     def test_recognition_page_is_in_the_stack(self) -> None:
         self.assertIs(self.window.stack.widget(2), self.window.recognition_page)
+
+    def test_toast_shows_gesture_over_graph_and_hides_on_source_change(self) -> None:
+        self.window.stack.setCurrentIndex(1)
+        self.app.processEvents()
+
+        self._feed(0, 0, 1000, count=5)
+        self.window._capture_gesture_rest()
+        self._feed(500, 0, 1000, count=10)
+        self.app.processEvents()
+
+        toast = self.window.gesture_toast
+        self.assertIs(toast.parentWidget(), self.window.accel_graph)
+        self.assertTrue(toast.testAttribute(Qt.WA_TransparentForMouseEvents))
+        self.assertTrue(toast.isVisible())
+        self.assertEqual(toast.gesture_label.text(), "X+")
+        self.assertIn("X positivo", toast.detail_label.text())
+        self.assertTrue(
+            self.window.accel_graph.plot.geometry().contains(
+                toast.geometry().center()
+            )
+        )
+
+        self.window._set_mode(False)
+        self.app.processEvents()
+        self.assertFalse(toast.isVisible())
+
+    def test_toast_shows_rest_with_green_accent(self) -> None:
+        self.window.stack.setCurrentIndex(1)
+        self._feed(0, 0, 1000, count=5)
+        self.window._capture_gesture_rest()
+        self._feed(0, 0, 1000, count=10)
+        self.app.processEvents()
+
+        toast = self.window.gesture_toast
+        self.assertTrue(toast.isVisible())
+        self.assertEqual(toast.gesture_label.text(), "REPOSO")
+        self.assertIn("#22c55e", toast.styleSheet())
 
 
 if __name__ == "__main__":
