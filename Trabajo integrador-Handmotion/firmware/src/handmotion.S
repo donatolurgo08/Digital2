@@ -2,6 +2,7 @@
 ; @file       handmotion.S
 ;
 ; @author     Lurgo Donato
+;             Ana Victoria Conde
 ;
 ; @date       06/11/2026
 ;

@@ -54,5 +54,6 @@ Actualizada: 2026-11-13
 - [x] Protocolo serie y firmware de Etapa 6 pusheados: `0cc73bb`.
 - [x] Integración de la GUI con el protocolo v1 publicada en esta etapa.
 - [x] Diseño de protoboard de dos placas de 830 encastradas generado en `hardware/protoboard/protoboard.html` (diagrama + mapa de patas + redes + guía de armado). Verificado sin cortocircuitos de nodo (47 redes, 156 pines, 0 agujeros compartidos).
-- [x] Ronda de fidelidad visual: buses azules, displays de 7 segmentos con forma real, LM35 y MMA7361 dibujados, placas unidas y grilla de agujeros alineada.
+- [x] Diagrama actualizado con bajadas visibles de alimentación a los rieles (incluido MMA7361 a +5V), UART con GND/TXD/RXD conectados y 3V3/+5V aislados, y valores visibles de los capacitores dibujados según BOM.
+- [x] Ronda de fidelidad visual: rieles +5V rojos, +3V3 naranjas y GND azules; displays de 7 segmentos con forma real, LM35 y MMA7361 dibujados, placas unidas y grilla alineada.
 - [ ] Probar el armado real sobre la protoboard y corregir ubicaciones si algún componente no entra.
