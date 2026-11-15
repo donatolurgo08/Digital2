@@ -14,6 +14,11 @@
 
 ;-------------------------------------------------------------------------------
 ; @brief Inicia TIMER1 para el multiplexado.
+; @details Configura TIMER1 con reloj interno FOSC/4, prescaler 1:1 y precarga
+;          0xF830 para un periodo nominal de 1 ms. Habilita el timer.
+; @param ninguno
+; @return ninguno
+; @modifica T1CON, TMR1H, TMR1L, PIR1<0>, W
 ;-------------------------------------------------------------------------------
 display_init:
         BANKSEL T1CON
@@ -36,13 +41,19 @@ display_init:
 ;-------------------------------------------------------------------------------
 ; @brief Avanza un digito cuando TIMER1 vence.
 ; @details El orden es decenas, unidades y C. FLAGS<2:1> guardan el estado.
-;          FLAGS<0> sigue reservado al signo de DELTA.
+;          FLAGS<0> sigue reservado al signo de DELTA. Genera TICK_FLAG para
+;          el protocolo serie. Apaga los digitos antes de cambiar segmentos.
+; @param ninguno
+; @return ninguno
+; @modifica PIR1<0>, TMR1H, TMR1L, PORTC<2:0>, PORTD, FLAGS<2:1>, TICK_FLAG<0>,
+;           W
 ;-------------------------------------------------------------------------------
 display_service:
         BANKSEL PIR1
         BTFSS   PIR1,0          ; TMR1IF=1 si vencio el milisegundo
         RETURN
         BCF     PIR1,0
+        BANKSEL TICK_FLAG
         BSF     TICK_FLAG,0     ; base de 1 ms para el protocolo serie
 
         BANKSEL TMR1H
@@ -102,7 +113,11 @@ display_digit_c:
 
 ;-------------------------------------------------------------------------------
 ; @brief Divide TEMP_C por 10 mediante restas sucesivas.
-; @return TMP = decenas; COUNT = unidades.
+; @details Realiza restas de 10 de COUNT hasta que sea menor que 10.
+;          TMP recibe las decenas, COUNT recibe las unidades.
+; @param TEMP_C = temperatura en grados C
+; @return TMP = decenas; COUNT = unidades
+; @modifica W, TMP, COUNT, STATUS (C, Z), TEMP_C (leido)
 ;-------------------------------------------------------------------------------
 display_split_temp:
         BANKSEL TEMP_C
@@ -120,7 +135,11 @@ display_split_loop:
 
 ;-------------------------------------------------------------------------------
 ; @brief Convierte un indice 0-9 o 10 (C) a segmentos activos en alto.
-; @return W = patron para PORTD (RD0=a ... RD6=g, RD7=dp).
+; @details Busca el indice en TMP y devuelve el patron de segmentos en W.
+;          Indice 10 produce el patron de la letra C.
+; @param TMP = indice (0-9 o 10 para C)
+; @return W = patron para PORTD (RD0=a ... RD6=g, RD7=dp)
+; @modifica W, STATUS (Z)
 ;-------------------------------------------------------------------------------
 display_pattern:
         MOVF    TMP,W
