@@ -23,6 +23,13 @@ TEMP_ALARM_THRESHOLD_C: float = 40.0  # valor inicial del firmware, configurable
 # Eje principal conservado para compatibilidad con consumidores existentes.
 PRIMARY_ACCEL_AXIS: str = "X"
 
+# --- Gestos ---
+# Valores iniciales de la interfaz, NO una calibración del MMA7361. Se ajustan
+# desde el panel de reconocimiento con el sensor real.
+GESTURE_THRESHOLD_G: float = 0.25
+GESTURE_WINDOW_SAMPLES: int = 5
+GESTURE_HOLD_SAMPLES: int = 3
+
 # --- Simulación local (no representa el período del PIC) ---
 SIMULATION_SAMPLE_RATE_HZ: float = 50.0
 DISPLAY_REFRESH_HZ: float = 30.0

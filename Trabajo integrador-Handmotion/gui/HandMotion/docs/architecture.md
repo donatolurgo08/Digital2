@@ -4,7 +4,8 @@
 
 Aplicación de escritorio (Python + PySide6) conectada a un PIC16F887. La GUI
 acepta DATA de firmware v2 (ejes X/Y) y v3 (ejes X/Y/Z). En v2, Z se representa
-como no disponible; el reconocimiento de gestos queda para una etapa posterior.
+como no disponible. La GUI reconoce inclinaciones por eje con umbrales
+ajustables; el firmware todavía solo transmite las muestras.
 
 ## 2. Estructura de directorios
 
@@ -70,11 +71,13 @@ Ver `docs/dependencies.md`.
 
 La conexión serial, el codec v2/v3, el parser incremental con CRC-8, los comandos
 y la visualización en vivo de temperatura/X/Y/Z están implementados. La GUI ofrece
-PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. Hay un clasificador
-Python de referencia probado con ventanas sintéticas de X; no está integrado a
-la UI ni reemplaza el futuro reconocimiento Assembler del PIC. Pendientes:
-validar con el PIC físico, calibrar los ejes X/Y/Z y definir los
-criterios/implementación de gestos reales.
+PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. La sección
+**Reconocimiento** integra un clasificador de inclinaciones X/Y/Z con ventana,
+antirrebote y umbrales/reposo ajustables; los valores iniciales son
+provisionales y el reposo se captura desde la GUI. Este reconocimiento corre en
+Python y no reemplaza una futura implementación en Assembler del PIC.
+Pendientes: validar con el PIC físico, calibrar los ejes X/Y/Z, ajustar los
+umbrales con el módulo real y decidir si el gesto se porta al firmware.
 
 ## 8. Protocolo PIC v2/v3
 

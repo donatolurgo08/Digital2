@@ -50,6 +50,7 @@ class AppState(QObject):
     accel_y_changed = Signal(float)
     accel_z_changed = Signal(object)
     alarm_changed = Signal(bool)
+    gesture_changed = Signal(str)
     data_packet_received = Signal(object)
     status_packet_received = Signal(object)
     ack_received = Signal(object)
@@ -79,7 +80,13 @@ class AppState(QObject):
             self._data.data_format_version = None
             self._data.data_source = None
             self._data.last_ack = None
+            self.set_gesture(None)
         self.connection_changed.emit(value)
+
+    def set_gesture(self, gesture: str | None) -> None:
+        """Publica el gesto confirmado; ``None`` significa sin gesto."""
+        self._data.gesture = gesture
+        self.gesture_changed.emit(gesture or "")
 
     def set_data_packet(self, packet: DataPacket) -> None:
         self._data.temperature_c = float(packet.temperature_c)

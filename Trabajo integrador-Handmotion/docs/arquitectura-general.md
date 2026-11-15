@@ -22,9 +22,10 @@ LM35 ── AN0 ────────────── ADC ── temperatur
                                                                       LED rojo + buzzer si T > 40 °C
 ```
 
-El protocolo serie v1 define comandos de configuración y transmite temperatura,
-eje X y alarma; la GUI está integrada. Y/Z y los gestos se incorporarán después.
-La supervisión térmica no participa en el reconocimiento.
+El protocolo serie v2/v3 define comandos de configuración y transmite
+temperatura, X/Y (v2) y X/Y/Z (v3). La GUI está integrada y reconoce
+inclinaciones por eje con umbrales ajustables; el firmware todavía no ejecuta el
+reconocimiento. La supervisión térmica no participa en el reconocimiento.
 
 ## Decisiones confirmadas
 
@@ -41,9 +42,11 @@ La supervisión térmica no participa en el reconocimiento.
   **AN5 = Y**, **AN6 = Z**, todos directos. Referencia `VREF+ = VDD`,
   `VREF- = VSS`; RA3/AN3 queda libre. Decisión del 2026-11-12: se mantiene
   este mapeo (Y/Z no pasan a AN2/AN3 porque RA2 es LED1).
-- Alcance de la primera versión: se adquieren los tres ejes; el algoritmo de
-  reconocimiento y los gestos se definen con mediciones reales. La conversión
-  de X a mg usa offset y sensibilidad nominales hasta calibrar.
+- Alcance de la primera versión: se adquieren los tres ejes; el firmware
+  transmite X/Y/Z y la GUI clasifica inclinaciones por eje con umbrales
+  provisionales ajustables. La calibración fina y los criterios definitivos se
+  definen con mediciones reales. La conversión de X a mg usa offset y
+  sensibilidad nominales hasta calibrar.
 - LM35 obligatoriamente en AN0.
 - Tres displays rojos de **cátodo común** multiplexados: dos dígitos de temperatura
   y una `C` estándar. Segmentos en RD0–RD7 (a, b, c, d, e, f, g, dp), activos
@@ -67,9 +70,9 @@ La supervisión térmica no participa en el reconocimiento.
 
 ## Pendientes de integración
 
-Probar la comunicación de la GUI con el PIC real, validar el muestreo X de 20 ms,
-y definir filtros y criterios de reconocimiento para gestos y el muestreo futuro
-de Y/Z. También quedan pendientes la verificación en banco de R9–R16 (220 Ω
+Probar la comunicación de la GUI con el PIC real, validar el muestreo de X/Y/Z,
+y ajustar los umbrales/reposo del reconocimiento con el módulo real. También
+quedan pendientes la verificación en banco de R9–R16 (220 Ω
 adoptadas), la alimentación DC-IN de 9 V y el patillaje del MMA7361, y la
 calibración de offset/sensibilidad con el módulo real. Las
 resistencias de base (R17–R19), LED (R21–R22) y MCLR (R23) ya están calculadas. Ver

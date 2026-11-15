@@ -1,7 +1,10 @@
 # HAND MOTION
 
 Aplicación de escritorio para recibir temperatura y los ejes X/Y/Z de un MMA7361
-desde un PIC16F887 vía EUSART/USB-TTL. El reconocimiento de gestos queda pendiente.
+desde un PIC16F887 vía EUSART/USB-TTL. La sección **Reconocimiento** clasifica
+inclinaciones por eje (X+/X-/Y+/Y-/Z+/Z-/REPOSO) con umbrales, ventana y reposo
+ajustables. El firmware todavía solo transmite las muestras; el reconocimiento
+corre en la GUI y sus umbrales iniciales son provisionales.
 
 La GUI acepta DATA de los protocolos v2 (X/Y) y v3 (X/Y/Z), con CRC-8, y mantiene
 compatibilidad con STATUS, ACK y comandos a 9600 Bd, 8N1. Permite PING, START/STOP,
