@@ -21,11 +21,18 @@ from hand_motion.ui.styles.palette import (
 class AccelerometerGraph(QWidget):
     """Visualización en tiempo real de X/Y/Z (estilo osciloscopio)."""
 
-    def __init__(self, buffer_size: int = 300, source=None, parent=None) -> None:
+    def __init__(
+        self,
+        buffer_size: int = 300,
+        source=None,
+        parent=None,
+        compact: bool = False,
+    ) -> None:
         super().__init__(parent)
         if buffer_size <= 0:
             raise ValueError("buffer_size debe ser mayor que cero")
         self.buffer_size = buffer_size
+        self.compact = compact
         self._values: deque[float] = deque(maxlen=buffer_size)
         self._y_values: deque[float] = deque(maxlen=buffer_size)
         self._z_values: deque[float] = deque(maxlen=buffer_size)
@@ -42,7 +49,9 @@ class AccelerometerGraph(QWidget):
         layout.setSpacing(8)
 
         # Controles
-        controls = QGridLayout()
+        controls_widget = QWidget()
+        controls = QGridLayout(controls_widget)
+        controls.setContentsMargins(0, 0, 0, 0)
         self.start_btn = QPushButton("Iniciar")
         self.stop_btn = QPushButton("Detener")
         self.stop_btn.setObjectName("Danger")
@@ -62,7 +71,7 @@ class AccelerometerGraph(QWidget):
         self.ymax_spin.setFixedWidth(76)
         self.rate_spin = QSpinBox()
         self.rate_spin.setRange(1, 200)
-        self.rate_spin.setValue(50)
+        self.rate_spin.setValue(int(round(self.source.sample_rate_hz)))
         self.rate_spin.setFixedWidth(76)
         self.rate_spin.setSuffix(" Hz")
         self.scenario_combo = QComboBox()
@@ -87,7 +96,7 @@ class AccelerometerGraph(QWidget):
         controls.addWidget(self.ymax_spin, 1, 3)
         controls.addWidget(self.scenario_combo, 1, 4)
         controls.setColumnStretch(5, 1)
-        layout.addLayout(controls)
+        layout.addWidget(controls_widget)
 
         # Gráfico
         self.plot = pg.PlotWidget()
@@ -129,6 +138,11 @@ class AccelerometerGraph(QWidget):
         )
         self.note.setStyleSheet(f"color:{WARNING_AMBER}; font-size:11px;")
         layout.addWidget(self.note)
+        if self.compact:
+            controls_widget.hide()
+            self.note.hide()
+            self.plot.setMinimumHeight(120)
+            self.setMinimumHeight(150)
 
         # Conexiones
         self.start_btn.clicked.connect(self.start)

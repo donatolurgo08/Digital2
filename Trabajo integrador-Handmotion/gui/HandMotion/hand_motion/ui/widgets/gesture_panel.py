@@ -25,6 +25,7 @@ from hand_motion.logic.gesture_recognition import (
 )
 from hand_motion.ui.styles.palette import (
     ACCENT_CYAN,
+    GESTURE_COLORS,
     OK_GREEN,
     TEXT_SECONDARY,
     WARNING_AMBER,
@@ -142,7 +143,7 @@ class GesturePanel(QWidget):
         self.log.setReadOnly(True)
         self.log.setMaximumHeight(96)
         self.log.setPlaceholderText(
-            "El historial de gestos aparece al capturar el reposo."
+            "El registro de esta sesión comienza al capturar el reposo."
         )
         layout.addWidget(self.log)
 
@@ -174,6 +175,22 @@ class GesturePanel(QWidget):
 
     def window_samples(self) -> int:
         return self.window_spin.value()
+
+    def set_recognition_parameters(
+        self,
+        thresholds: tuple[float, float, float],
+        window_samples: int,
+    ) -> None:
+        """Sincroniza el panel con preferencias compartidas sin reemitir señales."""
+        widgets = [*self.threshold_spins, self.window_spin]
+        previous_states = [widget.blockSignals(True) for widget in widgets]
+        try:
+            for spin, value in zip(self.threshold_spins, thresholds):
+                spin.setValue(value)
+            self.window_spin.setValue(window_samples)
+        finally:
+            for widget, was_blocked in zip(widgets, previous_states):
+                widget.blockSignals(was_blocked)
 
     def set_baseline(self, x_g: float, y_g: float, z_g: float) -> None:
         """Actualiza los campos de reposo sin reemitir ``baseline_changed``."""
@@ -215,6 +232,9 @@ class GesturePanel(QWidget):
         label = GESTURE_LABELS.get(gesture, gesture)
         description = GESTURE_DESCRIPTIONS.get(gesture, gesture)
         self.result_label.setText(f"Gesto: {label}")
+        self.result_label.setStyleSheet(
+            f"font-size: 30px; color: {GESTURE_COLORS.get(gesture, ACCENT_CYAN)};"
+        )
         self.detail_label.setText(description)
         if gesture != self._last_logged:
             self._last_logged = gesture
@@ -273,8 +293,22 @@ class GestureSummary(QWidget):
 
     def set_gesture(self, gesture: str | None) -> None:
         if gesture is None:
-            self.result_label.setText("Gesto: --")
-            self.detail_label.setText("Sin datos · ver sección Reconocimiento")
+            self.set_pending(
+                "SIN DATOS",
+                "Iniciá la simulación o conectá el PIC.",
+                WARNING_AMBER,
+            )
             return
-        self.result_label.setText(f"Gesto: {GESTURE_LABELS.get(gesture, gesture)}")
+        label = GESTURE_LABELS.get(gesture, gesture)
+        color = GESTURE_COLORS.get(gesture, ACCENT_CYAN)
+        self.result_label.setText(f"Gesto: {label}")
+        self.result_label.setStyleSheet(
+            f"font-size: 26px; color: {color};"
+        )
         self.detail_label.setText(GESTURE_DESCRIPTIONS.get(gesture, gesture))
+
+    def set_pending(self, status: str, detail: str, color: str) -> None:
+        """Muestra por qué aún no hay un gesto confirmado."""
+        self.result_label.setText(status)
+        self.result_label.setStyleSheet(f"font-size: 24px; color: {color};")
+        self.detail_label.setText(detail)

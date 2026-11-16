@@ -7,6 +7,11 @@ QWidget {
     font-size: 13px;
 }
 
+/* Las etiquetas muestran texto sobre el panel que las contiene, no en cajas opacas. */
+QLabel {
+    background-color: transparent;
+}
+
 QMainWindow {
     background-color: #0a0f1a;
 }
@@ -25,13 +30,14 @@ QFrame#Card:hover {
 
 QLabel#CardTitle {
     color: #94a3b8;
+    font-family: "Exo 2", "Bahnschrift", "Segoe UI", sans-serif;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
 }
 
 QLabel#CardValue {
-    color: #38bdf8;
+    color: #28C7FF;
     font-family: "Cascadia Code", "Consolas", "Lucida Console", monospace;
     font-size: 36px;
     font-weight: 700;
@@ -52,10 +58,11 @@ QFrame#TopBar {
 }
 
 QLabel#AppTitle {
-    color: #38bdf8;
-    font-family: "Bahnschrift", "Segoe UI Variable", "Segoe UI", sans-serif;
+    color: #28C7FF;
+    font-family: "Exo 2", "Bahnschrift", "Segoe UI Variable", "Segoe UI", sans-serif;
     font-size: 22px;
     font-weight: 800;
+    font-style: italic;
     letter-spacing: 4px;
 }
 
@@ -76,7 +83,7 @@ QPushButton {
 
 QPushButton:hover {
     background-color: #2a3348;
-    border-color: #38bdf8;
+    border-color: #28C7FF;
 }
 
 QPushButton:pressed {
@@ -91,14 +98,14 @@ QPushButton:disabled {
 
 QPushButton#Primary {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #38bdf8, stop:1 #0ea5e9);
+                                      stop:0 #28C7FF, stop:1 #12A8DB);
     border: none;
     color: #04121e;
     font-weight: 700;
 }
 
 QPushButton#Primary:hover {
-    background-color: #7dd3fc;
+    background-color: #7CE1FF;
 }
 
 QPushButton#Primary:pressed {
@@ -107,8 +114,8 @@ QPushButton#Primary:pressed {
 
 QPushButton#Danger {
     background-color: #7f1d1d;
-    border-color: #ef4444;
-    color: #fecaca;
+    border-color: #F05252;
+    color: #F05252;
 }
 
 QPushButton#Danger:hover {
@@ -136,7 +143,7 @@ QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox {
 }
 
 QComboBox:focus, QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
-    border-color: #38bdf8;
+    border-color: #28C7FF;
 }
 
 QComboBox::drop-down {
@@ -148,7 +155,7 @@ QComboBox QAbstractItemView {
     background-color: #151b2b;
     border: 1px solid #2a3348;
     selection-background-color: #1e2536;
-    selection-color: #38bdf8;
+    selection-color: #28C7FF;
 }
 
 QSpinBox::up-button, QSpinBox::down-button,
@@ -172,12 +179,12 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:hover {
-    border-color: #38bdf8;
+    border-color: #28C7FF;
 }
 
 QCheckBox::indicator:checked {
-    background-color: #38bdf8;
-    border-color: #38bdf8;
+    background-color: #28C7FF;
+    border-color: #28C7FF;
 }
 
 /* Indicador de estado */
@@ -188,7 +195,7 @@ QLabel#StatusDot {
 /* Banner de alarma */
 QFrame#AlarmBanner {
     background-color: #3b0a0a;
-    border: 1px solid #ef4444;
+    border: 1px solid #F05252;
     border-radius: 10px;
 }
 
@@ -204,7 +211,7 @@ QTextEdit {
 }
 
 QTextEdit:focus {
-    border-color: #38bdf8;
+    border-color: #28C7FF;
 }
 
 /* Barras de progreso */
@@ -219,7 +226,7 @@ QProgressBar {
 
 QProgressBar::chunk {
     background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                      stop:0 #38bdf8, stop:1 #8b5cf6);
+                                      stop:0 #28C7FF, stop:1 #9165FF);
     border-radius: 7px;
 }
 
@@ -242,7 +249,7 @@ QScrollBar::handle:vertical {
 }
 
 QScrollBar::handle:vertical:hover {
-    background-color: #38bdf8;
+    background-color: #28C7FF;
 }
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
@@ -262,7 +269,7 @@ QScrollBar::handle:horizontal {
 }
 
 QScrollBar::handle:horizontal:hover {
-    background-color: #38bdf8;
+    background-color: #28C7FF;
 }
 
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
@@ -294,5 +301,5 @@ QToolButton#SidebarButton:hover {
 
 QToolButton#SidebarButton:checked {
     background-color: #1e2536;
-    border-left: 3px solid #38bdf8;
+    border-left: 3px solid #28C7FF;
 }

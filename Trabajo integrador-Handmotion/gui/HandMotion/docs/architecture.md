@@ -74,14 +74,28 @@ y la visualización en vivo de temperatura/X/Y/Z están implementados. La GUI of
 PING, START/STOP, GET_STATUS, SET_THRESHOLD y SET_OFFSET. La sección
 **Reconocimiento** integra un clasificador de inclinaciones X/Y/Z con ventana,
 antirrebote y umbrales/reposo ajustables; los valores iniciales son
-provisionales y el reposo se captura desde la GUI. La página **Adquisición**
-muestra un aviso flotante transitorio con el gesto confirmado sobre el gráfico.
-Este reconocimiento corre en
-Python y no reemplaza una futura implementación en Assembler del PIC.
+provisionales y el reposo se captura desde la GUI. El Dashboard comparte la misma
+fuente de adquisición con **Adquisición**, y muestra un gráfico XYZ compacto y el
+gesto confirmado. La página **Adquisición** conserva el gráfico completo y el
+aviso flotante transitorio. Este reconocimiento corre en Python y no reemplaza
+una futura implementación en Assembler del PIC.
 Pendientes: validar con el PIC físico, calibrar los ejes X/Y/Z, ajustar los
 umbrales con el módulo real y decidir si el gesto se porta al firmware.
 
-## 8. Protocolo PIC v2/v3
+## 8. Navegación y configuración local
+
+La navegación contiene Dashboard, Adquisición, Reconocimiento y Configuración;
+no hay sección Historial ni persistencia de sesiones. El log de gestos de
+Reconocimiento es solo de la sesión actual.
+
+Configuración persiste con `QSettings` la tasa de simulación, umbrales X/Y/Z y
+ventanas de promedio/confirmación en el perfil local de la aplicación. La tasa
+de simulación se comparte con la fuente y el gráfico de Adquisición. La tasa del
+PIC se consulta con STATUS y se ajusta desde Monitor serial; UART permanece fijo
+en 9600 Bd, 8N1. El reposo capturado se muestra en Configuración, pero es
+temporal, depende de la fuente activa y no se guarda al reiniciar.
+
+## 9. Protocolo PIC v2/v3
 
 La especificación compartida está en
 [`../../../docs/comunicacion/protocolo.md`](../../../docs/comunicacion/protocolo.md).

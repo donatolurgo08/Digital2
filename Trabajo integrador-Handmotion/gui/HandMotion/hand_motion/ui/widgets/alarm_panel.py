@@ -20,7 +20,9 @@ class AlarmPanel(QWidget):
         banner_layout.setContentsMargins(12, 8, 12, 8)
         self.banner_label = QLabel("Sin alarmas activas")
         self.banner_label.setWordWrap(True)
-        self.banner_label.setStyleSheet("color: #fecaca; font-weight: 600;")
+        self.banner_label.setStyleSheet(
+            f"color: {ALARM_RED}; font-weight: 600;"
+        )
         banner_layout.addWidget(self.banner_label)
         layout.addWidget(self.banner)
 

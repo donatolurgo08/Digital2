@@ -20,10 +20,12 @@ from hand_motion.communication.protocol import (
 )
 from hand_motion.core.controller import AppController
 from hand_motion.core.state import AppState
+from hand_motion.preferences import GuiPreferencesStore
 from hand_motion.processing.simulated_source import SimulatedAccelSource
 from hand_motion.ui.main_window import MainWindow
 from hand_motion.ui.widgets.accelerometer_graph import AccelerometerGraph
 from hand_motion.ui.widgets.accelerometer_panel import AccelerometerPanel
+from preferences_helpers import MemorySettings
 
 
 def data_v2(
@@ -206,7 +208,9 @@ class UiAndSimulationTests(unittest.TestCase):
         graph.close()
 
     def test_dashboard_shows_v3_z_and_marks_v2_z_unavailable(self) -> None:
-        window = MainWindow()
+        window = MainWindow(
+            preferences_store=GuiPreferencesStore(MemorySettings())
+        )
         window.resize(1180, 760)
         window.show()
         self.app.processEvents()
@@ -218,12 +222,16 @@ class UiAndSimulationTests(unittest.TestCase):
         window._set_mode(True)
         window.state.set_data_packet(decode_frame(data_v3(z_mg=375)))
         self.assertEqual(window.accel_z_panel._card.value_label.text(), "+0.375 g")
+        self.assertEqual(
+            window.dashboard_graph._z_values[-1], 0.375
+        )
         self.assertIn("Z +375 mg", window.status_bar.message.text())
 
         window.state.set_data_packet(decode_frame(data_v2()))
         self.assertEqual(window.accel_z_panel._card.value_label.text(), "--")
         self.assertIn("Z --", window.status_bar.message.text())
         self.assertIn("Z: --", window.accel_graph.last_value_label.text())
+        self.assertTrue(math.isnan(window.dashboard_graph._z_values[-1]))
         window.close()
 
     def test_simulator_is_repeatable_and_supports_rest_and_movement(self) -> None:

@@ -25,11 +25,10 @@ from PySide6.QtWidgets import (
 from hand_motion.logic.gesture_recognition import (
     GESTURE_DESCRIPTIONS,
     GESTURE_LABELS,
-    REST,
 )
 from hand_motion.ui.styles.palette import (
     ACCENT_CYAN,
-    OK_GREEN,
+    GESTURE_COLORS,
     TEXT_MUTED,
     TEXT_SECONDARY,
 )
@@ -113,7 +112,7 @@ class GestureToast(QFrame):
             self.dismiss()
             return
 
-        self._apply_style(OK_GREEN if gesture == REST else ACCENT_CYAN)
+        self._apply_style(GESTURE_COLORS.get(gesture, ACCENT_CYAN))
         self.gesture_label.setText(GESTURE_LABELS.get(gesture, gesture))
         self.detail_label.setText(GESTURE_DESCRIPTIONS.get(gesture, ""))
 

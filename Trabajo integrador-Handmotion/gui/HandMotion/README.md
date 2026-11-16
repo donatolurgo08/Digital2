@@ -10,6 +10,9 @@ La GUI acepta DATA de los protocolos v2 (X/Y) y v3 (X/Y/Z), con CRC-8, y mantien
 compatibilidad con STATUS, ACK y comandos a 9600 Bd, 8N1. Permite PING, START/STOP,
 consultar estado, fijar el umbral de alarma y calibrar el offset de X. Las
 aceleraciones se muestran en g nominales; Z sigue pendiente de calibración física.
+La navegación incluye Dashboard, Adquisición, Reconocimiento y Configuración; no
+hay sección Historial ni persistencia de sesiones. Configuración guarda localmente
+con QSettings la tasa de simulación y los parámetros del reconocedor.
 
 La aplicación abre en pantalla completa. Usá **F11** para alternar entre
 pantalla completa y ventana; **Esc** sale de pantalla completa.

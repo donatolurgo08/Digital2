@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QIcon, QKeySequence, QPixmap, QShortcut
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QFrame, QScrollArea, QStackedWidget, QPushButton,
+    QAbstractButton, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+    QLabel, QFrame, QGraphicsOpacityEffect, QScrollArea, QStackedWidget,
+    QPushButton,
 )
 
-from hand_motion.config import (
-    GESTURE_HOLD_SAMPLES,
-    GESTURE_THRESHOLD_G,
-    GESTURE_WINDOW_SAMPLES,
-)
 from hand_motion.core.controller import AppController
 from hand_motion.core.state import AppState
 from hand_motion.logic.gesture_recognition import (
@@ -25,7 +22,14 @@ from hand_motion.logic.gesture_recognition import (
     TiltThresholds,
 )
 from hand_motion.processing.simulated_source import SimulatedAccelSource
-from hand_motion.ui.styles.palette import ACCENT_CYAN, TEXT_SECONDARY, WARNING_AMBER
+from hand_motion.preferences import GuiPreferences, GuiPreferencesStore
+from hand_motion.ui.styles.palette import (
+    ACCENT_CYAN,
+    ACCENT_MAGENTA,
+    TEXT_SECONDARY,
+    WARNING_AMBER,
+)
+from hand_motion.ui.button_feedback import ButtonFeedback
 from hand_motion.ui.widgets.connection_indicator import ConnectionIndicator
 from hand_motion.ui.widgets.temperature_indicator import TemperatureIndicator
 from hand_motion.ui.widgets.accelerometer_panel import AccelerometerPanel
@@ -36,12 +40,15 @@ from hand_motion.ui.widgets.serial_monitor import SerialMonitor
 from hand_motion.ui.widgets.alarm_panel import AlarmPanel
 from hand_motion.ui.widgets.status_bar import StatusBar
 from hand_motion.ui.widgets.sidebar import Sidebar
-from hand_motion.ui.views.placeholder_view import PlaceholderView
+from hand_motion.ui.widgets.card import Card
+from hand_motion.ui.views.configuration_view import ConfigurationView
 from hand_motion.ui.views.recognition_view import RecognitionView
 
 
 class MainWindow(QMainWindow):
-    def __init__(self) -> None:
+    def __init__(
+        self, preferences_store: GuiPreferencesStore | None = None
+    ) -> None:
         super().__init__()
         self.setWindowTitle("Hand Motion")
         self._logo_path = Path(__file__).resolve().parents[2] / "resources" / "hand_motion_logo.png"
@@ -58,6 +65,8 @@ class MainWindow(QMainWindow):
         self.state = AppState(self)
         self.controller = AppController(self.state, self)
         self._device_mode = False
+        self.preferences_store = preferences_store or GuiPreferencesStore()
+        self.preferences = self.preferences_store.load()
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -94,15 +103,25 @@ class MainWindow(QMainWindow):
         grid.setSpacing(16)
 
         self.temp_panel = TemperatureIndicator()
-        self.accel_panel = AccelerometerPanel("X")
-        self.accel_y_panel = AccelerometerPanel("Y")
-        self.accel_z_panel = AccelerometerPanel("Z")
+        self.accel_panel = AccelerometerPanel("X", show_note=False)
+        self.accel_y_panel = AccelerometerPanel("Y", show_note=False)
+        self.accel_z_panel = AccelerometerPanel("Z", show_note=False)
         self.alarm_panel = AlarmPanel()
         self.gesture_summary = GestureSummary()
         self.gesture_panel = GesturePanel()
         self.serial_panel = SerialMonitor(self.controller)
-        self.accel_source = SimulatedAccelSource()
+        self.accel_source = SimulatedAccelSource(
+            sample_rate_hz=float(self.preferences.simulation_rate_hz)
+        )
         self.accel_graph = AccelerometerGraph(source=self.accel_source)
+        self.accel_graph.rate_spin.valueChanged.connect(
+            self._on_simulation_rate_changed
+        )
+        self.dashboard_graph = AccelerometerGraph(
+            buffer_size=150, source=self.accel_source, compact=True
+        )
+        self.dashboard_signal_card = Card("Señales X/Y/Z")
+        self.dashboard_signal_card.content_layout().addWidget(self.dashboard_graph)
         self.gesture_toast = GestureToast(
             self.accel_graph, anchor=self.accel_graph.plot
         )
@@ -110,14 +129,23 @@ class MainWindow(QMainWindow):
 
         self.gesture_recognizer = GestureRecognizer(
             thresholds=TiltThresholds(
-                x_g=GESTURE_THRESHOLD_G,
-                y_g=GESTURE_THRESHOLD_G,
-                z_g=GESTURE_THRESHOLD_G,
+                x_g=self.preferences.threshold_x_g,
+                y_g=self.preferences.threshold_y_g,
+                z_g=self.preferences.threshold_z_g,
             ),
-            window_samples=GESTURE_WINDOW_SAMPLES,
-            hold_samples=GESTURE_HOLD_SAMPLES,
+            window_samples=self.preferences.window_samples,
+            hold_samples=self.preferences.hold_samples,
+        )
+        self.gesture_panel.set_recognition_parameters(
+            (
+                self.preferences.threshold_x_g,
+                self.preferences.threshold_y_g,
+                self.preferences.threshold_z_g,
+            ),
+            self.preferences.window_samples,
         )
         self._gesture_calibrated = False
+        self._gesture_has_data = False
         self._last_gesture: str | None = None
 
         self._dashboard_grid = grid
@@ -127,11 +155,13 @@ class MainWindow(QMainWindow):
             self.accel_y_panel,
             self.accel_z_panel,
             self.alarm_panel,
+            self.dashboard_signal_card,
             self.gesture_summary,
             self.serial_panel,
         )
         self._dashboard_compact: bool | None = None
         self._arrange_dashboard()
+        self.sidebar.width_changed.connect(self._arrange_dashboard)
 
         self.stack.addWidget(self.dashboard_page)
 
@@ -146,9 +176,8 @@ class MainWindow(QMainWindow):
         self.recognition_page = RecognitionView(self.gesture_panel)
         self.stack.addWidget(self.recognition_page)
 
-        # --- Secciones provisionales ---
-        for name in ("Historial", "Configuración"):
-            self.stack.addWidget(PlaceholderView(name))
+        self.configuration_page = ConfigurationView(self.preferences)
+        self.stack.addWidget(self.configuration_page)
 
         body_layout.setStretch(1, 1)
         root.addWidget(body, 1)
@@ -156,7 +185,8 @@ class MainWindow(QMainWindow):
         self.status_bar = StatusBar()
         root.addWidget(self.status_bar)
 
-        self.sidebar.section_changed.connect(self.stack.setCurrentIndex)
+        self._section_fade: QPropertyAnimation | None = None
+        self.sidebar.section_changed.connect(self._navigate_to_section)
         self.state.connection_changed.connect(self._on_connection_changed)
         self.state.data_packet_received.connect(self._on_live_data)
         self.state.status_packet_received.connect(self._on_device_status)
@@ -169,6 +199,52 @@ class MainWindow(QMainWindow):
         )
         self.gesture_panel.capture_rest_requested.connect(self._capture_gesture_rest)
         self.gesture_panel.reset_requested.connect(self._reset_gesture)
+        self.configuration_page.preferences_changed.connect(
+            self._apply_preferences
+        )
+        self.configuration_page.reset_baseline_requested.connect(
+            self._clear_gesture_baseline
+        )
+        self.configuration_page.open_recognition_requested.connect(
+            lambda: self.sidebar.select_section(2)
+        )
+        self._button_feedback = [
+            ButtonFeedback(button)
+            for button in self.findChildren(QAbstractButton)
+        ]
+        self._refresh_gesture_summary()
+        self._refresh_configuration_context()
+
+    def _navigate_to_section(self, index: int) -> None:
+        """Cambia de página con un fade breve, solo al navegar."""
+        if index == self.stack.currentIndex():
+            return
+        if self._section_fade is not None:
+            self._section_fade.stop()
+            self.stack.setGraphicsEffect(None)
+            self._section_fade.deleteLater()
+            self._section_fade = None
+
+        self.stack.setCurrentIndex(index)
+        effect = QGraphicsOpacityEffect(self.stack)
+        effect.setOpacity(0.82)
+        self.stack.setGraphicsEffect(effect)
+        animation = QPropertyAnimation(effect, b"opacity", self)
+        animation.setDuration(120)
+        animation.setStartValue(0.82)
+        animation.setEndValue(1.0)
+        animation.setEasingCurve(QEasingCurve.OutCubic)
+
+        def finish() -> None:
+            if self.stack.graphicsEffect() is effect:
+                self.stack.setGraphicsEffect(None)
+            if self._section_fade is animation:
+                self._section_fade = None
+            animation.deleteLater()
+
+        animation.finished.connect(finish)
+        self._section_fade = animation
+        animation.start()
 
     def _toggle_mode(self, device_mode: bool) -> None:
         """Alterna la visualización entre la simulación y las tramas del PIC."""
@@ -187,8 +263,10 @@ class MainWindow(QMainWindow):
     def _set_mode(self, device_mode: bool) -> None:
         self._device_mode = device_mode
         self.accel_graph.set_device_mode(device_mode)
+        self.dashboard_graph.set_device_mode(device_mode)
         # No mezclar muestras ni reposo de simulación y dispositivo.
         was_calibrated = self._gesture_calibrated
+        self._gesture_has_data = False
         self.gesture_recognizer.clear_baseline()
         self._gesture_calibrated = False
         self._last_gesture = None
@@ -200,6 +278,7 @@ class MainWindow(QMainWindow):
             self.gesture_panel.append_log(
                 "Cambió la fuente de datos: recapturá el reposo."
             )
+        self._refresh_configuration_context()
         if device_mode:
             self.mode_button.setText("DISPOSITIVO")
             self.status_bar.set_mode("MODO: DISPOSITIVO", ACCENT_CYAN)
@@ -262,6 +341,12 @@ class MainWindow(QMainWindow):
             y_g=packet.y_g,
             z_g=packet.z_g,
         )
+        self.dashboard_graph.add_live_sample(
+            packet.x_g,
+            period_ms=data.period_ms,
+            y_g=packet.y_g,
+            z_g=packet.z_g,
+        )
         self._feed_gesture(packet.x_g, packet.y_g, packet.z_g)
         z_text = "--" if packet.z_mg is None else f"{packet.z_mg:+d} mg"
         self.status_bar.set_message(
@@ -269,9 +354,11 @@ class MainWindow(QMainWindow):
             f"Y {packet.y_mg:+d} mg · Z {z_text} · "
             f"{packet.temperature_c} °C"
         )
+        self._refresh_configuration_context()
 
     def _on_device_status(self, packet) -> None:
         self.temp_panel.set_threshold(packet.threshold_c)
+        self._refresh_configuration_context()
         if self._device_mode:
             if self.state.data.data_received:
                 self.alarm_panel.update_alarm(
@@ -304,28 +391,57 @@ class MainWindow(QMainWindow):
         self, x_g: float, y_g: float, z_g: float | None
     ) -> None:
         """Alimenta el clasificador con la fuente activa (simulación o PIC)."""
+        self._gesture_has_data = True
         self.gesture_panel.set_live_values(x_g, y_g, z_g)
         # Sin reposo capturado igual se acumulan muestras para poder capturarlo.
         gesture = self.gesture_recognizer.add_sample(x_g, y_g, z_g)
         if not self._gesture_calibrated or gesture is None:
+            self._refresh_gesture_summary()
             return
         if gesture != self._last_gesture:
             self._last_gesture = gesture
             self.state.set_gesture(gesture)
+        self._refresh_gesture_summary()
 
     def _on_gesture_changed(self, gesture: str) -> None:
         value = gesture or None
         self.gesture_panel.set_gesture(value)
-        self.gesture_summary.set_gesture(value)
+        self._refresh_gesture_summary()
         self.gesture_toast.show_gesture(value)
+
+    def _refresh_gesture_summary(self) -> None:
+        gesture = self.state.data.gesture
+        if gesture is not None:
+            self.gesture_summary.set_gesture(gesture)
+        elif not self._gesture_has_data:
+            self.gesture_summary.set_pending(
+                "SIN DATOS",
+                "Iniciá la simulación o conectá el PIC.",
+                WARNING_AMBER,
+            )
+        elif not self._gesture_calibrated:
+            self.gesture_summary.set_pending(
+                "SIN CALIBRAR",
+                "Capturá el reposo en Reconocimiento.",
+                WARNING_AMBER,
+            )
+        else:
+            self.gesture_summary.set_pending(
+                "RECONOCIENDO",
+                "Esperando una inclinación sostenida.",
+                ACCENT_CYAN,
+            )
 
     def _on_gesture_thresholds_changed(self) -> None:
         x_g, y_g, z_g = self.gesture_panel.thresholds()
-        self.gesture_recognizer.set_thresholds(
-            TiltThresholds(x_g=x_g, y_g=y_g, z_g=z_g)
-        )
-        self.gesture_recognizer.set_window_samples(
-            self.gesture_panel.window_samples()
+        self._apply_preferences(
+            replace(
+                self.preferences,
+                threshold_x_g=x_g,
+                threshold_y_g=y_g,
+                threshold_z_g=z_g,
+                window_samples=self.gesture_panel.window_samples(),
+            )
         )
 
     def _on_gesture_baseline_changed(self) -> None:
@@ -334,6 +450,7 @@ class MainWindow(QMainWindow):
             TiltBaseline(x_g=x_g, y_g=y_g, z_g=z_g),
             source="Reposo manual",
         )
+        self._refresh_configuration_context()
 
     def _capture_gesture_rest(self) -> None:
         mean = self.gesture_recognizer.current_mean()
@@ -353,6 +470,7 @@ class MainWindow(QMainWindow):
             TiltBaseline(x_g=x_g, y_g=y_g, z_g=baseline_z),
             source="Reposo capturado",
         )
+        self._refresh_configuration_context()
         if z_g is None:
             self.gesture_panel.append_log(
                 "DATA v2 sin Z: el gesto se limita a los ejes X e Y."
@@ -377,9 +495,98 @@ class MainWindow(QMainWindow):
         self.state.set_gesture(None)
         self.gesture_panel.append_log("Reconocimiento reiniciado.")
 
+    def _clear_gesture_baseline(self) -> None:
+        """Descarta el reposo activo al restaurar las preferencias iniciales."""
+        self.gesture_recognizer.clear_baseline()
+        self._gesture_calibrated = False
+        self._last_gesture = None
+        self.state.set_gesture(None)
+        self.gesture_panel.reset_baseline()
+        self.gesture_panel.set_calibrated(False)
+        self.gesture_panel.set_data_unavailable()
+        self.gesture_panel.append_log(
+            "Reposo activo reiniciado; capturalo nuevamente en Reconocimiento."
+        )
+        self._refresh_configuration_context()
+
+    def _apply_preferences(self, preferences: GuiPreferences) -> None:
+        """Aplica y persiste una única configuración compartida por las vistas."""
+        if not isinstance(preferences, GuiPreferences):
+            raise TypeError("preferences debe ser GuiPreferences")
+
+        self.preferences_store.save(preferences)
+        self.preferences = preferences
+        if self.accel_source.sample_rate_hz != preferences.simulation_rate_hz:
+            self.accel_source.set_sample_rate(
+                float(preferences.simulation_rate_hz)
+            )
+        for graph in (self.accel_graph, self.dashboard_graph):
+            spin = graph.rate_spin
+            spin.blockSignals(True)
+            spin.setValue(preferences.simulation_rate_hz)
+            spin.blockSignals(False)
+
+        self.gesture_recognizer.set_thresholds(
+            TiltThresholds(
+                x_g=preferences.threshold_x_g,
+                y_g=preferences.threshold_y_g,
+                z_g=preferences.threshold_z_g,
+            )
+        )
+        self.gesture_recognizer.set_window_samples(
+            preferences.window_samples
+        )
+        self.gesture_recognizer.set_hold_samples(
+            preferences.hold_samples
+        )
+        self.gesture_panel.set_recognition_parameters(
+            (
+                preferences.threshold_x_g,
+                preferences.threshold_y_g,
+                preferences.threshold_z_g,
+            ),
+            preferences.window_samples,
+        )
+        self.configuration_page.set_preferences(preferences)
+
+    def _on_simulation_rate_changed(self, rate_hz: int) -> None:
+        self._apply_preferences(
+            replace(self.preferences, simulation_rate_hz=rate_hz)
+        )
+
+    def _refresh_configuration_context(self) -> None:
+        if not hasattr(self, "configuration_page"):
+            return
+        baseline = self.gesture_recognizer.baseline
+        if baseline is None:
+            baseline_values = None
+        else:
+            data_format = self.state.data.data_format_version
+            firmware_version = self.state.data.firmware_version
+            z_unavailable = self._device_mode and (
+                data_format == 2
+                or (data_format is None and firmware_version == 2)
+            )
+            baseline_values = (
+                baseline.x_g,
+                baseline.y_g,
+                None if z_unavailable else baseline.z_g,
+            )
+        period_ms = (
+            self.state.data.period_ms
+            if self.state.data.protocol_version is not None
+            else None
+        )
+        self.configuration_page.set_runtime_context(
+            source_name="DISPOSITIVO" if self._device_mode else "SIMULACIÓN",
+            device_period_ms=period_ms,
+            baseline=baseline_values,
+        )
+
     def _arrange_dashboard(self) -> None:
         """Refluye las tarjetas al ancho compacto sin rediseñar el dashboard."""
-        compact = self.width() < 1150
+        available_width = self.width() - self.sidebar.width()
+        compact = available_width < 1080
         if compact == self._dashboard_compact:
             return
 
@@ -388,28 +595,30 @@ class MainWindow(QMainWindow):
             grid.removeWidget(widget)
         for column in range(5):
             grid.setColumnStretch(column, 0)
-        for row in range(3):
+        for row in range(4):
             grid.setRowStretch(row, 0)
 
         if compact:
             grid.addWidget(self.temp_panel, 0, 0)
             grid.addWidget(self.accel_panel, 0, 1)
             grid.addWidget(self.accel_y_panel, 0, 2)
-            grid.addWidget(self.gesture_summary, 1, 0, 1, 2)
-            grid.addWidget(self.serial_panel, 1, 2)
-            grid.addWidget(self.accel_z_panel, 2, 0)
-            grid.addWidget(self.alarm_panel, 2, 1)
+            grid.addWidget(self.accel_z_panel, 1, 0)
+            grid.addWidget(self.alarm_panel, 1, 1)
+            grid.addWidget(self.gesture_summary, 1, 2)
+            grid.addWidget(self.dashboard_signal_card, 2, 0, 1, 3)
+            grid.addWidget(self.serial_panel, 3, 0, 1, 3)
             for column in range(3):
                 grid.setColumnStretch(column, 1)
-            grid.setRowStretch(1, 1)
+            grid.setRowStretch(2, 1)
         else:
             grid.addWidget(self.temp_panel, 0, 0)
             grid.addWidget(self.accel_panel, 0, 1)
             grid.addWidget(self.accel_y_panel, 0, 2)
             grid.addWidget(self.accel_z_panel, 0, 3)
             grid.addWidget(self.alarm_panel, 0, 4)
-            grid.addWidget(self.gesture_summary, 1, 0, 1, 3)
-            grid.addWidget(self.serial_panel, 1, 3, 1, 2)
+            grid.addWidget(self.dashboard_signal_card, 1, 0, 1, 3)
+            grid.addWidget(self.gesture_summary, 1, 3, 1, 2)
+            grid.addWidget(self.serial_panel, 2, 0, 1, 5)
             for column in range(5):
                 grid.setColumnStretch(column, 1)
             grid.setRowStretch(1, 1)
@@ -451,7 +660,9 @@ class MainWindow(QMainWindow):
         accent = QFrame()
         accent.setFixedHeight(2)
         accent.setFixedWidth(48)
-        accent.setStyleSheet("background:#d946ef; border:none;")
+        accent.setStyleSheet(
+            f"background:{ACCENT_MAGENTA}; border:none;"
+        )
         title_layout.addWidget(accent)
 
         layout.addWidget(title_box)

@@ -241,6 +241,14 @@ class GestureRecognizer:
         self._samples = deque(maxlen=window_samples)
         self._reset_candidate()
 
+    def set_hold_samples(self, hold_samples: int) -> None:
+        if hold_samples < 1:
+            raise ValueError("hold_samples debe ser mayor que cero")
+        if hold_samples == self._hold_samples:
+            return
+        self._hold_samples = hold_samples
+        self._reset_candidate()
+
     def set_baseline(self, baseline: TiltBaseline) -> None:
         if not isinstance(baseline, TiltBaseline):
             raise TypeError("baseline debe ser TiltBaseline")
