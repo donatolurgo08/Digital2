@@ -1,55 +1,28 @@
 ;===============================================================================
-; @file       handmotion_work.S
+; Trabajo Integrador: HAND MOTION
+; Universidad Nacional de Cordoba
+; Facultad de Ciencias Exactas, Fisicas y Naturales
+; Asignatura: Electronica Digital II
+; Autores:
+;   - Conde Ana Victoria
+;   - Lurgo Donato
 ;
-; @author     Lurgo Donato
+; Fecha: 17/11/2026
+; Microcontrolador: PIC16F887
+; Archivo: handmotion_work.S
 ;
-; @date       06/11/2026
+; Descripcion:
+;   Programa principal del sistema HAND MOTION. Adquiere temperatura y
+;   aceleracion en los ejes X, Y y Z, procesa la alarma, actualiza los
+;   displays y gestiona la comunicacion serie con la interfaz grafica.
 ;
-; @brief      HAND MOTION - Firmware de trabajo v3: ADC, alarma, displays y EUSART.
+; Hardware:
+;   LM35 en AN0 y MMA7361 en AN1, AN5 y AN6.
+;   Displays de tres digitos, indicadores LED y buzzer.
+;   Comunicacion EUSART a 9600 Bd.
 ;
-; @details    PIC16F887 con oscilador interno a 8 MHz (OSCCON IRCF=111).
-;             ADC a FOSC/32 (TAD = 4 us); AN1/X, AN5/Y y AN6/Z se muestrean
-;             juntos cada 20 ms mediante TIMER0. LM35/AN0 se conserva.
-;             Sin amplificadores operacionales. Convierte temperatura y ejes,
-;             controla la alarma termica, multiplexa tres displays con TIMER1
-;             y comunica temperatura/X/Y/Z por EUSART con protocolo CRC-8.
-;
-;             Mapa de pines segun la Rev E del esquema:
-;               RA0/AN0  LM35                       entrada analogica
-;               RA1/AN1  X del MMA7361 (directo)    entrada analogica
-;               RA2/AN2  LED1                       salida digital
-;               RA3/AN3  libre                      entrada analogica reservada
-;               RA4      libre                      entrada open-drain
-;               RA5/AN4  LED2                       salida digital
-;               RE0/AN5  Y del MMA7361 (directo)    entrada analogica
-;               RE1/AN6  Z del MMA7361 (directo)    entrada analogica
-;               RE2/AN7  libre
-;               RE3/MCLR reset externo              entrada (MCLRE=ON)
-;               RC0-RC2  DIG1-DIG3 (bases Q1-Q3)    salidas activas altas
-;               RC3      BZ_CTRL (I/O del modulo)   salida
-;               RC6/TX   TX_TTL                     salida EUSART
-;               RC7/RX   RX_TTL                     entrada EUSART
-;               RD0-RD7  segmentos a,b,c,d,e,f,g,dp salidas activas altas
-;               RB3/PGM, RB6/PGC, RB7/PGD           reservados a ICSP
-;
-;             Z usa parametros PROVISIONALES: calibrar con el MMA7361 real.
-;             Sensor: MMA7361 en rango +-1,5 g, salidas directas al ADC y
-;             referencia VREF = VDD. La calibracion de cada eje debe medirse
-;             con la placa real antes de usar los mg en analisis de movimiento.
-;             Displays rojos de catodo comun (decision 2026-11-12): segmentos
-;             activos altos; Q1-Q3 BC337 como selectores de catodo lado bajo.
-;             R9-R16=220 ohm adoptadas para 10 mA (confirmar Vf/VOH);
-;             R17-R19=330 ohm quedan como valores existentes a validar.
-;             R21-R22=220 ohm y R23=10 kohm siguen calculadas. LED1 se movio
-;             de RA4 a RA2 porque RA4 es open-drain y no puede entregar corriente.
-;             EUSART a 9600 Bd con protocolo v3 AA 55 / LEN / TIPO / DATOS /
-;             CRC8. DATA transmite temperatura, X/Y/Z y alarma. El modulo
-;             esta en modules/uart.inc.
-;             Etapa 5: TIMER0 FOSC/4, prescaler 1:8, precarga 6 (1 ms nominal);
-;             cada 20 ticks inicia una muestra X/Y/Z en foreground.
-;             El modulo buzzer MDU1095 (3,5-5,5 V) tiene trigger activo-bajo:
-;             RC3 alto lo apaga, RC3 bajo lo activa. Confirmar corriente de
-;             la entrada I/O en banco (los 30 mA son del modulo).
+; Muestreo de X, Y y Z cada 20 ms mediante TIMER0.
+; Los parametros de conversion de Z permanecen provisionales.
 ;===============================================================================
 
 ;===============================================================================
@@ -61,8 +34,7 @@
 ;===============================================================================
 ; CONFIGURACION GENERAL DEL MCU
 ;===============================================================================
-; Oscilador interno, sin salida de reloj en RA6.
-; El resto de los bits se fija con los valores ya verificados en el DFP.
+; Configura el oscilador interno y los bits de funcionamiento del PIC16F887.
         CONFIG FOSC = INTRC_NOCLKOUT
         CONFIG WDTE = OFF
         CONFIG PWRTE = ON
@@ -80,14 +52,14 @@
 ;===============================================================================
 ; DEFINICION DE CONSTANTES
 ;===============================================================================
-; Reloj interno a 8 MHz confirmado como decision de diseno.
+; Configuracion del reloj interno a 8 MHz. TCY = 0,5 us.
 ;   FOSC = 8 MHz            -> TCY = 4 / FOSC = 0,5 us
 ;   OSCCON = 0111 0000b     -> IRCF<2:0> = 111 (8 MHz), SCS = 00 (INTOSC)
 ;
 ; Temporizacion confirmada para esta etapa:
 ;   TIMER0  FOSC/4, prescaler 1:8, precarga 6 -> 1 ms nominal
 ;   Muestreo de X cada 20 ticks                 -> 20 ms / 50 Hz
-;   EUSART  9600 Bd, BRGH=1                     -> SPBRG = 51
+; Configuracion EUSART a 9600 Bd, formato 8N1.
         FOSC_KHZ        EQU     8000
         TCY_NS          EQU     500
         OSCCON_8MHZ     EQU     0x70
@@ -99,7 +71,7 @@
         EUSART_TXSTA    EQU     0x24
         EUSART_RCSTA    EQU     0x90
 
-; Protocolo serie: ver modules/uart.inc y docs/comunicacion/protocolo.md
+; Parametros del protocolo de comunicacion HAND MOTION.
         PROTO_SYNC1     EQU     0xAA
         PROTO_SYNC2     EQU     0x55
         PROTO_VERSION   EQU     3
@@ -107,8 +79,8 @@
         PROTO_PERIOD    EQU     50      ; 50 ms = 20 Hz por defecto
         PROTO_PERIOD_MIN EQU    20      ; 50 Hz
         PROTO_PERIOD_MAX EQU    250     ; 4 Hz
-
-; TIMER0: TCY=0,5 us; (256-6) x 8 x 0,5 us = 1 ms nominal.
+; TIMER0 genera una interrupcion nominal cada 1 ms.
+; Cada 20 interrupciones solicita una nueva muestra de los tres ejes.
         TMR0_RELOAD     EQU     6
         X_SAMPLE_TICKS  EQU     20      ; 20 ms = 50 Hz para AN1/X, AN5/Y y AN6/Z
 
@@ -127,40 +99,31 @@
         RES_BAD_PARAM   EQU     1
         RES_UNKNOWN     EQU     2
 
-; ADC: FOSC/32 -> TAD = 4 us (valido para VREF = VDD = 5 V)
-;   ADCON0 = 10 0000 01b -> ADCS = 10 (FOSC/32), CHS = 0000 (AN0), ADON = 1
-;   ADCON1 = 1000 0000b -> ADFM = 1 (justificado a la derecha), VCFG = 00
-;   La adquisicion se espera con un lazo conservador de ~23 us.
+; Configuracion del ADC con FOSC/32, resultado justificado a la derecha
+; y referencias VDD/VSS.
         ADC_ADCON1_INIT EQU     0x80
         ADC_CTRL_BASE   EQU     0x81    ; ADON + ADCS = FOSC/32
         ADC_ACQ_LOOPS   EQU     14      ; ~23 us a 8 MHz
         ADC_GO          EQU     1       ; bit GO/DONE de ADCON0
 
-; TIMER1 interno FOSC/4, prescaler 1:1: 2000 cuentas = 1 ms.
+; TIMER1 utiliza el reloj interno para generar una base nominal de 1 ms.
         TMR1_RELOAD_H   EQU     0xF8
         TMR1_RELOAD_L   EQU     0x30
 
-; Alarma termica: ambos LED y buzzer activos si TEMP_C > 40 C.
+; Umbral de temperatura para activar la alarma.
         TEMP_ALARM     EQU     40
 
-; Patron sonoro intermitente. El MDU1095 es un buzzer ACTIVO: su frecuencia
-; (unos 2500 Hz) la fija su oscilador interno y NO se puede cambiar desde el
-; PIC. El firmware solo conmuta RC3 para dar el ritmo:
-;   200 ms encendido + 800 ms apagado = 1 s por ciclo.
-; Se cuenta en unidades de 10 ms para que cada fase quepa en un byte.
+; Patron sonoro: 200 ms encendido y 800 ms apagado.
+; La frecuencia del buzzer la genera el oscilador interno del modulo.
         BUZZ_DIVISOR   EQU     10      ; ticks de 1 ms por unidad de 10 ms
         BUZZ_ON_UNITS  EQU     20      ; 20 x 10 ms = 200 ms encendido
         BUZZ_OFF_UNITS EQU     80      ; 80 x 10 ms = 800 ms apagado
 
-; Conversion de las cuentas ADC
-;   LM35: 10 mV/C, VREF = 5 V -> 4,8828 mV/cuenta -> 0,48828 C/cuenta
-;         T = cuentas * 125 / 256 (redondeado)
-;   Ejes X/Y/Z (MMA7361, rango +-1,5 g, modulo a 3,3 V):
-;         0 g nominal -> VCC/2 = 1,65 V -> 338 cuentas (depende de VCC real)
-;         800 mV/g -> 163,84 cuentas/g -> 6,103 mg/cuenta
-;         mg = (cuentas - offset) * 49 / 8 (6,125 mg/cuenta, error 0,35 %)
-;         X/Y conservan los parametros de v2. Z: offset 338 y factor 49/8 son
-;         SOLO PROVISIONALES; medir el modulo real antes de declarar calibracion.
+; Conversion de las cuentas ADC:
+; LM35: 10 mV/C. La temperatura se calcula como cuentas * 125 / 256.
+; MMA7361: rango +-1,5 g y sensibilidad nominal de 800 mV/g.
+; La aceleracion se calcula como (cuentas - offset) * 49 / 8.
+; Los parametros de Z son provisionales y requieren calibracion fisica.
         TEMP_MAX        EQU     99
         X_OFFSET_L      EQU     0x52    ; 338 = 0x0152
         X_OFFSET_H      EQU     0x01
@@ -171,10 +134,10 @@
         X_MG_NUM        EQU     49
         Z_MG_NUM        EQU     49      ; PROVISIONAL: factor 49/8, pendiente de calibracion
 
-; Bits analogicos habilitados en ANSEL: AN0 (LM35), AN1 (X), AN5 (Y), AN6 (Z)
+; Canales analogicos habilitados: AN0, AN1, AN5 y AN6.
         ANSEL_INIT      EQU     0x63
 
-; Direcciones de puerto para la Rev E
+; Configuracion de direccion de los puertos para la Rev E.
         TRISA_INIT      EQU     0xDB    ; RA2/RA5 salidas; RA4 y resto entradas
         TRISB_INIT      EQU     0xFF    ; todo entrada (ICSP incluido)
         TRISC_INIT      EQU     0xB0    ; RC0-RC3 y RC6 salidas
@@ -184,9 +147,8 @@
 ;===============================================================================
 ; DEFINICION DE VARIABLES
 ;===============================================================================
-; Variables en RAM comun (0x70-0x7F): accesibles desde cualquier banco sin
-; BANKSEL. Son 16 bytes, el maximo de RAM comun del PIC16F887.
-; La ISR de TIMER0 preserva W y STATUS en RAM comun.
+; Variables de trabajo ubicadas en RAM comun.
+; La rutina de interrupcion utiliza este espacio para guardar el contexto.
         PSECT   udata_shr,class=COMMON
 
 ADC_L:          DS      1       ; resultado ADC, byte bajo
@@ -206,8 +168,8 @@ FLAGS:          DS      1       ; bit 0 = signo X; bits 2:1 = digito activo
 T0_W_TEMP:      DS      1       ; contexto W de la ISR TIMER0
 T0_STATUS_TEMP: DS      1       ; contexto STATUS de la ISR TIMER0
 
-; Muestras/resultados del acelerometro. Todo acceso debe ir precedido de
-; BANKSEL. DELTA y MUL/RES son workspace compartido, usado secuencialmente.
+; Muestras y resultados de los ejes X, Y y Z.
+; Las rutinas matematicas utilizan un espacio de trabajo compartido.
         PSECT   udata_bank0,class=BANK0
 Y_L:            DS      1       ; eje Y, byte bajo del ADC
 Y_H:            DS      1       ; eje Y, bits 9:8
@@ -226,7 +188,7 @@ PROD_H:         DS      1       ; reserva del multiplicador en mul16x8
 T0_DIV:         DS      1       ; divisor por software para muestreo X/Y/Z
 X_SAMPLE_FLAG:  DS      1       ; bit 0 = hay una muestra X/Y/Z pendiente
 
-; EUSART y protocolo (Etapa 6). Todo en banco 0; el codigo hace BANKSEL.
+; Variables utilizadas por la comunicacion EUSART y el protocolo.
 TX_BUF:         DS      32      ; buffer circular de transmision
 TX_HEAD:        DS      1       ; indice de escritura
 TX_TAIL:        DS      1       ; indice de lectura
@@ -252,8 +214,7 @@ ALARM_STATE:    DS      1       ; bit 0 = alarma termica activa
 ACK_CMD:        DS      1       ; comando respondido
 ACK_RES:        DS      1       ; resultado de la respuesta
 
-; Control temporal del patron sonoro (ver buzzer_service en alarmas.inc).
-; El divisor baja la base de 1 ms a unidades de 10 ms.
+; Variables de control temporal del buzzer.
 BUZZ_DIV:       DS      1       ; ticks de 1 ms acumulados (0..BUZZ_DIVISOR-1)
 BUZZ_CNT:       DS      1       ; unidades de 10 ms restantes de la fase
 BUZZ_PHASE:     DS      1       ; 0 = fase apagada, 1 = fase encendida
@@ -261,17 +222,17 @@ BUZZ_PHASE:     DS      1       ; 0 = fase apagada, 1 = fase encendida
 ;===============================================================================
 ; VECTOR DE RESET
 ;===============================================================================
-; pic-as V4.00 empaqueta los PSECT de codigo desde el final de la pagina 0,
-; por lo que el vector de reset debe ubicarse de forma absoluta en 0x0000.
+; Ubica el punto de entrada del programa en la direccion 0x0000.
         PSECT   resetVec,class=CODE,delta=2,abs
         ORG     0
 
 resetVec:
         GOTO    main
-
-; Vector unico de interrupcion. La ISR solo atiende TIMER0; guarda W y STATUS
-; porque BANKSEL modifica RP1:RP0. Todas las instrucciones de servicio operan
-; en banco 0, que es el banco estable del bucle principal.
+;===============================================================================
+; VECTOR DE INTERRUPCION
+;===============================================================================
+; Atiende TIMER0, guarda W y STATUS, actualiza la bandera de muestreo
+; y restaura el contexto del procesador.
         PSECT   interruptVec,class=CODE,delta=2,abs
         ORG     4
 
@@ -307,6 +268,7 @@ t0_isr_restore:
 ;===============================================================================
 ; PROGRAMA PRINCIPAL
 ;===============================================================================
+; Inicializa los modulos y perifericos del sistema.
         PSECT   code,class=CODE,delta=2
 
 main:
@@ -318,12 +280,17 @@ main:
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
-; AN0 (LM35) se lee en cada vuelta. X/AN1, Y/AN5 y Z/AN6 se leen y convierten
-; juntos cada 20 ms por evento de TIMER0. TIMER1 y EUSART se sondean por polling;
-; la unica interrupcion habilitada es TIMER0.
-; Resultados: TEMP_C = grados C; X/Y/Z_MG_H:L = aceleraciones con signo.
-; El EUSART transmite temperatura, X/Y/Z y alarma cada PERIOD_MS (20 Hz por
-; defecto) y atiende los comandos de la GUI sin bloquear el multiplexado.
+; En cada iteracion:
+;   1. Lee la temperatura mediante AN0.
+;   2. Convierte el valor y procesa la alarma.
+;   3. Adquiere X, Y y Z cuando corresponde.
+;   4. Actualiza los displays.
+;   5. Gestiona el buzzer.
+;   6. Atiende la comunicacion UART.
+;
+; TIMER0 solicita una muestra cada 20 ms.
+; Las lecturas y conversiones se realizan fuera de la interrupcion.
+;===============================================================================
 loop:
         MOVLW   0               ; AN0 = LM35
         CALL    leer_adc
@@ -340,12 +307,19 @@ loop:
 
 ;===============================================================================
 ; SUBRUTINAS
-;*******************************************************************************
-; @brief Lee y convierte X, Y y Z cuando TIMER0 completa 20 ticks (20 ms).
-; @details La ISR solo fija la bandera; ADC y conversiones se hacen en foreground.
-;          Se enmascara GIE brevemente al consumir la bandera para no perder
-;          una muestra que llegue justo durante el test/clear.
-;*******************************************************************************
+;===============================================================================
+; @brief Adquiere y convierte los tres ejes del acelerometro.
+;
+; @details Comprueba la bandera generada por TIMER0. Cuando hay una
+;          muestra pendiente, lee AN1, AN5 y AN6 y ejecuta las rutinas
+;          de conversion correspondientes.
+;
+;          Deshabilita brevemente las interrupciones para consumir
+;          la bandera sin perder una nueva solicitud de muestreo.
+;
+; @param Ninguno.
+; @return Resultados X, Y y Z expresados en miligravedades (mg).
+;===============================================================================
 sample_xyz_if_due:
         BANKSEL INTCON
         BCF     INTCON,7        ; sección crítica de test-and-clear
@@ -359,8 +333,7 @@ sample_xyz_if_due:
         MOVLW   1               ; AN1 = X del MMA7361
         CALL    leer_adc
         CALL    convertir_x_mg
-        ; X usa DELTA_H:L y FLAGS<0>. Guardar su resultado antes de reutilizar
-        ; el workspace matematico para Y.
+        ; Guarda el resultado de X antes de reutilizar las variables de trabajo.
         BANKSEL X_MG_L
         MOVF    DELTA_L,W
         MOVWF   X_MG_L
