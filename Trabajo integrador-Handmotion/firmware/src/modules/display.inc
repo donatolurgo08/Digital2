@@ -1,28 +1,34 @@
-;*******************************************************************************
-; MODULO DE DISPLAY - Etapa 4
+;===============================================================================
+; Trabajo Integrador: HAND MOTION
+; Modulo: Visualizacion en displays
 ;
-; Tres displays de 7 segmentos, catodo comun. Los segmentos RD0-RD7 son
-; activos en alto. RC0-RC2 seleccionan el digito; nivel alto activa el
-; BC337 como interruptor NPN de lado bajo para el catodo comun.
+; Autores:
+;   - Conde Ana Victoria
+;   - Lurgo Donato
 ;
-; TIMER1 usa reloj interno FOSC/4, prescaler 1:1 y recarga 0xF830 para un
-; periodo nominal de 1 ms. El principal sondea TMR1IF; no hay ISR.
+; Fecha: 17/11/2026
+; Microcontrolador: PIC16F887
 ;
-; Los patrones son activos altos. Confirmar resistencias, corriente y brillo
-; con un segmento antes de conectar el conjunto de displays.
-;*******************************************************************************
+; Descripcion:
+;   Control de tres displays de siete segmentos mediante multiplexado.
+;   Utiliza TIMER1 para establecer una base de tiempo nominal de 1 ms.
+;   Muestra la temperatura medida en grados Celsius.
+;
+;===============================================================================
 
-;-------------------------------------------------------------------------------
-; @brief Inicia TIMER1 para el multiplexado.
-; @details Configura TIMER1 con reloj interno FOSC/4, prescaler 1:1 y precarga
-;          0xF830 para un periodo nominal de 1 ms. Habilita el timer.
-; @param ninguno
-; @return ninguno
-; @modifica T1CON, TMR1H, TMR1L, PIR1<0>, W
-;-------------------------------------------------------------------------------
+;===============================================================================
+; @brief Inicializa TIMER1 para el multiplexado de los displays.
+;
+; @details Configura el reloj interno FOSC/4, prescaler 1:1 y
+;          precarga 0xF830 para obtener un periodo nominal de 1 ms.
+;
+; @param Ninguno.
+; @return Ninguno.
+; @modifica T1CON, TMR1H, TMR1L, PIR1 y W.
+;===============================================================================
 display_init:
         BANKSEL T1CON
-        CLRF    T1CON           ; detenido mientras se carga la precarga
+        CLRF    T1CON          ; Detiene TIMER1 durante la configuracion.
 
         BANKSEL TMR1H
         MOVLW   TMR1_RELOAD_H
@@ -31,30 +37,33 @@ display_init:
         MOVWF   TMR1L
 
         BANKSEL PIR1
-        BCF     PIR1,0          ; TMR1IF
+        BCF     PIR1,0          ; Limpia la bandera de TIMER1.
 
         BANKSEL T1CON
-        MOVLW   0x01            ; TMR1ON=1, FOSC/4, prescaler 1:1
+        MOVLW   0x01            ; Habilita TIMER1 con prescaler 1:1.
         MOVWF   T1CON
         RETURN
 
-;-------------------------------------------------------------------------------
-; @brief Avanza un digito cuando TIMER1 vence.
-; @details El orden es decenas, unidades y C. FLAGS<2:1> guardan el estado.
-;          FLAGS<0> sigue reservado al signo de DELTA. Genera TICK_FLAG para
-;          el protocolo serie. Apaga los digitos antes de cambiar segmentos.
-; @param ninguno
-; @return ninguno
-; @modifica PIR1<0>, TMR1H, TMR1L, PORTC<2:0>, PORTD, FLAGS<2:1>, TICK_FLAG<0>,
-;           W
-;-------------------------------------------------------------------------------
+;===============================================================================
+; @brief Actualiza los displays cuando vence TIMER1.
+;
+; @details Alterna entre los dígitos de decenas, unidades y el símbolo C.
+;          Apaga los dígitos antes de actualizar los segmentos para
+;          evitar activaciones simultáneas.
+;          También genera TICK_FLAG para el protocolo serie.
+;
+; @param TEMP_C = temperatura medida.
+; @return Visualizacion actualizada en PORTC y PORTD.
+; @modifica PIR1, TMR1H, TMR1L, PORTC, PORTD, FLAGS,
+;           TICK_FLAG y W.
+;===============================================================================
 display_service:
         BANKSEL PIR1
-        BTFSS   PIR1,0          ; TMR1IF=1 si vencio el milisegundo
+        BTFSS   PIR1,0          ; Comprueba si vencio el periodo de TIMER1.
         RETURN
         BCF     PIR1,0
         BANKSEL TICK_FLAG
-        BSF     TICK_FLAG,0     ; base de 1 ms para el protocolo serie
+        BSF     TICK_FLAG,0     ; Genera el tick de 1 ms.
 
         BANKSEL TMR1H
         MOVLW   TMR1_RELOAD_H
@@ -76,7 +85,7 @@ display_service:
 ; Estado 00: decenas.
 display_digit_tens:
         CALL    display_split_temp
-        MOVF    TMP,W           ; TMP = decenas
+        MOVF    TMP,W           ; Guarda las decenas.
         CALL    display_pattern
         BANKSEL PORTD
         MOVWF   PORTD
@@ -88,7 +97,7 @@ display_digit_tens:
 ; Estado 01: unidades.
 display_digit_units:
         CALL    display_split_temp
-        MOVF    COUNT,W         ; COUNT = unidades
+        MOVF    COUNT,W         ; Guarda las unidades.
         MOVWF   TMP
         CALL    display_pattern
         BANKSEL PORTD
@@ -101,7 +110,7 @@ display_digit_units:
 
 ; Estado 10: letra C estándar (a, d, e, f).
 display_digit_c:
-        MOVLW   10              ; indice especial para C
+        MOVLW   10              ; Selecciona el simbolo C.
         MOVWF   TMP
         CALL    display_pattern
         BANKSEL PORTD
@@ -111,14 +120,15 @@ display_digit_c:
         BCF     FLAGS,2         ; siguiente: decenas (00)
         RETURN
 
-;-------------------------------------------------------------------------------
-; @brief Divide TEMP_C por 10 mediante restas sucesivas.
-; @details Realiza restas de 10 de COUNT hasta que sea menor que 10.
-;          TMP recibe las decenas, COUNT recibe las unidades.
-; @param TEMP_C = temperatura en grados C
-; @return TMP = decenas; COUNT = unidades
-; @modifica W, TMP, COUNT, STATUS (C, Z), TEMP_C (leido)
-;-------------------------------------------------------------------------------
+;===============================================================================
+; @brief Separa la temperatura en decenas y unidades.
+;
+; @details Divide TEMP_C por 10 mediante restas sucesivas.
+;
+; @param TEMP_C = temperatura en grados Celsius.
+; @return TMP = decenas; COUNT = unidades.
+; @modifica W, TMP, COUNT y STATUS.
+;===============================================================================
 display_split_temp:
         BANKSEL TEMP_C
         MOVF    TEMP_C,W
@@ -126,21 +136,23 @@ display_split_temp:
         CLRF    TMP
 display_split_loop:
         MOVLW   10
-        SUBWF   COUNT,W         ; C=1 mientras COUNT >= 10
+        SUBWF   COUNT,W         ; Comprueba si COUNT es mayor o igual a 10.
         BTFSS   STATUS,0
         RETURN
         MOVWF   COUNT
         INCF    TMP,F
         GOTO    display_split_loop
 
-;-------------------------------------------------------------------------------
-; @brief Convierte un indice 0-9 o 10 (C) a segmentos activos en alto.
-; @details Busca el indice en TMP y devuelve el patron de segmentos en W.
-;          Indice 10 produce el patron de la letra C.
-; @param TMP = indice (0-9 o 10 para C)
-; @return W = patron para PORTD (RD0=a ... RD6=g, RD7=dp)
-; @modifica W, STATUS (Z)
-;-------------------------------------------------------------------------------
+;===============================================================================
+; @brief Obtiene el patron de segmentos correspondiente a un indice.
+;
+; @details Reconoce los digitos del 0 al 9 y la letra C.
+;          Los patrones utilizan logica activa en alto.
+;
+; @param TMP = indice del digito (0-9) o letra C (10).
+; @return W = patron de segmentos para PORTD.
+; @modifica W y STATUS.
+;===============================================================================
 display_pattern:
         MOVF    TMP,W
         BTFSC   STATUS,2
@@ -185,7 +197,7 @@ display_pattern:
         XORLW   10
         BTFSC   STATUS,2
         GOTO    display_pattern_C
-        MOVLW   0x00            ; valor fuera de rango: display en blanco
+        MOVLW   0x00            ; Devuelve el display apagado.
         RETURN
 
 display_pattern_0:
