@@ -1,34 +1,41 @@
-;*******************************************************************************
-; MODULO EUSART Y PROTOCOLO - Etapa 6
+;===============================================================================
+; Trabajo Integrador: HAND MOTION
+; Modulo: Comunicacion UART (EUSART)
 ;
-; Enlace: 9600 Bd, 8N1, sin control de flujo.
-;   FOSC = 8 MHz, BRGH = 1 -> SPBRG = 51 -> 9615 Bd (error +0,16 %).
+; Autores:
+;   - Conde Ana Victoria
+;   - Lurgo Donato
 ;
-; Trama en ambos sentidos:
-;   AA 55 | LEN | TIPO | DATOS (LEN-1) | CRC8
-;   LEN cuenta desde TIPO. CRC8 polinomio 0x07, inicial 0x00, sobre
-;   LEN, TIPO y DATOS.
+; Fecha: 17/11/2026
+; Microcontrolador: PIC16F887
 ;
-; PIC -> PC:
-;   0x01 DATA    SEQ, TEMP, X_L, X_H, Y_L, Y_H, Z_L, Z_H, FLAGS (14 bytes, v3)
-;   0x02 STATUS  VERSION, PERIOD, THRESH, OFF_L, OFF_H, MODO  (11 bytes)
-;   0x03 ACK     CMD, RESULT                     (7 bytes)
+; Descripcion:
+;   Gestion de la comunicacion serie entre el microcontrolador y la
+;   interfaz grafica mediante el protocolo HAND MOTION.
+;   Incluye transmision, recepcion, validacion CRC8 y procesamiento
+;   de comandos.
 ;
-; PC -> PIC:
-;   0x81 PING          sin datos
-;   0x82 START         PERIOD_MS (0 = mantener)
-;   0x83 STOP          sin datos
-;   0x84 SET_THRESHOLD grados C (0..99)
-;   0x85 GET_STATUS    sin datos
-;   0x86 SET_OFFSET    X_OFF_L, X_OFF_H (0..1023)
+;===============================================================================
+; Comunicacion: 9600 Bd, 8 bits de datos, sin paridad y 1 bit de parada.
+; Oscilador: 8 MHz. Generador de baud rate: 9615 Bd (error +0,16 %).
 ;
-; No usa interrupciones: uart_service drena un byte de TX y sondea RCIF en
-; cada pasada del bucle principal, para no bloquear el multiplexado.
+; Formato de trama:
+;   AA 55 | LEN | TIPO | DATOS | CRC8
 ;
-; DATA v3 contiene X, Y y Z en mg con signo, complemento a dos, little-endian.
-; LEN=10 cuenta TYPE + los 9 bytes SEQ/TEMP/X/Y/Z/FLAGS. CRC cubre LEN..FLAGS.
-;*******************************************************************************
-
+; El CRC8 utiliza polinomio 0x07, valor inicial 0x00 y procesa
+; los bytes desde LEN hasta el ultimo dato.
+;
+; Tramas PIC -> PC:
+;   DATA:   temperatura, X, Y, Z y estado de alarma.
+;   STATUS: version, periodo, umbral, offset y modo.
+;   ACK:    comando recibido y resultado.
+;
+; Comandos PC -> PIC:
+;   PING, START, STOP, SET_THRESHOLD, GET_STATUS y SET_OFFSET.
+;
+; La comunicacion se gestiona mediante polling, sin interrupciones.
+; uart_service atiende la transmision, recepcion y temporizacion.
+;===============================================================================
 ;-------------------------------------------------------------------------------
 ; Variables locales del modulo (banco 0, asignadas por el linker).
 ; CRC_REG se reserva para transmision; CRC_RX para recepcion, de modo que una
@@ -41,10 +48,12 @@ CRC_CNT_RX:     DS      1       ; contador de bits del CRC de recepcion
         PSECT   code,class=CODE,delta=2
 
 ;-------------------------------------------------------------------------------
-; @brief Inicia el EUSART y el estado del protocolo.
-; @param ninguno
-; @return ninguno
-; @modifica TXSTA, BAUDCTL, SPBRG, RCSTA, PIE1 y las variables del modulo
+; @brief Inicializa el modulo EUSART y el protocolo de comunicacion.
+; @details Configura la comunicacion serie a 9600 Bd, formato 8N1,
+;          y reinicia los buffers, contadores y variables del protocolo.
+; @param Ninguno.
+; @return Ninguno.
+; @modifica TXSTA, BAUDCTL, SPBRG, RCSTA, PIE1 y variables del modulo.
 ;-------------------------------------------------------------------------------
 uart_init:
         BANKSEL TXSTA
@@ -89,10 +98,13 @@ uart_init:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Atiende TX, RX y el período de muestreo. Se llama en cada pasada.
-; @param ninguno
-; @return ninguno
-; @modifica W, FSR y variables del modulo
+; @brief Atiende las tareas de comunicacion serie.
+; @details Gestiona la transmision, recepcion y periodo de envio de datos.
+;          Procesa un byte de transmision por llamada y vacia la FIFO
+;          de recepcion.
+; @param Ninguno.
+; @return Ninguno.
+; @modifica W, FSR y variables del modulo.
 ;-------------------------------------------------------------------------------
 uart_service:
         ;----- Transmision: un byte por pasada -----
@@ -159,10 +171,10 @@ uart_tick:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Encola un byte en el buffer circular de transmision.
-; @param W = byte
-; @return ninguno (si el buffer esta lleno, descarta el byte)
-; @modifica W, FSR, TMP2, TX_HEAD, TX_CNT
+; @brief Inserta un byte en el buffer circular de transmision.
+; @param W = byte a transmitir.
+; @return Ninguno. Descarta el byte si el buffer esta lleno.
+; @modifica W, FSR, TMP2, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 tx_push:
         BANKSEL TX_CNT
@@ -184,10 +196,10 @@ tx_push:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Actualiza el CRC8 con un byte.
-; @param W = byte; CRC_REG = CRC parcial
-; @return CRC_REG actualizado
-; @modifica W, CRC_REG, CRC_CNT
+; @brief Actualiza el CRC8 de transmision.
+; @param W = byte a procesar; CRC_REG = valor parcial.
+; @return CRC_REG actualizado.
+; @modifica W, CRC_REG y CRC_CNT.
 ;-------------------------------------------------------------------------------
 crc8_update:
         BANKSEL CRC_REG
@@ -211,10 +223,10 @@ crc8_next:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Actualiza el CRC8 de recepcion con un byte.
-; @param W = byte; CRC_RX = CRC parcial de recepcion
-; @return CRC_RX actualizado
-; @modifica W, CRC_RX, CRC_CNT_RX
+; @brief Actualiza el CRC8 de recepcion.
+; @param W = byte a procesar; CRC_RX = valor parcial.
+; @return CRC_RX actualizado.
+; @modifica W, CRC_RX y CRC_CNT_RX.
 ;-------------------------------------------------------------------------------
 crc8_update_rx:
         BANKSEL CRC_RX
@@ -238,10 +250,10 @@ crc8_next_rx:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Encola un byte y lo incluye en el CRC.
-; @param W = byte
-; @return ninguno
-; @modifica W, TMP2, FSR, CRC_REG, CRC_CNT, TX_HEAD, TX_CNT
+; @brief Incorpora un byte al CRC y lo encola para transmision.
+; @param W = byte a incorporar.
+; @return Ninguno.
+; @modifica W, TMP2, FSR, CRC_REG, CRC_CNT, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 tx_frame_byte:
         MOVWF   TMP2
@@ -251,10 +263,11 @@ tx_frame_byte:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Arma y encola una trama DATA v3 con temperatura, X, Y, Z y alarma.
-; @param ninguno
-; @return ninguno
-; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, SEQ, TX_HEAD, TX_CNT
+; @brief Construye y encola una trama DATA version 3.
+; @details Incluye secuencia, temperatura, aceleraciones X/Y/Z y alarma.
+; @param Ninguno.
+; @return Ninguno.
+; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, SEQ, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 send_data:
         BANKSEL MODO
@@ -306,10 +319,11 @@ send_data:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Arma y encola la trama STATUS.
-; @param ninguno
-; @return ninguno
-; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, TX_HEAD, TX_CNT
+; @brief Construye y encola una trama STATUS.
+; @details Informa la version del protocolo y la configuracion actual.
+; @param Ninguno.
+; @return Ninguno.
+; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 send_status:
         BANKSEL TX_CNT
@@ -346,10 +360,10 @@ send_status:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Arma y encola una trama ACK.
-; @param ACK_CMD = comando, ACK_RES = resultado
-; @return ninguno
-; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, TX_HEAD, TX_CNT
+; @brief Construye y encola una trama de confirmacion ACK.
+; @param ACK_CMD = comando recibido; ACK_RES = resultado.
+; @return Ninguno.
+; @modifica W, FSR, TMP2, CRC_REG, CRC_CNT, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 send_ack:
         BANKSEL TX_CNT
@@ -378,10 +392,11 @@ send_ack:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Procesa un byte recibido segun la maquina de estados.
-; @param W = byte
-; @return ninguno
-; @modifica W, TMP2, RX_STATE, RX_LEN, RX_IDX, RX_TYPE, RX_D0, RX_D1, CRC_RX, CRC_CNT_RX
+; @brief Procesa un byte recibido mediante una maquina de estados.
+; @details Reconoce la sincronizacion, longitud, tipo, datos y CRC.
+; @param W = byte recibido.
+; @return Ninguno.
+; @modifica W, TMP2 y variables de recepcion.
 ;-------------------------------------------------------------------------------
 rx_byte:
         BANKSEL TMP2
@@ -405,7 +420,7 @@ rx_byte:
         GOTO    rx_state3
         GOTO    rx_state4
 
-; @brief Estado 0: espera del primer byte de sincronismo (0xAA).
+; Espera el primer byte de sincronizacion (0xAA).
 rx_state0:
         MOVF    TMP2,W
         XORLW   PROTO_SYNC1
@@ -415,7 +430,7 @@ rx_state0:
         MOVWF   RX_STATE
         RETURN
 
-; @brief Estado 1: espera del segundo byte de sincronismo (0x55).
+; Espera el segundo byte de sincronizacion (0x55).
 rx_state1:
         MOVF    TMP2,W
         XORLW   PROTO_SYNC2
@@ -432,7 +447,7 @@ rx_sync_ok:
         MOVWF   RX_STATE
         RETURN
 
-; @brief Estado 2: recepcion de LEN y validacion de longitud.
+; Recibe y valida la longitud de la trama.
 rx_state2:
         MOVF    TMP2,W
         BTFSC   STATUS,2
@@ -451,7 +466,7 @@ rx_state2:
         MOVWF   RX_STATE
         RETURN
 
-; @brief Estado 3: recepcion de TIPO y DATOS, actualizacion de CRC.
+; Recibe el tipo y los datos de la trama.
 rx_state3:
         MOVF    TMP2,W
         CALL    crc8_update_rx
@@ -488,7 +503,7 @@ rx_idx_next:
         MOVWF   RX_STATE
         RETURN
 
-; @brief Estado 4: recepcion y validacion del CRC final.
+; Valida el CRC recibido.
 rx_state4:
         CLRF    RX_STATE
         MOVF    TMP2,W
@@ -502,13 +517,12 @@ rx_abort:
         RETURN
 
 ;-------------------------------------------------------------------------------
-; @brief Despacha el comando recibido.
-; @details Valida RX_LEN segun el comando y ejecuta la accion correspondiente.
-;          Responde con ACK. Los comandos no soportados devuelven RES_UNKNOWN.
-; @param RX_TYPE = comando, RX_D0/RX_D1 = datos, RX_LEN = longitud
-; @return ninguno
-; @modifica W, ACK_CMD, ACK_RES, ALARM_TEMP, PERIOD_MS, PERIOD_CNT, MODO,
-;           X_OFF_L, X_OFF_H, TX_HEAD, TX_CNT
+; @brief Procesa el comando recibido y ejecuta la accion correspondiente.
+; @details Valida los parametros de cada comando y genera una respuesta ACK.
+; @param RX_TYPE = comando; RX_D0/RX_D1 = datos recibidos.
+; @return Ninguno.
+; @modifica W, ACK_CMD, ACK_RES, ALARM_TEMP, PERIOD_MS, PERIOD_CNT,
+;           MODO, X_OFF_L, X_OFF_H, TX_HEAD y TX_CNT.
 ;-------------------------------------------------------------------------------
 rx_process:
         BANKSEL RX_TYPE
@@ -539,7 +553,7 @@ rx_process:
         MOVLW   RES_UNKNOWN
         GOTO    cmd_ack
 
-; @brief Comando PING: responde con ACK y resultado OK.
+; Comando PING: responde con una confirmacion.
 cmd_ping:
         MOVF    RX_LEN,W
         XORLW   1
@@ -548,7 +562,7 @@ cmd_ping:
         MOVLW   RES_OK
         GOTO    cmd_ack
 
-; @brief Comando START: habilita streaming y opcionalmente cambia el periodo.
+; Comando START: habilita la transmision de datos.
 cmd_start:
         MOVF    RX_LEN,W
         XORLW   2
@@ -573,7 +587,7 @@ cmd_start_enable:
         MOVLW   RES_OK
         GOTO    cmd_ack
 
-; @brief Comando STOP: deshabilita streaming.
+; Comando STOP: deshabilita la transmision de datos.
 cmd_stop:
         MOVF    RX_LEN,W
         XORLW   1
@@ -583,7 +597,7 @@ cmd_stop:
         MOVLW   RES_OK
         GOTO    cmd_ack
 
-; @brief Comando SET_THRESHOLD: configura umbral de alarma (0..99 C).
+; Comando SET_THRESHOLD: configura el umbral de temperatura.
 cmd_set_thresh:
         MOVF    RX_LEN,W
         XORLW   2
@@ -598,7 +612,7 @@ cmd_set_thresh:
         MOVLW   RES_OK
         GOTO    cmd_ack
 
-; @brief Comando GET_STATUS: envia trama STATUS con la configuracion actual.
+; Comando GET_STATUS: solicita el estado actual del sistema.
 cmd_get_status:
         MOVF    RX_LEN,W
         XORLW   1
@@ -607,7 +621,7 @@ cmd_get_status:
         CALL    send_status
         RETURN
 
-; @brief Comando SET_OFFSET: configura el offset de X (0..1023).
+; Comando SET_OFFSET: configura el offset del eje X.
 cmd_set_offset:
         MOVF    RX_LEN,W
         XORLW   3
