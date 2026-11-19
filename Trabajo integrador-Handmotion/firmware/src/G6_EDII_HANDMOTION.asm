@@ -1,10 +1,34 @@
-;===============================================================================
-; @file       G6_EDII_HANDMOTION.asm
+;*******************************************************************************
+; @brief       ANEXO B - FIRMWARE DEL SISTEMA HAND MOTION.
 ;
-; @author     Lurgo Donato
-;             Ana Victoria Conde
+; @brief       Descripción general del funcionamiento del firmware desarrollado
+;              para el sistema HAND MOTION basado en el microcontrolador PIC16F887.
 ;
-; @date       18/11/2026
+; @details     El firmware realiza la adquisición de señales analógicas
+;              provenientes de un sensor de temperatura LM35 y de un acelerómetro
+;              triaxial MMA7361, utilizando el módulo convertidor analógico-digital
+;              (ADC) del microcontrolador.
+;
+;              Implementa el procesamiento de las muestras correspondientes a
+;              los ejes X, Y y Z, la conversión de los valores obtenidos y la
+;              gestión de una alarma térmica mediante indicadores LED y buzzer.
+;
+;              También incorpora la actualización de un display de siete
+;              segmentos mediante multiplexado y la comunicación serial EUSART
+;              con una interfaz gráfica en computadora. Esta comunicación permite
+;              transmitir mediciones y estados del sistema, así como recibir
+;              comandos de configuración y control.
+;
+;              La temporización se gestiona mediante TIMER0 y TIMER1, empleando
+;              interrupciones y sondeo de periféricos según la función requerida.
+;
+; @author      Lurgo, Donato
+;              Conde, Ana Victoria
+;
+; @date        20/11/2026
+;
+; @version     2.0
+;*******************************************************************************
 ;===============================================================================
 ; DIRECTIVAS DE INCLUSION
 ;===============================================================================
