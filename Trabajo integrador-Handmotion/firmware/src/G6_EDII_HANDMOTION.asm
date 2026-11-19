@@ -1,10 +1,20 @@
-;===============================================================================
-; @file       G6_EDII_HANDMOTION.asm
+;*******************************************************************************
+; @brief       ANEXO B - FIRMWARE DEL SISTEMA HAND MOTION.
 ;
-; @author     Lurgo Donato
-;             Ana Victoria Conde
+; @brief       Descripción general del funcionamiento del firmware del sistema
+;              HAND MOTION.
 ;
-; @date       18/11/2026
+; @details     Firmware desarrollado para la adquisición y el procesamiento
+;              de datos de aceleración mediante el microcontrolador PIC16F887.
+;              Incluye la comunicación serial con la interfaz gráfica.
+;
+; @author      Lurgo, Donato
+;              Conde, Ana Victoria
+;
+; @date        20/11/2026
+;
+; @version     2.0
+;*******************************************************************************
 ;===============================================================================
 ; DIRECTIVAS DE INCLUSION
 ;===============================================================================
