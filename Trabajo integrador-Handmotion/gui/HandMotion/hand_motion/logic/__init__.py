@@ -1,0 +1,1 @@
+"""Lógica de negocio: alarmas y reconocimiento de gestos."""

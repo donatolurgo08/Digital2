@@ -1,0 +1,1 @@
+"""Interfaz gráfica (PySide6). Solo presentación."""

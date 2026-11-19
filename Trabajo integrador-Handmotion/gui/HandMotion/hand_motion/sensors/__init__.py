@@ -1,0 +1,1 @@
+"""Modelos de sensores: conversión de valores crudos a unidades físicas."""

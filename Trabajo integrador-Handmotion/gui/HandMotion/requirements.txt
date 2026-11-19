@@ -1,0 +1,9 @@
+# Dependencias de runtime
+PySide6>=6.6
+pyserial>=3.5
+pyqtgraph>=0.13
+numpy>=1.26
+
+# Dependencias de desarrollo (opcionales)
+# pytest>=8
+# ruff>=0.6

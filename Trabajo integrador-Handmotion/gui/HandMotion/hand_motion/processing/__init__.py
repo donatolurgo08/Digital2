@@ -1,0 +1,1 @@
+"""Procesamiento numérico de señales (NumPy)."""
