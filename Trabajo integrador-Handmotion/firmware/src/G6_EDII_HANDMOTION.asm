@@ -126,22 +126,22 @@
 ; Banco 0: reservamos 16 variables en el banco 0, desde 0x20 hasta 0x2F para guardar muestras y resultados (primera parte)
 
         CBLOCK  0x20   
-        Y_L                     ; eje Y, byte bajo del ADC
-        Y_H                     ; eje Y, bits 9:8
-        X_MG_L                  ; resultado X con signo, byte bajo
-        X_MG_H                  ; resultado X con signo, byte alto
-        Y_MG_L                  ; resultado Y con signo, byte bajo
-        Y_MG_H                  ; resultado Y con signo, byte alto
-        Y_SIGN                  ; bit0 = signo temporal de Y
-        Z_L                     ; eje Z, byte bajo del ADC
-        Z_H                     ; eje Z, bits 9:8
-        Z_MG_L                  ; resultado Z con signo, byte bajo
-        Z_MG_H                  ; resultado Z con signo, byte alto
-        Z_SIGN                  ; bit0 = signo temporal de Z
+        Y_L                     ;eje Y, byte bajo del ADC
+        Y_H                     ;eje Y, bits 9:8
+        X_MG_L                  ;resultado X con signo, byte bajo
+        X_MG_H                  ;resultado X con signo, byte alto
+        Y_MG_L                  ;resultado Y con signo, byte bajo
+        Y_MG_H                  ;resultado Y con signo, byte alto
+        Y_SIGN                  ;bit0 = signo temporal de Y
+        Z_L                     ;eje Z, byte bajo del ADC
+        Z_H                     ;eje Z, bits 9:8
+        Z_MG_L                  ;resultado Z con signo, byte bajo
+        Z_MG_H                  ;resultado Z con signo, byte alto
+        Z_SIGN                  ;bit0 = signo temporal de Z
         TEMP_C                  ;  
         PROD_H                  ; 
         T0_DIV                  ; 
-        X_SAMPLE_FLAG           ; indica que hay una nueva lectura de x/y/z
+        X_SAMPLE_FLAG           ;indica que hay una nueva lectura de x/y/z
         ENDC
 
 ; Buffer 
@@ -149,72 +149,72 @@
 
 ; Banco 0, segunda parte: 
         CBLOCK  0x50
-        TX_HEAD                 ; indice de escritura
-        TX_TAIL                 ; indice de lectura
-        TX_CNT                  ; bytes pendientes
-        RX_TYPE                 ; tipo de la trama recibida
-        RX_D0                   ; primer byte de datos
-        RX_D1                   ; segundo byte de datos
-        RX_STATE                ; 0..4, sincronismo y recepcion
-        RX_LEN                  ; LEN de la trama en curso
-        RX_IDX                  ; indice dentro de la trama
-        CRC_REG                 ; CRC8 parcial de transmision
-        CRC_CNT                 ; contador de bits del CRC de transmision
-        CRC_RX                  ; CRC8 parcial de recepcion
-        CRC_CNT_RX              ; contador de bits del CRC de recepcion
-        TMP2                    ; auxiliar del modulo UART
-        PERIOD_MS               ; periodo de DATA en ms
-        PERIOD_CNT              ; cuenta regresiva en ms
-        ALARM_TEMP              ; umbral de alarma en grados C
-        X_OFF_L                 ; offset de X, byte bajo
-        X_OFF_H                 ; offset de X, bits 9:8
-        MODO                    ; bit0 = streaming habilitado
-        SEQ                     ; numero de trama DATA
-        TICK_FLAG               ; bandera de 1 ms puesta por el display
-        ALARM_STATE             ; bit0 = alarma termica activa
-        ACK_CMD                 ; comando respondido
-        ACK_RES                 ; resultado de la respuesta
-        BUZZ_DIV                ; ticks de 1 ms acumulados
-        BUZZ_CNT                ; unidades de 10 ms restantes
-        BUZZ_PHASE              ; 0 = fase apagada, 1 = fase encendida
+        TX_HEAD                 ;indice de escritura
+        TX_TAIL                 ;indice de lectura
+        TX_CNT                  ;bytes pendientes
+        RX_TYPE                 ;tipo de la trama recibida
+        RX_D0                   ;primer byte de datos
+        RX_D1                   ;segundo byte de datos
+        RX_STATE                ;0..4, sincronismo y recepcion
+        RX_LEN                  ;LEN de la trama en curso
+        RX_IDX                  ;indice dentro de la trama
+        CRC_REG                 ;CRC8 parcial de transmision
+        CRC_CNT                 ;contador de bits del CRC de transmision
+        CRC_RX                  ;CRC8 parcial de recepcion
+        CRC_CNT_RX              ;contador de bits del CRC de recepcion
+        TMP2                    ;auxiliar del modulo UART
+        PERIOD_MS               ;periodo de DATA en ms
+        PERIOD_CNT              ;cuenta regresiva en ms
+        ALARM_TEMP              ;umbral de alarma en grados C
+        X_OFF_L                 ;offset de X, byte bajo
+        X_OFF_H                 ;offset de X, bits 9:8
+        MODO                    ;bit0 = streaming habilitado
+        SEQ                     ;numero de trama DATA
+        TICK_FLAG               ;bandera de 1 ms puesta por el display
+        ALARM_STATE             ;bit0 = alarma termica activa
+        ACK_CMD                 ;comando respondido
+        ACK_RES                 ;resultado de la respuesta
+        BUZZ_DIV                ;ticks de 1 ms acumulados
+        BUZZ_CNT                ;unidades de 10 ms restantes
+        BUZZ_PHASE              ;0 = fase apagada, 1 = fase encendida
         ENDC
 
 ;===============================================================================
 ; DECLARACION DE MACROS PARA CONFIGURACION DE REGISTROS
 ;===============================================================================
-; Reloj interno a 8 MHz. La espera de HTS se hace en ESPERA_OSC.
+; Reloj interno a 8 MHz. 
 CFG_RELOJ MACRO
-        BANKSEL OSCCON
-        MOVLW   OSCCON_8MHZ
-        MOVWF   OSCCON
+        BANKSEL OSCCON          ;empieza la definicion de la macro
+        MOVLW   OSCCON_8MHZ     ;selecciona el banco donde esta osccon (oscilador del pic)
+        MOVWF   OSCCON          ;carga en w el valor que configura el reloj a 8Mhz
 ENDM
 
 ; Direcciones de los cinco puertos (todos los TRISx estan en el banco 1).
-CFG_DIRECCIONES MACRO
-        BANKSEL TRISA
-        MOVLW   TRISA_INIT
-        MOVWF   TRISA
-        MOVLW   TRISB_INIT
+CFG_DIRECCIONES MACRO           ;comienza definicion de macros 
+        BANKSEL TRISA           ;selecciona el banco que tiene los registros de TRISx
+        MOVLW   TRISA_INIT      ;carga el valor inicial en Tris A
+        MOVWF   TRISA           
+        MOVLW   TRISB_INIT      ;Configura la dirección de los pines del puerto B
         MOVWF   TRISB
-        MOVLW   TRISC_INIT
+        MOVLW   TRISC_INIT      ;Configura la dirección de los pines del puerto C
         MOVWF   TRISC
-        MOVLW   TRISD_INIT
+        MOVLW   TRISD_INIT      ;Configura la dirección de los pines del puerto D
         MOVWF   TRISD
-        MOVLW   TRISE_INIT
+        MOVLW   TRISE_INIT      ;Configura la dirección de los pines del puerto E
         MOVWF   TRISE
-ENDM
+ENDM    
 
-; Entradas analogicas y ADC justificado a la derecha, VDD/VSS.
+; Entradas analogicas y ADC 
 CFG_ANALOGICAS MACRO
-        BANKSEL ANSEL
-        MOVLW   ANSEL_INIT
-        MOVWF   ANSEL
-        CLRF    ANSELH
-        MOVLW   ADC_ADCON1_INIT
-        BANKSEL ADCON1
+        BANKSEL ANSEL          ;selecciona el banco del registro ansel
+        MOVLW   ANSEL_INIT     ;carga la configuracion de los pines analogicos (AN0, AN1, AN5 y AN6)
+        MOVWF   ANSEL          
+        CLRF    ANSELH         ;deja digitales los canales analogicos controlados por anselh
+        MOVLW   ADC_ADCON1_INIT ;carga w en la configuracion puesta para ADCON1
+        BANKSEL ADCON1          ;selecciona el banco y configura el formato del resultado y las referencias del ADC
         MOVWF   ADCON1
-        BANKSEL ADCON0
-        MOVLW   ADC_CTRL_BASE
+        BANKSEL ADCON0          ;selecciona el banco de ADCON0 
+        MOVLW   ADC_CTRL_BASE   ;deja encendido el ADC y configura su reloj
         MOVWF   ADCON0
 ENDM
 
@@ -230,178 +230,158 @@ ENDM
 ;===============================================================================
 ; VECTORES DE RESET E INTERRUPCION (CODIGO ABSOLUTO)
 ;===============================================================================
-        ORG     0x00            ; Vector de reset
-        GOTO    INICIO          ; Salto al programa principal
+        ORG     0x00            ;Vector de reset
+        GOTO    INICIO          ;al reiniciarse salta a inicio 
 
-        ORG     0x04            ; Vector de interrupcion
-        GOTO    ISR_INICIO      ; Salto a la rutina de servicio
+        ORG     0x04            ;vector de interrupcion ubicado en 0x04
+        GOTO    ISR_INICIO      ;cuando ocurre una interrupcion, salta a la rutina isr inicio
 
-        ORG     0x05            ; Programa principal
+        ORG     0x05            ;despues de ahi continua el programa despues del vector de interrupcion
 
 ;===============================================================================
 ; INICIO
 ;===============================================================================
 INICIO:
-        CFG_RELOJ               ; Oscilador interno a 8 MHz
-        CALL    ESPERA_OSC      ; Espera HTS = 1
-        CALL    INIT_SALIDAS    ; Niveles inactivos y variables en cero
-        CFG_DIRECCIONES         ; TRISA-TRISE
-        CFG_ANALOGICAS          ; ANSEL, ANSELH, ADCON1 y ADCON0
-        CALL    DISPLAY_INIT    ; TIMER1 para el multiplexado
-        CALL    UART_INIT       ; EUSART y estado del protocolo
-        CALL    TIMER0_INIT     ; Base de 1 ms y muestreo cada 20 ms
-
+        CFG_RELOJ               ;oscilador interno a 8 MHz
+        CALL    ESPERA_OSC      ;espera que el oscilador este estable 
+        CALL    INIT_SALIDAS    ;coloca las salidas y variables en un estado inicial seguro 
+        CFG_DIRECCIONES         ;configura los pines como entradas y salidas 
+        CFG_ANALOGICAS          ;configura los canales analogicos y el adc
+        CALL    DISPLAY_INIT    ;inicializa TMR1 para refrescar los display
+        CALL    UART_INIT       ;inicia la comunicacion serie y sus variables
+        CALL    TIMER0_INIT     ;inicia la base e tiempo de 1ms y habilita las interrupciones
 ;===============================================================================
 ; BUCLE PRINCIPAL
 ;===============================================================================
-; AN0 (LM35) se lee en cada vuelta. X/AN1, Y/AN5 y Z/AN6 se leen y convierten
-; juntos cada 20 ms por evento de TIMER0. TIMER1 y EUSART se sondean por
-; polling; la unica interrupcion habilitada es TIMER0.
-; Resultados: TEMP_C = grados C; X/Y/Z_MG_H:L = aceleraciones con signo.
 MAIN_LOOP:
-        MOVLW   0               ; AN0 = LM35
-        CALL    LEER_ADC
-        CALL    CONVERTIR_TEMP
-        CALL    PROCESAR_ALARMA
+        MOVLW   0               ;marca el inicio del bucle principal
+        CALL    LEER_ADC        ;LM35 conectado a AN0
+        CALL    CONVERTIR_TEMP  ;convierte la temperatura a grados Cº
+        CALL    PROCESAR_ALARMA ;revisa si debe activar la alarma termica
 
-        CALL    SAMPLE_XYZ_IF_DUE ; AN1/X + AN5/Y + AN6/Z cada 20 ms
+        CALL    SAMPLE_XYZ_IF_DUE ;lee y convierte x,y,z cuando corresponde cada 20ms 
 
-        CALL    DISPLAY_SERVICE   ; Multiplexado de los tres displays
-        CALL    BUZZER_SERVICE    ; Patron del buzzer (solo lee TICK_FLAG)
-        CALL    UART_SERVICE      ; TX, RX y periodo de DATA
-
-        GOTO    MAIN_LOOP
+        CALL    DISPLAY_SERVICE   ;refresca los 3 display
+        CALL    BUZZER_SERVICE    ;actualiza el buzzer segun estado de alarma
+        CALL    UART_SERVICE      ;atiende el envio y la recepcion de datos por uart
+        GOTO    MAIN_LOOP         ;vuelve al inicio y repite el ciclo indefinidamente
 
 ;===============================================================================
-; RUTINA DE SERVICIO DE INTERRUPCION (TIMER0)
+; RUTINA DE INTERRUPCION (TIMER0)
 ;===============================================================================
-; La ISR solo atiende TIMER0 y solo fija X_SAMPLE_FLAG cada 20 ms. Guarda W y
-; STATUS porque BANKSEL modifica RP1:RP0. El ADC y las conversiones se hacen
-; en el bucle principal.
-ISR_INICIO:
-        MOVWF   W_TEMP          ; Guardado de contexto
-        SWAPF   STATUS,W
-        MOVWF   STATUS_TEMP
+ISR_INICIO:                     
+        MOVWF   W_TEMP          ; Guarda valor actual de w
+        SWAPF   STATUS,W        ;guarda STATUS y el banco activo para restaurarlo al salir
+        MOVWF   STATUS_TEMP      
 
-        BANKSEL INTCON
-        BTFSS   INTCON,2        ; T0IF
+        BANKSEL INTCON          ;selecciona el banco de intcon 
+        BTFSS   INTCON,2        ;comprueba TOIF, si no esta activado termina la rutina 
         GOTO    ISR_FIN
-        BCF     INTCON,2        ; Limpia T0IF
+        BCF     INTCON,2        ;limpia T0IF
 
-        BANKSEL TMR0
-        MOVLW   TMR0_RELOAD
+        BANKSEL TMR0            ;selecciona el banco de TMR0
+        MOVLW   TMR0_RELOAD     ;recarga TMR0 para mantener el intervalo de 1ms
         MOVWF   TMR0
 
-        BANKSEL T0_DIV
-        DECF    T0_DIV,F
-        BTFSS   STATUS,2        ; Z=1 cada 20 ticks
-        GOTO    ISR_FIN
-        MOVLW   X_SAMPLE_TICKS
-        MOVWF   T0_DIV
-        BSF     X_SAMPLE_FLAG,0
+        BANKSEL T0_DIV          ;selecciona el banco del contador de muestreo
+        DECF    T0_DIV,F        ;resta 1 al contador de ticks
+        BTFSS   STATUS,2        ;si el contador no llego a 0 termina la rutina 
+        GOTO    ISR_FIN         
+        MOVLW   X_SAMPLE_TICKS  ;reinicia el contador a 20
+        MOVWF   T0_DIV          
+        BSF     X_SAMPLE_FLAG,0 ;flag que marca que hay que leer los 3 ejes
 
-ISR_FIN:
-        SWAPF   STATUS_TEMP,W   ; Restauracion de contexto
+ISR_FIN:                        ;salida de la interrupcion
+        SWAPF   STATUS_TEMP,W   ;restaura STATUS (contexto)
         MOVWF   STATUS
-        SWAPF   W_TEMP,F
-        SWAPF   W_TEMP,W
-        RETFIE
+        SWAPF   W_TEMP,F        ;restaura el valor original de w 
+        SWAPF   W_TEMP,W  
+        RETFIE                  ;vuelve al programa interrumpido y habilita de nuevo las interrupciones 
 
 ;===============================================================================
 ; SUBRUTINAS
 ;===============================================================================
-
-;*******************************************************************************
-; @brief    Espera a que el oscilador interno este estable.
-; @details  Repite BTFSS OSCCON,2 hasta que HTS = 1.
-;*******************************************************************************
-ESPERA_OSC:
-        BANKSEL OSCCON
-        BTFSS   OSCCON,2        ; HTS: 1 cuando el HFINTOSC esta listo
-        GOTO    ESPERA_OSC
-        RETURN
+ESPERA_OSC:                     ;inicia la subrutina
+        BANKSEL OSCCON          ;selecciona el banco donde esta osscon
+        BTFSS   OSCCON,2        ;comprueba el bit hts: si esta en 1, entonces continua 
+        GOTO    ESPERA_OSC      ;si hts todavia es 0, lo vuelve a comprobar 
+        RETURN      
 
 ;*******************************************************************************
 ; @brief    Deja las salidas en estado inactivo e inicializa variables.
-; @details  LED1/LED2 apagados, digitos apagados, BZ_CTRL en alto (buzzer
-;           apagado) y segmentos apagados. Limpia FLAGS, el estado del buzzer
-;           y los resultados X/Y/Z.
 ;*******************************************************************************
-INIT_SALIDAS:
-        BANKSEL PORTA
-        CLRF    PORTA           ; LED1 y LED2 apagados
-        CLRF    PORTC           ; digitos apagados
-        BUZZER_OFF              ; BZ_CTRL = 1, buzzer apagado
-        CLRF    PORTD           ; segmentos apagados
-        CLRF    FLAGS
+INIT_SALIDAS:           ;inicia la rutina
+        BANKSEL PORTA   ;selecciona el banco de registro e los puertos
+        CLRF    PORTA   ;pone portA en cero y deja apagados los leds
+        CLRF    PORTC   ;pone portC en cero y deja apagados los digitos 
+        BUZZER_OFF      ;pone el control del buzzer en alto para apagarlo
+        CLRF    PORTD   ;apaga los segmentos del display
+        CLRF    FLAGS   ;limpia las banderas
 
-        BANKSEL BUZZ_DIV
-        CLRF    BUZZ_DIV
+        BANKSEL BUZZ_DIV ;selecciona el banco de las variables de estado
+        CLRF    BUZZ_DIV ;reinicia los contadores y la fase del buzzer 
         CLRF    BUZZ_CNT
         CLRF    BUZZ_PHASE
-        CLRF    X_MG_L
-        CLRF    X_MG_H
+        CLRF    X_MG_L   ;pone en cero los resultados de la aceleracion
+        CLRF    X_MG_H   
         CLRF    Y_MG_L
         CLRF    Y_MG_H
-        CLRF    Y_SIGN
-        CLRF    Z_L
+        CLRF    Y_SIGN  ;limpia los signos temporales de y,z
+        CLRF    Z_L     ;limpia la muestra de adc de z
         CLRF    Z_H
         CLRF    Z_MG_L
         CLRF    Z_MG_H
         CLRF    Z_SIGN
-        RETURN
+        RETURN          ;termina la rutina
 
 ;*******************************************************************************
 ; @brief    Configura TIMER0 como base de 1 ms e inicia su interrupcion.
-; @details  FOSC/4, prescaler 1:8 y recarga 6. T0_DIV se carga con
-;           X_SAMPLE_TICKS y X_SAMPLE_FLAG se limpia. GIE se habilita al final.
 ;*******************************************************************************
 TIMER0_INIT:
-        BANKSEL OPTION_REG
-        BCF     OPTION_REG,5    ; T0CS=0: reloj interno FOSC/4
-        BCF     OPTION_REG,3    ; PSA=0: prescaler asignado a TIMER0
-        BCF     OPTION_REG,2    ; PS2:PS0 = 010 -> 1:8
+        BANKSEL OPTION_REG    
+        BCF     OPTION_REG,5   ;selecciona un reloj interno fosc/4 para TMR0 --> 8Mhz/4 = 2Mhz   
+        BCF     OPTION_REG,3   ;asigna el prescaler a TMR0
+        BCF     OPTION_REG,2   ;prest¡caler 1:8
         BSF     OPTION_REG,1
         BCF     OPTION_REG,0
 
-        BANKSEL TMR0
-        MOVLW   TMR0_RELOAD
-        MOVWF   TMR0
+        BANKSEL TMR0           ;selecciona el banco de TMR0
+        MOVLW   TMR0_RELOAD    ;carga el valor inicial del contador, desbordamiento cada 1ms aprox
+        MOVWF   TMR0           
 
-        BANKSEL T0_DIV
-        MOVLW   X_SAMPLE_TICKS
-        MOVWF   T0_DIV
-        CLRF    X_SAMPLE_FLAG
+        BANKSEL T0_DIV         ;selecciona el banco del divisor de muestreo
+        MOVLW   X_SAMPLE_TICKS ;inicia el divisor en 20, va a contar 20 ticks antes de pedir una muestra de los ejes
+        MOVWF   T0_DIV         
+        CLRF    X_SAMPLE_FLAG  ;limpia la bandera de muestra pendiente
 
-        BANKSEL INTCON
-        BCF     INTCON,7        ; GIE se habilita al final
-        BCF     INTCON,2        ; Limpia T0IF pendiente
-        BSF     INTCON,5        ; T0IE
-        BSF     INTCON,7        ; GIE
+        BANKSEL INTCON         ;selecciona el banco de INTCON
+        BCF     INTCON,7       ;desabilita temporalmente las interrupciones globales mientras se configura TMR0
+        BCF     INTCON,2       ;limpia la bandera T0IF pendiente
+        BSF     INTCON,5       ;habilita la interrupcion de TMR0
+        BSF     INTCON,7       ;habilita las interrupciones globales
         RETURN
 
 ;*******************************************************************************
 ; @brief    Configura TIMER1 para el multiplexado de displays.
-; @details  Reloj interno FOSC/4, prescaler 1:1 y recarga 0xF830 (1 ms).
-;           El principal sondea TMR1IF; no hay interrupcion de TIMER1.
 ;*******************************************************************************
 DISPLAY_INIT:
-        BANKSEL T1CON
-        CLRF    T1CON           ; Detenido mientras se carga la precarga
+        BANKSEL T1CON           ;seleciona el banco de TMR1
+        CLRF    T1CON           ;detiene TMR1 mientras se configura 
 
-        BANKSEL TMR1H
-        MOVLW   TMR1_RELOAD_H
+        BANKSEL TMR1H           ;selecciona el banco de los registros del contador
+        MOVLW   TMR1_RELOAD_H   ;carga la parte alta del valor inicial
         MOVWF   TMR1H
-        MOVLW   TMR1_RELOAD_L
+        MOVLW   TMR1_RELOAD_L   ;carga la parte baja del valor inicial
         MOVWF   TMR1L
 
-        BANKSEL PIR1
-        BCF     PIR1,0          ; TMR1IF
+        BANKSEL PIR1            ;selecciona el banco de PIR1
+        BCF     PIR1,0          ;limpia la flag
 
-        BANKSEL T1CON
-        MOVLW   0x01            ; TMR1ON=1, FOSC/4, prescaler 1:1
+        BANKSEL T1CON           ;vuelve al banco de TMR1
+        MOVLW   0x01            ;inicia TMR1 con fosc/4 y el prescaler asignado
         MOVWF   T1CON
         RETURN
+;------------------------------------------------------------- O -------------------------------------------------------------------
 
 ;*******************************************************************************
 ; @brief    Avanza un digito cuando TIMER1 vence.
