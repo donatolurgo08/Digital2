@@ -1,12 +1,26 @@
 ;*******************************************************************************
 ; @brief       ANEXO B - FIRMWARE DEL SISTEMA HAND MOTION.
 ;
-; @brief       Descripción general del funcionamiento del firmware del sistema
-;              HAND MOTION.
+; @brief       Descripción general del funcionamiento del firmware desarrollado
+;              para el sistema HAND MOTION basado en el microcontrolador PIC16F887.
 ;
-; @details     Firmware desarrollado para la adquisición y el procesamiento
-;              de datos de aceleración mediante el microcontrolador PIC16F887.
-;              Incluye la comunicación serial con la interfaz gráfica.
+; @details     El firmware realiza la adquisición de señales analógicas
+;              provenientes de un sensor de temperatura LM35 y de un acelerómetro
+;              triaxial MMA7361, utilizando el módulo convertidor analógico-digital
+;              (ADC) del microcontrolador.
+;
+;              Implementa el procesamiento de las muestras correspondientes a
+;              los ejes X, Y y Z, la conversión de los valores obtenidos y la
+;              gestión de una alarma térmica mediante indicadores LED y buzzer.
+;
+;              También incorpora la actualización de un display de siete
+;              segmentos mediante multiplexado y la comunicación serial EUSART
+;              con una interfaz gráfica en computadora. Esta comunicación permite
+;              transmitir mediciones y estados del sistema, así como recibir
+;              comandos de configuración y control.
+;
+;              La temporización se gestiona mediante TIMER0 y TIMER1, empleando
+;              interrupciones y sondeo de periféricos según la función requerida.
 ;
 ; @author      Lurgo, Donato
 ;              Conde, Ana Victoria
