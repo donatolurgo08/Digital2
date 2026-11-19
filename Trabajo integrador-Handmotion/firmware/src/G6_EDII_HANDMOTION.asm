@@ -123,7 +123,7 @@
         STATUS_TEMP             ;guarda temporalmente el registro status al entrar en interrupcion
         ENDC
 
-; Banco 0: reservamos 16 variables en el banco 0, desde 0x20 hasta 0x2F para guardar muestras y resultados
+; Banco 0: reservamos 16 variables en el banco 0, desde 0x20 hasta 0x2F para guardar muestras y resultados (primera parte)
 
         CBLOCK  0x20   
         Y_L                     ; eje Y, byte bajo del ADC
@@ -144,10 +144,10 @@
         X_SAMPLE_FLAG           ; indica que hay una nueva lectura de x/y/z
         ENDC
 
-; Buffer circular de transmision: 32 bytes en 0x30-0x4F.
+; Buffer 
         TX_BUF  EQU     0x30    ;
 
-; Banco 0, segunda parte: estado del protocolo (0x50-0x6B).
+; Banco 0, segunda parte: 
         CBLOCK  0x50
         TX_HEAD                 ; indice de escritura
         TX_TAIL                 ; indice de lectura
